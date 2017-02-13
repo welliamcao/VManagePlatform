@@ -1,0 +1,69 @@
+{% extends "index.html" %}
+
+{% block content %}
+
+						<div class="error-container">
+									<div class="well">
+										<h1 class="grey lighter smaller">
+											<span class="blue bigger-125">
+												<i class="icon-sitemap"></i>
+												403
+											</span>
+											您无权操作此项
+										</h1>
+
+										<hr />
+										<h3 class="lighter smaller">尝试操作失败...</h3>
+
+										<div>
+											<form class="form-search">
+												<span class="input-icon align-middle">
+													<i class="icon-search"></i>
+
+													<input type="text" class="search-query" placeholder="Give it a search..." />
+												</span>
+												<button class="btn btn-sm" onclick="return false;">Go!</button>
+											</form>
+
+											<div class="space"></div>
+											<h4 class="smaller">尝试检查一下操作:</h4>
+
+											<ul class="list-unstyled spaced inline bigger-110 margin-15">
+												<li>
+													<i class="icon-hand-right blue"></i>
+													您是否有权限操作此项
+												</li>
+												<li>
+													<i class="icon-hand-right blue"></i>
+													您的权限是否过期
+												</li>
+												<li>
+													<i class="icon-hand-right blue"></i>
+													您的账户是否过期
+												</li>
+
+												<li>
+													<i class="icon-hand-right blue"></i>
+													联系管理员
+												</li>
+											</ul>
+										</div>
+
+										<hr />
+										<div class="space"></div>
+
+										<div class="center">
+											<a href="#" class="btn btn-grey">
+												<i class="icon-arrow-left"></i>
+												返回
+											</a>
+
+											<a href="/" class="btn btn-primary">
+												<i class="icon-dashboard"></i>
+												主页
+											</a>
+										</div>
+									</div>
+								</div>	
+
+{% endblock %}

@@ -1,0 +1,69 @@
+{% extends "index.html" %}
+
+{% block content %}
+
+						<div class="error-container">
+									<div class="well">
+										<h1 class="grey lighter smaller">
+											<span class="blue bigger-125">
+												<i class="icon-sitemap"></i>
+												404
+											</span>
+											主机链接连接失败
+										</h1>
+
+										<hr />
+										<h3 class="lighter smaller">尝试链接Libvirt远程服务器，连接失败...</h3>
+
+										<div>
+											<form class="form-search">
+												<span class="input-icon align-middle">
+													<i class="icon-search"></i>
+
+													<input type="text" class="search-query" placeholder="Give it a search..." />
+												</span>
+												<button class="btn btn-sm" onclick="return false;">Go!</button>
+											</form>
+
+											<div class="space"></div>
+											<h4 class="smaller">尝试检查一下操作:</h4>
+
+											<ul class="list-unstyled spaced inline bigger-110 margin-15">
+												<li>
+													<i class="icon-hand-right blue"></i>
+													Libvirt已经启动
+												</li>
+												<li>
+													<i class="icon-hand-right blue"></i>
+													Libvirt远程配置正确
+												</li>
+												<li>
+													<i class="icon-hand-right blue"></i>
+													Libvirt已配置允许远程访问
+												</li>
+
+												<li>
+													<i class="icon-hand-right blue"></i>
+													Libvirt已经开放防火墙端口
+												</li>
+											</ul>
+										</div>
+
+										<hr />
+										<div class="space"></div>
+
+										<div class="center">
+											<a href="#" class="btn btn-grey">
+												<i class="icon-arrow-left"></i>
+												返回
+											</a>
+
+											<a href="/" class="btn btn-primary">
+												<i class="icon-dashboard"></i>
+												主页
+											</a>
+										</div>
+									</div>
+								</div>	
+
+{% endblock %}

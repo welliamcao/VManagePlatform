@@ -1,0 +1,281 @@
+{% extends "index.html" %}
+
+{% block content %}
+
+	<div class="row">
+		<h3 class="header smaller lighter blue">
+				<i class="icon-wrench icon-animated-wrench"></i>
+				{{user.username}}详细信息
+			</h3>
+		<div class="col-xs-2">
+		</div>
+		<div class="col-xs-8">
+										
+			
+			<div class="widget-header widget-header-large">
+					<h4>
+						<i class="icon-edit"></i>
+						用户管理
+					</h4>
+			</div>
+
+		<div class="widget-body">
+			<div class="widget-main">
+					<div class="slim-scroll" data-height="100">
+																<form class="form-horizontal" role="form" id="modfilyUser">
+																
+							
+																<div class="space-4"></div>
+							
+																<div class="form-group">
+																	<label class="col-sm-3 control-label no-padding-right" for="form-input-readonly">
+																	<i class=" icon-user bigger-110 blue"></i>
+																	<strong> 用户名</strong> </label>
+							
+																	<div class="col-sm-9">
+																		<input class="input-sm" type="text" value="{{user.username}}" placeholder="用户名" name="username" />											
+																		<div class="space-2"></div>
+																		<div class="help-block" id="input-size-slider-3"></div>										
+																	</div>
+																</div>
+																									
+																<div class="form-group">
+																	<label class="col-sm-3 control-label no-padding-right" for="form-field-3">
+																	<i class=" icon-credit-card bigger-110 blue"></i>
+																	<strong>邮箱</strong></label>
+							
+																	<div class="col-sm-9">
+																		<input class="input-sm" type="text" id="form-field-3" value="{{user.email}}" placeholder="email" name="email" />											
+																		<div class="space-2"></div>
+																		<div class="help-block" id="input-size-slider-3"></div>										
+																	</div>
+																</div>									
+																<hr>
+																<div class="form-group">
+																	<label class="col-sm-3 control-label no-padding-right" for="form-field-4">
+																	{% if user.is_superuser == 0 %}
+																		<i class=" icon-remove bigger-110 red"></i>
+																		{% else %}
+																		<i class=" icon-ok bigger-110 green"></i>
+																	{% endif %}
+																	<strong>管理员</strong></label>
+																	<div class="col-sm-9">
+																		<select id="vStorage-select" name="is_superuser">
+																			{% if user.is_superuser == 0 %}
+																				<option selected="selected" value="0">否</option>
+																				<option value="1">是</option>																			
+																			{% else %}
+																				<option  value="0">否</option>
+																				<option selected="selected" value="1">是</option>
+																			{% endif %}																		
+																		</select>	
+																											
+																	</div>
+																</div>
+																
+																<div class="form-group">
+																	<label class="col-sm-3 control-label no-padding-right" for="form-field-4">
+																	{% if user.is_active == 0 %}
+																		<i class=" icon-remove bigger-110 red"></i>
+																		{% else %}
+																		<i class=" icon-ok bigger-110 green"></i>
+																	{% endif %}
+																	<strong>激活状态</strong>
+																	</label>
+							
+																	<div class="col-sm-9">
+																		<select id="vStorage-select" name="is_active">
+																			{% if user.is_active == 0 %}
+																				<option selected="selected" value="0">未激活</option>
+																				<option value="1">已激活</option>																			
+																			{% else %}
+																				<option  value="0">未激活</option>
+																				<option selected="selected" value="1">已激活</option>
+																			{% endif %}																		
+																		</select>									
+																	</div>
+																</div>
+																
+																
+							
+																<div class="form-group">
+																	<label class="col-sm-3 control-label no-padding-right" for="form-field-4">
+																	<i class=" icon-group bigger-110 blue"></i>
+																	<strong>用户分组</strong></label>
+							
+																	<div class="col-sm-9">
+																		<select multiple class="width-25 chosen-select" id="group"  data-placeholder="选择用户组">	
+																			<option value=""></option>
+																			{% for ds in groupList %}
+																				{% if ds.id in userGroupList %}			
+																					<option selected="selected" value="{{ds.id}}">{{ds.name}}</option>
+																				{% else %}
+																					<option value="{{ds.id}}">{{ds.name}}</option>
+																				{% endif %}
+																				
+																			{% endfor %}
+																		</select>	
+																																						
+																	</div>
+																</div>
+																
+																<div class="form-group">
+																	<label class="col-sm-3 control-label no-padding-right" for="form-field-4">
+																	<i class=" icon-eye-close bigger-110 blue"></i>
+																	<strong>分配权限</strong></label>
+							
+																	<div class="col-sm-9">
+																		<select multiple class="width-25 chosen-select" id="perm"  data-placeholder="选择权限">	
+																			<option value=""></option>
+																			{% for ds in permList %}
+																				{% if ds.id in userPermList %}
+																					<option selected="selected" value="{{ds.id}}">{{ds.name}}</option>
+																				{% else %}
+																					<option value="{{ds.id}}">{{ds.name}}</option>
+																				{% endif %}	
+																			{% endfor %}
+																		</select>	
+																																						
+																	</div>
+																</div>		
+																												
+
+																<div class="hr hr32 hr-dotted"></div>
+																<div class="form-group">
+																	<div class="col-md-offset-3 col-md-9">
+																		<button class="btn btn-info" type="button" onclick="onBtnHandleUser(this,{{user.id}},'{{user.username}}','modify')">
+																			<i class="icon-ok bigger-110"></i>
+																			提交
+																		</button>
+							
+																		&nbsp; &nbsp; &nbsp;
+																		<button class="btn" type="reset">
+																			<i class="icon-undo bigger-110"></i>
+																			撤销
+																		</button>
+																	</div>
+																</div>						
+															</form>	
+															</div>
+					</div><!-- /.col -->
+				</div><!-- /.row -->
+			</div><!-- /.page-content -->							
+		</div>
+	</div>	
+
+
+
+		<script type="text/javascript">
+			if("ontouchend" in document) document.write("<script src='/static/js/jquery.mobile.custom.min.js'>"+"<"+"/script>");
+		</script>
+
+
+		<!-- page specific plugin scripts -->
+
+		<script src="/static/js/jquery.dataTables.min.js"></script>
+		<script src="/static/js/jquery.dataTables.bootstrap.js"></script>
+
+		<script type="text/javascript">
+
+			jQuery(function($) {
+				var oTable1 = $('#sample-table-2').dataTable( {
+				"aoColumns": [
+			      { "bSortable": false },
+			      null, null,null, null, null,
+				  { "bSortable": false }
+				] } );
+				
+				$(".chosen-select").chosen(); 
+				$('#chosen-multiple-style').on('click', function(e){
+					var target = $(e.target).find('input[type=radio]');
+					var which = parseInt(target.val());
+					if(which == 2) $('#form-field-select-4').addClass('tag-input-style');
+					 else $('#form-field-select-4').removeClass('tag-input-style');
+				});
+				
+				$('table th input:checkbox').on('click' , function(){
+					var that = this;
+					$(this).closest('table').find('tr > td:first-child input:checkbox')
+					.each(function(){
+						this.checked = that.checked;
+						$(this).closest('tr').toggleClass('selected');
+					});
+						
+				});
+			
+			
+				$('[data-rel="tooltip"]').tooltip({placement: tooltip_placement});
+				function tooltip_placement(context, source) {
+					var $source = $(source);
+					var $parent = $source.closest('table')
+					var off1 = $parent.offset();
+					var w1 = $parent.width();
+			
+					var off2 = $source.offset();
+					var w2 = $source.width();
+			
+					if( parseInt(off2.left) < parseInt(off1.left) + parseInt(w1 / 2) ) return 'right';
+					return 'left';
+				}
+			})
+			
+			function onBtnHandleUser(obj, id,user,op){
+				var btnObj = $(obj);
+				btnObj.attr('disabled',true);
+				var required = ['username','email'];
+				var server_data = {};
+				var form = document.getElementById('modfilyUser');
+				for (var i = 0; i < form.length; ++i) {
+					var name = form[i].name;
+					var value = form[i].value;	
+					idx = $.inArray(name, required);	
+					if (idx >= 0 && value.length == 0){
+						btnObj.removeAttr('disabled');
+						window.wxc.xcConfirm("请注意必填项不能为空~", window.wxc.xcConfirm.typeEnum.error);
+						return false;
+					}
+					else if(  value.length != 0 && name.length != 0 ){
+						server_data[name] = value;
+					};				
+				};			
+				server_data['op'] = op;
+				server_data['id'] = id;
+				server_data['username'] = user;
+				var permList = '';    
+				 $("#perm :selected").each(function(){
+					 permList += $(this).val() +  ','    
+				 });	
+				if (permList.length > 0){
+					server_data.perm = permList.substring(0,permList.length-1);
+				};
+				var groupList = '';    
+				 $("#group :selected").each(function(){
+					 groupList += $(this).val() +  ','    
+				 });	
+				if (groupList.length > 0){
+					server_data.group = groupList.substring(0,groupList.length-1);
+				};
+				$.ajax({
+					dataType: "JSON",
+					url:'/usermanage/', //请求地址
+					type:"POST",  //提交类似
+					data:server_data,  //提交参数
+					success:function(response){
+						btnObj.removeAttr('disabled');
+						if (response["code"] == 200){
+							window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
+						}
+						else {
+							window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+						}
+						
+					},
+			    	error:function(response){
+			    		btnObj.removeAttr('disabled');
+			    		window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+			    	}
+				})
+		}
+
+</script>
+{% endblock %}

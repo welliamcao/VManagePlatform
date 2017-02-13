@@ -1,0 +1,1496 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>虚拟化管理平台</title>
+		<meta name="keywords" content="虚拟化,管理" />
+		<meta name="description" content="虚拟化,管理,KVM" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	    <script src="/static/js/jquery-1.11.1.min.js"></script>
+	    <script src="/static/js/jquery.form.js"></script>	
+	    <script src="/static/js/jquery.easy-pie-chart.min.js"></script>	
+		<!-- basic styles -->
+		<link href="/static/css/bootstrap.min.css" rel="stylesheet" />
+		<link rel="stylesheet" href="/static/css/font-awesome.min.css" />
+		<!--   csrf -->
+		<script src="/static/js/csrf.js"></script>
+		<!--    弹窗开始样式 -->
+   		<script src="/static/js/xcConfirm.js" type="text/javascript" charset="utf-8"></script>
+   		<link rel="stylesheet" type="text/css" href="/static/css/xcConfirm.css"/>
+		<script src="/static/js/echarts.js"></script>
+		<!--[if IE 7]>
+		  <link rel="stylesheet" href="/static/css/font-awesome-ie7.min.css" />
+		<![endif]-->
+
+		<!-- page specific plugin styles -->
+
+		<!-- fonts -->
+		
+		<link rel="stylesheet" href="/static/css/jquery-ui-1.10.3.custom.min.css" />
+		<link rel="stylesheet" href="/static/css/chosen.css" />
+		<link rel="stylesheet" href="/static/css/datepicker.css" />
+		<link rel="stylesheet" href="/static/css/bootstrap-timepicker.css" />
+		<link rel="stylesheet" href="/static/css/daterangepicker.css" />
+		<link rel="stylesheet" href="/static/css/colorpicker.css" />
+		
+		<!-- ace styles -->
+
+		<link rel="stylesheet" href="/static/css/ace.min.css" />
+		<link rel="stylesheet" href="/static/css/ace-rtl.min.css" />
+		<link rel="stylesheet" href="/static/css/ace-skins.min.css" />
+		
+		
+		<!--[if lte IE 8]>
+		  <link rel="stylesheet" href="/static/css/ace-ie.min.css" />
+		<![endif]-->
+
+		<!-- inline styles related to this page -->
+
+		<!-- ace settings handler -->
+		<script src="/static/js/ace-extra.min.js"></script>
+		
+<!-- 		<link rel="stylesheet" href="/static/css/bootstrap-select.min.css" /> -->
+<!-- 		<script src="/static/js/bootstrap-select.min.js"></script> -->
+
+		<!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+
+		<!--[if lt IE 9]>
+		<script src="/static/js/html5shiv.js"></script>
+		<script src="/static/js/respond.min.js"></script>
+		<![endif]-->
+		
+		
+	</head>
+
+	<body>
+		<div class="navbar navbar-default" id="navbar">
+			<script type="text/javascript">
+				try{ace.settings.check('navbar' , 'fixed')}catch(e){}
+			</script>
+
+			<div class="navbar-container" id="navbar-container">
+				<div class="navbar-header pull-left">
+					<a href="#" class="navbar-brand">
+						<small>
+							<i class="icon-leaf"></i>
+							虚拟化管理平台
+						</small>
+					</a><!-- /.brand -->
+				</div><!-- /.navbar-header -->
+
+				<div class="navbar-header pull-right" role="navigation">
+					<ul class="nav ace-nav">
+						
+
+						<li class="light-blue">
+							<a data-toggle="dropdown" href="#" class="dropdown-toggle">
+								<img class="nav-user-photo" src="/static/avatars/user.jpg" alt="Jason's Photo" />
+								<span class="user-info">
+									<small>欢迎光临,</small>
+									{{ user.username }}
+								</span>
+
+								<i class="icon-caret-down"></i>
+							</a>
+
+							<ul class="user-menu pull-right dropdown-menu dropdown-yellow dropdown-caret dropdown-close">
+								<li>
+									<a href="/profile">
+										<i class="icon-cog"></i>
+										设置
+									</a>
+								</li>
+
+								<li>
+									<a href="/profile">
+										<i class="icon-user"></i>
+										个人资料
+									</a>
+								</li>
+
+								<li class="divider"></li>
+
+								<li>
+									<a href="/logout">
+										<i class="icon-off"></i>
+										退出
+									</a>
+								</li>
+							</ul>
+						</li>
+					</ul><!-- /.ace-nav -->
+				</div><!-- /.navbar-header -->
+			</div><!-- /.container -->
+		</div>
+
+		<div class="main-container" id="main-container">
+			<script type="text/javascript">
+				try{ace.settings.check('main-container' , 'fixed')}catch(e){}
+			</script>
+
+			<div class="main-container-inner">
+				<a class="menu-toggler" id="menu-toggler" href="#">
+					<span class="menu-text"></span>
+				</a>
+
+				<div class="sidebar" id="sidebar">
+					<script type="text/javascript">
+						try{ace.settings.check('sidebar' , 'fixed')}catch(e){}
+					</script>
+
+					<div class="sidebar-shortcuts" id="sidebar-shortcuts">
+						<div class="sidebar-shortcuts-large" id="sidebar-shortcuts-large">
+							<button class="btn btn-success">
+								<i class="icon-signal"></i>
+							</button>
+
+							<button class="btn btn-info">
+								<i class="icon-pencil"></i>
+							</button>
+
+							<button class="btn btn-warning">
+								<i class="icon-group"></i>
+							</button>
+
+							<button class="btn btn-danger">
+								<i class="icon-cogs"></i>
+							</button>
+						</div>
+
+						<div class="sidebar-shortcuts-mini" id="sidebar-shortcuts-mini">
+							<span class="btn btn-success"></span>
+
+							<span class="btn btn-info"></span>
+
+							<span class="btn btn-warning"></span>
+
+							<span class="btn btn-danger"></span>
+						</div>
+					</div><!-- #sidebar-shortcuts -->
+
+					<ul class="nav nav-list">
+						<li class="active">
+							<a href="/">
+								<i class="icon-hand-left"></i>
+								<span class="menu-text"> 返回控制台 </span>
+							</a>
+						</li>
+
+						<li class="active open">
+							<a href="#" class="dropdown-toggle">
+								<i class="icon-desktop"></i>
+								<span class="menu-text"> 虚拟机管理器 </span>
+
+								<b class="arrow icon-angle-down"></b>
+							</a>
+
+							<ul class="submenu">
+							
+								<li>
+										<li>
+											<a href="/viewServer/?op=view&id={{vmServer.id}}">
+												<i class="icon-leaf"></i>
+												{{ vmServer.server_ip }}
+											</a>
+										</li>
+						</li>							
+
+						<li>
+								
+
+								<ul class="submenu">
+
+
+								
+						</li>																			
+					</ul>
+								</li>
+							</ul>
+						</li>
+
+						<li class="active open">
+							<a href="#" class="dropdown-toggle">
+								<i class=" icon-laptop"></i>
+								<span class="menu-text"> 虚拟机实例 </span>
+
+								<b class="arrow icon-angle-down"></b>
+							</a>
+
+							<ul class="submenu">
+							
+								<li>
+									<a href="/listInstance/?id={{vmServer.id}}">
+										<i class="icon-double-angle-right"></i>
+										管理实例
+									</a>
+								</li>															
+								<li>
+									<a href="/addInstance/?id={{vmServer.id}}">
+										<i class="icon-double-angle-right"></i>
+										创建实例
+									</a>
+								</li>	
+
+							</ul>
+						</li>
+
+
+						<li>
+							<a href="/listStorage/?id={{vmServer.id}}" class="dropdown-toggle">
+								<i class="icon-hdd"></i>
+								<span class="menu-text"> 存储池管理</span>
+
+								
+							</a>
+						</li>
+
+						<li>
+							<a href="/configNetwork/?id={{vmServer.id}}" class="dropdown-toggle">
+								<i class="icon-globe"></i>
+								<span class="menu-text"> 网络管理</span>
+
+								
+							</a>
+						</li>
+
+
+
+
+
+
+					</ul><!-- /.nav-list -->
+
+					<div class="sidebar-collapse" id="sidebar-collapse">
+						<i class="icon-double-angle-left" data-icon1="icon-double-angle-left" data-icon2="icon-double-angle-right"></i>
+					</div>
+
+					<script type="text/javascript">
+						try{ace.settings.check('sidebar' , 'collapsed')}catch(e){}
+					</script>
+				</div>
+
+				<div class="main-content">
+					<div class="breadcrumbs" id="breadcrumbs">
+						<script type="text/javascript">
+							try{ace.settings.check('breadcrumbs' , 'fixed')}catch(e){}
+						</script>
+
+						<ul class="breadcrumb">
+							{% for ds in localtion %}
+								{% if forloop.counter == 1 %}
+								<li>
+									<i class="icon-home home-icon"></i>
+									<a href="{{ ds.url }}">{{ ds.name }}</a>
+								</li>	
+								{% else  %}
+								<li>
+									
+									<a href="{{ ds.url }}">{{ ds.name }}</a>
+								</li>									
+								{% endif %}						   
+							{% endfor %}
+
+						</ul><!-- .breadcrumb -->
+
+						<div class="nav-search" id="nav-search">
+							<form class="form-search">
+								<span class="input-icon">
+									<input type="text" placeholder="Search ..." class="nav-search-input" id="nav-search-input" autocomplete="off" />
+									<i class="icon-search nav-search-icon"></i>
+								</span>
+							</form>
+						</div><!-- #nav-search -->
+					</div>
+
+					<div class="page-content">
+{% block content %}
+	{% if vmServer %}
+		
+
+
+<!-- 图示区域 -->
+
+	<div class="row">	
+	
+
+	 
+		<div class="col-xs-12">
+			<h3 class="header smaller lighter blue">
+			<i class="icon-hand-right icon-animated-hand-pointer blue"></i>
+			{{ vmServer.name }}详细信息</h3>
+			<div class="table-header"></div>		
+			<div class="tabbable">
+				<ul class="nav nav-tabs padding-12 tab-color-blue background-blue" id="myTab4">
+					<li class="active">
+						<a data-toggle="tab" href="#home4">宿主机</a>
+					</li>
+
+					<li>
+						<a data-toggle="tab" href="#profile4">存储池</a>
+					</li>
+
+					<li>
+						<a data-toggle="tab" href="#dropdown14">实例</a>
+					</li>
+				</ul>
+
+				<div class="tab-content">
+						<div id="home4" class="tab-pane in active">
+			
+
+											<div class="profile-user-info profile-user-info-striped">
+												<div class="profile-info-row">
+													<div class="profile-info-name"> 主机名称 </div>
+
+													<div class="profile-info-value">
+														<span class="editable" >{{ vmServer.name }}</span>
+													</div>
+												</div>
+
+												<div class="profile-info-row">
+													<div class="profile-info-name"> 管理IP </div>
+
+													<div class="profile-info-value">
+														<i class="icon-map-marker light-orange bigger-110"></i>
+														<span class="editable" >{{ vmServer.server_ip }}</span>
+<!-- 														<span class="editable" id="city">Amsterdam</span> -->
+													</div>
+												</div>
+
+												<div class="profile-info-row">
+													<div class="profile-info-name"> CPU型号 </div>
+
+													<div class="profile-info-value">
+														<span class="editable" >{{ vmServer.cpu_model }}</span>
+													</div>
+												</div>
+
+												<div class="profile-info-row">
+													<div class="profile-info-name"> CPU主频(mhz) </div>
+
+													<div class="profile-info-value">
+														<span class="editable" >{{ vmServer.cpu_mhz }}</span>
+													</div>
+												</div>
+
+												<div class="profile-info-row">
+													<div class="profile-info-name"> 最大CPU数 </div>
+
+													<div class="profile-info-value">
+														<span class="editable" >{{ vmServer.cpu_total }}</span>
+													</div>
+												</div>
+
+												<div class="profile-info-row">
+													<div class="profile-info-name"> 内存容量(MB) </div>
+
+													<div class="profile-info-value">
+														<span class="editable" >{{ vmServer.mem }}</span>
+													</div>
+												</div>
+												
+												<div class="profile-info-row">
+													<div class="profile-info-name"> 内存使用率 </div>
+
+													<div class="profile-info-value ">
+														<span class="editable" >
+<!-- 															<div class="progress"> -->
+<!-- 																<div class="progress-bar" role="progressbar" aria-valuenow="60" -->
+<!-- 																	 aria-valuemin="0" aria-valuemax="100" style="width:40%;"> -->
+<!-- 																	<span class="sr-only ">40% 完成</span> -->
+<!-- 																</div> -->
+<!-- 															</div>														 -->
+															{% if vmServer.mem_per > 90  %}
+																<div class="easy-pie-chart percentage" data-percent="{{ vmServer.mem_per }}" data-color="#D15B47">
+																	<span class="percent">{{ vmServer.mem_per }}</span>%
+																</div>	
+															{% elif 70 < vmServer.mem_per and vmServer.mem_per < 90 %}	
+																<div class="easy-pie-chart percentage" data-percent="{{ vmServer.mem_per }}" data-color="#87CEEB">
+																	<span class="percent">{{ vmServer.mem_per }}</span>%
+																</div>												
+															{% else %}
+																<div class="easy-pie-chart percentage" data-percent="{{ vmServer.mem_per }}" data-color="#87B87F">
+																	<span class="percent">{{ vmServer.mem_per }}</span>%
+																</div>							
+															{% endif %}												
+														</span>
+													</div>
+												</div>	
+												
+												<div class="profile-info-row">
+													<div class="profile-info-name"> 实例个数 </div>
+
+													<div class="profile-info-value">
+														<span class="editable badge badge-success">
+															{{ vmServer.ins }}
+														</span>
+													</div>
+												</div>
+
+												<div class="profile-info-row">
+													<div class="profile-info-name"> 状态 </div>
+
+													<div class="profile-info-value">
+														<span class="editable">
+										                   	{% if vmServer.status == 0 %}
+										                   		 <span class="label label-success arrowed">on</span>
+										                   	{% else %}
+										                   		 <span class="label label-danger arrowed-in">off</span>
+										                   	{% endif %}														
+														</span>
+													</div>
+												</div>
+												
+												<div class="profile-info-row">
+													<div class="profile-info-name"> 虚拟化类型</div>
+
+													<div class="profile-info-value">
+														<span class="editable">{{ vmServer.type }}</span>
+													</div>
+												</div>																										
+												
+												<div class="profile-info-row">
+													<div class="profile-info-name"> 虚拟化版本</div>
+
+													<div class="profile-info-value">
+														<span class="editable">{{ vmServer.version }}</span>
+													</div>
+												</div>												
+																							
+											</div>
+
+
+						</div>
+
+						<div id="profile4" class="tab-pane">
+								
+							<div class="widget-toolbox padding-8 clearfix">
+		
+									<button class="btn btn-xs btn-success pull-left" onclick="window.location.href='/addStorage/?id={{vmServer.id}}'">
+										<i class="icon-arrow-right icon-plus"></i>
+										<span class="bigger-110">添加存储池</span>
+									</button>
+							</div>				
+							
+						     <table class="table table-bordered table-hover table-striped tablesorter">
+						           <tbody>
+							                <tr>
+							                   	<td class="col-xs-1">
+							                      <strong>存储池名字	</strong>			                   	
+							                	</td>
+							                	<td >
+								                  <strong>容量大小(GB)	</strong>
+							                	</td>
+							                	<td >
+								                  <strong>可用容量(GB)	</strong>
+							                	</td>
+							                	<td class="center">
+								                  <strong>已使用	</strong>
+							                	</td>							                	
+							                	<td>
+								                  <strong>是否激活	</strong>
+							                	</td>
+							                	<td>
+								                  <strong>卷个数	</strong>
+							                	</td>			
+							                	<td class="col-xs-1">
+								                  <strong>操作	</strong>
+							                	</td>					                			                							                						                	
+							                </tr>				           	
+						           		{% for ds in vmStorage %}				        
+							                <tr>
+							                	<td>
+								                  {{ ds.pool_name }}
+							                	</td>
+							                		
+							            
+							                	<td>						                 
+								                  {{ ds.pool_size }}
+							                	</td>
+							                
+							                
+							                	<td>
+								                  {{ ds.pool_available }}
+							                	</td>
+							                	<td>
+													<div class="progress  progress-striped" data-percent="{{ ds.pool_per }}%">
+														{% if ds.pool_per > 90  %}
+															<div class="progress-bar progress-bar-danger" style="width: {{ ds.pool_per }}%;"></div>
+														{% elif 70 < ds.pool_per and ds.pool_per < 90 %}
+															<div class="progress-bar progress-bar-yellow" style="width: {{ ds.pool_per }}%;"></div>
+														{% else %}
+															<div class="progress-bar progress-bar-success" style="width: {{ ds.pool_per }}%;"></div>
+														{% endif %}
+													</div>	
+							                	</td>							                	
+							                
+							                	<td>
+								                   	{% if ds.pool_active == 1 %}
+								                   		 <i class="icon-circle green"></i>
+								                   	{% else %}
+								                   		 <i class="text-warning bigger-110 orange"></i>
+								                   	{% endif %}						                  
+							                	</td>
+							               
+							                
+							                	<td>
+								                  {{ ds.pool_volumes }}
+							                	</td>
+							                
+							                	<td>
+													<div class="btn-group">
+														<button data-toggle="dropdown" class="btn btn-inverse btn-sm dropdown-toggle">
+															<i class="icon-wrench  bigger-110 icon-only"> </i>
+															<span class="icon-caret-down icon-on-right"></span>
+														</button>
+		
+														<ul class="dropdown-menu dropdown-info pull-right">
+															<li>
+																<a href="#">禁用</a>
+															</li>
+		
+															<li>
+																<a href="#">新增卷</a>
+															</li>
+		
+															<li>
+																<a href="#">删除卷</a>
+															</li>
+		
+															<li class="divider"></li>
+		
+															<li>
+																<a href="javascript:" onclick="onBtnHandleStorage(this,{{ vmServer.id }},'{{ vmServer.server_ip }}','{{ ds.pool_name }}','delete')">删除存储池</a>
+															</li>													
+														</ul>
+													</div>						                  
+							                	</td>					                	
+							                </tr>
+							                					                						                				                					                		           			
+						           		{% endfor %}
+						                					                				                			                				                				                				                		                		                      			                      				                      				                      				                      
+						           </tbody>
+						      </table>									
+								
+						</div>
+
+						<div id="dropdown14" class="tab-pane">
+							<div class="widget-toolbox padding-8 clearfix">
+		
+									<button class="btn btn-xs btn-success pull-left" onclick="window.location.href='/addInstance/?id={{vmServer.id}}'">
+										<i class="icon-arrow-right icon-plus"></i>
+										<span class="bigger-110">新增实例</span>
+									</button>
+							</div>	
+							
+						     <table class="table table-bordered table-hover table-striped tablesorter">
+						           <tbody>
+							                <tr>
+							                   	<td class="center">
+							                      <strong>实例名称	</strong>			                   	
+							                	</td>
+							                	<td class="center">
+								                  <strong>CPU个数	</strong>
+							                	</td>
+							                	<td class="center">
+								                  <strong>内存容量(MB)	</strong>
+							                	</td>
+							                	<td>
+								                  <strong>内存使用率</strong>
+							                	</td>
+							                	<td class="center">
+								                  <strong>磁盘信息	</strong>
+							                	</td>	
+							                	<td class="center">
+								                  <strong> 网络接口	</strong>
+							                	</td>	
+							                	<td class="center">
+								                  <strong>VNC端口	</strong>
+							                	</td>					                	
+							                	<td class="center">
+								                  <strong>状态	</strong>
+							                	</td>					                					                			
+							                	<td>
+								                  <strong>操作	</strong>
+							                	</td>					                			                							                						                	
+							                </tr>				           	
+						           		{% for ds in vmInstance %}				        
+							                <tr>
+							                	<td class="center">
+							                	<a href="/viewInstance/?id={{vmServer.id}}&vm_name={{ ds.name }}">
+								                  {{ ds.name }}
+								                  </a>
+							                	</td>
+							                		
+							            
+							                	<td class="center">						                 
+								                  {{ ds.cpu }}
+							                	</td>
+							                
+							                
+							                	<td class="center">
+								                  {{ ds.mem }}
+							                	</td>
+							                	
+							                
+							                	<td>
+													<div class="progress  progress-striped" data-percent="{{ ds.mem_per }}%">
+														{% if ds.mem_per > 90  %}
+															<div class="progress-bar progress-bar-danger" style="width: {{ ds.mem_per }}%;"></div>
+														{% elif 70 < ds.mem_per and ds.mem_per < 90 %}
+															<div class="progress-bar progress-bar-yellow" style="width: {{ ds.mem_per }}%;"></div>
+														{% else %}
+															<div class="progress-bar progress-bar-success" style="width: {{ ds.mem_per }}%;"></div>
+														{% endif %}
+													</div>	
+							                	</td>
+		
+							                	<td class="center">
+								                  {% for vd in ds.disk %}					                 						                  
+								                  <a href="#" id="disk_details_{{ds.name}}_{{ forloop.counter }}" class="link-popover" rel="popover" tabindex="0" data-trigger="focus" data-content="
+													<table class='table table-bordered'>
+														<tr>
+															<th>容量</th>
+															<td>{{ vd.disk_size }}</td>
+														</tr>
+														<tr>
+															<th>已用空间</th>
+															<td>{{ vd.disk_capacity }}</td>
+															</tr>
+														<tr>
+															<th>设备号</th>
+															<td>{{vd.disk_sn}}</td>
+														</tr>
+														<tr>
+															<th>使用率</th>
+															<td>																
+																<div class='progress  progress-striped' data-percent='{{ vd.disk_per }}%'>
+
+																	{% if vd.disk_per > 90 %}
+																		<div class='progress-bar progress-bar-danger' style='width: {{ vd.disk_per }}%;'></div>
+																	{% elif vd.disk_per > 70 and vd.disk_per < 90 %}
+																		<div class='progress-bar progress-bar-yellow' style='width: {{ vd.disk_per }}%;'></div>																		
+																	{% else %}
+																		<div class='progress-bar progress-bar-success' style='width: {{ vd.disk_per }}%;'></div>
+																	{% endif %}
+																</div>															
+															</td>
+														</tr>														
+														<tr>
+															<th>磁盘路径</th>
+															<td>{{ vd.disk_path}}</td>
+														</tr>
+														</table>
+													" data-original-title="{{ vd.disk_sn }}磁盘详情">{{ vd.disk_sn }}</a>
+													<br>
+												 {% endfor %}
+							                	</td>
+		
+							                	<td class="center">
+							                	  
+							                	  {{ ds.netk }}
+								                  
+							                	</td>
+							                	<td class="center">
+								                  {{ ds.vnc }}
+							                	</td>					                						                
+							                	<td class="center">
+								                   	{% if ds.status == 1 %}
+								                   		 <i class="icon-play green"></i>
+								                   	{% elif ds.status == 3 %}
+								                   		 <i class="icon-pause orange"></i>
+								                   	{% elif ds.status == 5 %}
+								                   		 <i class="icon-stop red"></i>						                   		 
+								                   	{% endif %}						                  
+							                	</td>
+							               
+							                
+							                	<td>
+													<div class="btn-group">
+														<button data-toggle="dropdown" class="btn btn-inverse btn-sm dropdown-toggle">
+															<i class="icon-wrench  bigger-110 icon-only"> </i>
+															<span class="icon-caret-down icon-on-right"></span>
+														</button>
+		
+														<ul class="dropdown-menu dropdown-info pull-right">
+															<li>
+																<a href="/vnc?vs={{ vmServer.id }}&vm={{ ds.name }}&vnc={{ ds.vnc }}&token={{ ds.token }}" target="_black">
+																<i class="icon-desktop bigger-120"></i>
+																控制台
+																</a>
+															</li>	
+															<li class="divider"></li>											
+															<li>
+																<a  href="javascript:" onclick="onBtnHandleIns(this,{{ vmServer.id }},'{{ ds.name }}','start')">
+																<i class="icon-headphones bigger-120"></i>
+																启动
+																</a>
+															</li>
+		
+															<li>
+																<a  href="javascript:" onclick="onBtnHandleIns(this,{{ vmServer.id }},'{{ ds.name }}','suspend')">
+																<i class="icon-pause bigger-120"></i>
+																暂停
+																</a>
+															</li>
+															<li>
+																<a href="javascript:" onclick="onBtnHandleIns(this,{{ vmServer.id }},'{{ ds.name }}','resume')">
+																<i class="icon-play bigger-120"></i>
+																	恢复
+																</a>
+															</li>
+															<li>
+																<a href="javascript:" onclick="onBtnHandleIns(this,{{ vmServer.id }},'{{ ds.name }}','reboot')">
+																	<i class="icon-repeat bigger-120"></i>
+																	重启
+																</a>
+															</li>
+															<li>
+																<a href="javascript:" onclick="onBtnHandleIns(this,{{ vmServer.id }},'{{ ds.name }}','shutdown')">
+																	<i class="icon-stop bigger-120"></i>
+																	关闭
+																</a>
+															</li>
+		
+															<li>
+															
+																<a  href="javascript:" onclick="onBtnHandleIns(this,{{ vmServer.id }},'{{ ds.name }}','halt')">
+																	<i class="icon-off bigger-120"></i>
+																	强制关闭
+																</a>
+															</li>													
+															<li class="divider"></li>
+															<li>
+																<a  href="/modfInstance?op=attach&id={{ vmServer.id }}&vm={{ ds.name }}" >
+																<i class="icon-ok bigger-120"></i>
+																添加设备
+																</a>
+															</li>
+															<li>
+																<a href="/modfInstance?op=detach&id={{ vmServer.id }}&vm={{ ds.name }}">
+																<i class="icon-remove bigger-120"></i>
+																删除设备
+																</a>
+															</li>													
+															<li class="divider"></li>
+															<li>
+																<a class="black" href="javascript:" onclick="snapshotInstance(this,{{ vmServer.id }},'{{ ds.name }}','snapshot')">
+																	<i class="icon-camera bigger-120"></i>
+																	创建快照
+																</a>		
+															</li>
+
+															<li>
+																<a  href="/listSnapshot?id={{ vmServer.id }}&vm_name={{ ds.name }}">		
+																<i class="icon-camera-retro bigger-120"></i>												
+																快照管理
+																</a>
+															</li>															
+															
+															<li class="divider"></li>
+															<li>
+																<a  href="javascript:" onclick="onBtnHandleIns(this,{{ vmServer.id }},'{{ ds.name }}','delete')">
+																	<i class="icon-trash bigger-120"></i>
+																	删除主机
+																</a>
+															</li>
+														</ul>
+													</div>						                  
+							                	</td>					                	
+							                </tr>
+							                					                						                				                					                		           			
+						           		{% endfor %}
+						                					                				                			                				                				                				                		                		                      			                      				                      				                      				                      
+						           </tbody>
+						      </table>									
+						</div>
+				</div>
+			</div>
+		</div>	
+				
+	
+
+										
+			
+	
+		
+			
+	</div>
+	
+	<div class="row col-xs-12">	
+		
+			<h3 class="header smaller lighter blue">
+			<i class="icon-hand-right icon-animated-hand-pointer blue"></i>
+			{{ vmServer.name }}资源占比</h3>
+			<div class="table-header"></div>	
+		
+		<div class="col-xs-4 col-sm-4 widget-container-span">
+					
+		
+			<div class="widget-box">
+				<div class="widget-header widget-header-large">
+					<h4>
+						<i class="icon-dashboard"></i>
+						实例状态
+					</h4>
+
+					<div class="widget-toolbar">
+						<a href="#" data-action="settings">
+							<i class="icon-cog"></i>
+						</a>
+	
+						<a href="#" data-action="reload">
+							<i class="icon-refresh"></i>
+						</a>
+	
+						<a href="#" data-action="collapse">
+							<i class="icon-chevron-up"></i>
+						</a>
+	
+						<a href="#" data-action="close">
+							<i class="icon-remove"></i>
+						</a>
+					</div>
+				</div>
+
+			<div class="widget-body">
+				<div class="widget-main">				     
+					<div id="insView" style="height:400px"></div>
+				</div>
+				</div>
+			</div>
+		</div>
+	
+		<div class="col-xs-4 col-sm-4 widget-container-span">
+			<div class="widget-box">
+				<div class="widget-header widget-header-large">
+					<h4>
+						<i class="icon-dashboard"></i>
+						CPU资源分配
+					</h4>
+
+					<div class="widget-toolbar">
+						<a href="#" data-action="settings">
+							<i class="icon-cog"></i>
+						</a>
+	
+						<a href="#" data-action="reload">
+							<i class="icon-refresh"></i>
+						</a>
+	
+						<a href="#" data-action="collapse">
+							<i class="icon-chevron-up"></i>
+						</a>
+	
+						<a href="#" data-action="close">
+							<i class="icon-remove"></i>
+						</a>
+					</div>
+				</div>
+
+			<div class="widget-body">
+				<div class="widget-main">				     
+					<div id="cpuView" style="height:400px"></div>
+				</div>
+				</div>
+			</div>
+		</div>		
+	
+		<div class="col-xs-4 col-sm-4 widget-container-span">
+			<div class="widget-box">
+				<div class="widget-header widget-header-large">
+					<h4>
+						<i class="icon-dashboard"></i>
+						内存资源分配
+					</h4>
+
+					<div class="widget-toolbar">
+						<a href="#" data-action="settings">
+							<i class="icon-cog"></i>
+						</a>
+	
+						<a href="#" data-action="reload">
+							<i class="icon-refresh"></i>
+						</a>
+	
+						<a href="#" data-action="collapse">
+							<i class="icon-chevron-up"></i>
+						</a>
+	
+						<a href="#" data-action="close">
+							<i class="icon-remove"></i>
+						</a>
+					</div>
+				</div>
+
+			<div class="widget-body">
+				<div class="widget-main">
+				     
+					<div id="memView" style="height:400px"></div>
+				</div>
+				</div>
+			</div>
+		</div>		
+		
+	</div>
+
+
+
+<script type="text/javascript"> 
+
+	jQuery(function($) {
+	var oldie = /msie\s*(8|7|6)/.test(navigator.userAgent.toLowerCase());
+	$('.easy-pie-chart.percentage').each(function(){
+		$(this).easyPieChart({
+			barColor: $(this).data('color'),
+			trackColor: '#EEEEEE',
+			scaleColor: false,
+			lineCap: 'butt',
+			lineWidth: 8,
+			animate: oldie ? false : 1000,
+			size:75
+		}).css('color', $(this).data('color'));
+	});
+	
+	});
+
+{% for ds in vmInstance %}
+	{% for vd in ds.disk %}
+	$(function () {
+		  var $flavor = $("#disk_details_{{ds.name}}_{{ forloop.counter }}");
+		  if ( $flavor.popover ) {
+		    $flavor.popover({html:true});
+		  }
+		});
+	{% endfor %}
+{% endfor %}
+
+	   function onBtnHandleIns(obj, server_id,vm_name,op){
+			var btnObj = $(obj);
+			if ( op == 'start'){
+				var txt=  "是否确认启动？"
+			}
+			else if ( op == 'shutdown'){
+				var txt=  "是否确认关闭？"
+			}
+			else if( op == 'resume' ){
+				var txt=  "是否确认恢复？"
+			}
+			else if( op == 'suspend' ){
+				var txt=  "是否确认暂停？"
+			}			
+			else if( op == 'halt' ){
+				var txt=  "是否确认强制关闭？"
+			}	
+			else if( op == 'reboot' ){
+				var txt=  "是否确认重启？"
+			}		
+			else if( op == 'delete' ){
+				var txt=  "是否确认删除？"
+			};			
+			var option = {
+					title: "操作主机("+vm_name+")",
+					btn: parseInt("0011",2),
+					onOk: function(){
+						$.ajax({
+							  type: 'POST',
+							  url: '/handleInstance/',
+							  data:{
+									"server_id":server_id,
+									"op":op,
+									"vm_name":vm_name
+								},
+						      success:function(response){			            
+					                if (response["code"]=="200"){ 
+					                	window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
+
+					                }
+						        	else{
+						        		window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+						        	}						                
+							},
+				            error:function(response){
+				            	window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+				            },		
+							});
+					},
+					onCancel:function(){	
+					},
+					onClose:function(){
+					}
+				}			
+			window.wxc.xcConfirm(txt, "custom", option);
+		}		
+	   
+		function snapshotInstance(obj,serverId,vmName,op){
+			window.wxc.xcConfirm("请输入（"+vmName+"）快照名：", window.wxc.xcConfirm.typeEnum.input,{
+				onOk:function(result){
+					if (result.length == 0){
+						/* 如果没有输入字符串则直接退出 */
+						return;
+					};
+					$.ajax({
+						  type: 'POST',
+						  url: '/handleInstance/',
+						  data: {
+							  "server_id":serverId,
+							  "op":op,
+							  'vm_name':vmName,
+							  'snap_name':result
+						  },
+					      success:function(response){			            
+				                if (response["code"]=="200"){ 
+				                	window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
+
+				                }
+					        	else{
+					        		window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+					        	}						                
+						},
+			            error:function(response){
+			            	window.wxc.xcConfirm("请求数据错误！", window.wxc.xcConfirm.typeEnum.error);
+			            },							  
+						});
+					
+				}
+			});								   
+	   }	   
+
+	   function onBtnHandleStorage(obj, server_id,server_ip,pool_name,op){
+			var btnObj = $(obj);
+			if ( op == 'delete'){
+				var txt=  "是否确认删除？"
+			}
+			else if ( op == 'disable'){
+				var txt=  "是否确认禁用？"
+			};				
+			var option = {
+					title: "操作主机("+server_ip+")",
+					btn: parseInt("0011",2),
+					onOk: function(){
+						$.ajax({
+							  type: 'POST',
+							  url: '/handleStorage/',
+							  data:{
+									"server_id":server_id,		
+									"op":op,
+									"pool_name":pool_name
+								},
+						      success:function(response){			            
+					                if (response["code"]=="200"){ 
+					                	window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
+
+					                }
+						        	else{
+						        		window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+						        	}						                
+							},
+				            error:function(response){
+				            	window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+				            },		
+							});
+					},
+					onCancel:function(){	
+					},
+					onClose:function(){
+					}
+				}			
+			window.wxc.xcConfirm(txt, "custom", option);
+		}	
+	   
+	   /* instance */
+	   var myChart = echarts.init(document.getElementById('insView')); 
+			insOption  = {
+				    title: {
+				        x: 'center',
+				        text: '{{vmServer.name}}',
+				        subtext: 'Status',
+				        /* link: 'http://echarts.baidu.com/doc/example.html' */
+				    },
+				    tooltip: {
+				        trigger: 'item'
+				    },
+				    toolbox: {
+				        show: true,
+				        feature: {
+				            dataView: {show: true, readOnly: false},
+				            restore: {show: true},
+				            saveAsImage: {show: true}
+				        }
+				    },
+				    calculable: true,
+				    grid: {
+				        borderWidth: 0,
+				        y: 80,
+				        y2: 60
+				    },
+				    xAxis: [
+				        {
+				            type: 'category',
+				            show: false,
+				            data: [
+				        		{% for k,v in vmServer.vmStatus.items %}
+				        			'{{ k }}',
+				        		{% endfor %}
+				        	]
+				        }
+				    ],
+				    yAxis: [
+				        {
+				            type: 'value',
+				            show: false
+				        }
+				    ],
+				    series: [
+				        {
+				            name: '运行状态统计',
+				            type: 'bar',
+				            itemStyle: {
+				                normal: {
+				                    color: function(params) {
+				                        // build a color map as your need.
+				                        var colorList = [
+				                          '#B5C334','#FCCE10','#E87C25','#27727B',
+				                           '#FE8463','#9BCA63','#FAD860','#F3A43B','#60C0DD',
+				                           '#D7504B','#C6E579','#F4E001','#F0805A','#26C0C0'
+				                        ];
+				                        return colorList[params.dataIndex]
+				                    },
+				                    label: {
+				                        show: true,
+				                        position: 'top',
+				                        formatter: '{b}\n{c}'
+				                    }
+				                }
+				            },
+				            data: [
+					        	{% for k,v in vmServer.vmStatus.items %}
+				        			{{v|length}},
+				        		{% endfor %}
+
+				            ],
+				            markPoint: {
+				                tooltip: {
+				                    trigger: 'item',
+				                    backgroundColor: 'rgba(0,0,0,0)',
+				                    formatter: function(params){
+				                        return '<img src="' 
+				                                + params.data.symbol.replace('image://', '')
+				                                + '"/>';
+				                    }
+				                },
+				                data: 
+				                	[
+							        	{% for k,v in vmServer.vmStatus.items %}
+						        			 {xAxis:0, y: 350, name:'{{k}}', symbolSize:20, symbol: 'image://../static/asset/ico/折线图.png'},
+						        		{% endfor %}
+
+						            ]
+				            }
+				        }
+				    ]
+				};
+       myChart.setOption(insOption);
+       
+	   /* cpu */
+	   var myChart = echarts.init(document.getElementById('cpuView')); 
+	   cpuOption = {
+			    title : {
+			        text: '{{vmServer.name}}',
+			        subtext: 'CPU',
+			        x:'center'
+			    },
+			    tooltip : {
+			        trigger: 'item',
+			        formatter: "{a} <br/>{b} : {c} ({d}%)"
+			    },
+			    legend: {
+			        orient : 'vertical',
+			        x : 'left',
+			        data:[{% for ds in vmInstance %}
+			    			'{{ds.name}}',	
+			    		 {% endfor %}
+			    		 ]
+			    },
+			    toolbox: {
+			        show : true,
+			        feature : {
+			            mark : {show: true},
+			            dataView : {show: true, readOnly: false},
+			            magicType : {
+			                show: true, 
+			                type: ['pie', 'funnel'],
+			                option: {
+			                    funnel: {
+			                        x: '25%',
+			                        width: '50%',
+			                        funnelAlign: 'left',
+			                        max: 1548
+			                    }
+			                }
+			            },
+			            restore : {show: true},
+			            saveAsImage : {show: true}
+			        }
+			    },
+			    calculable : true,
+			    series : [
+			        {
+			            name:'cpu个数',
+			            type:'pie',
+			            radius : '55%',
+			            center: ['50%', '60%'],
+			            data:[{% for ds in vmInstance %}	
+		    				{value:{{ds.cpu}}, name:'{{ds.name}}'},
+			    		 {% endfor %}
+			    		 ]
+			        }
+			    ]
+			};
+			                                    	   
+	   myChart.setOption(cpuOption);
+	   /* 内存  */
+
+	   var myChart = echarts.init(document.getElementById('memView')); 
+	   memOption = {
+			    title : {
+			        text: '{{vmServer.name}}',
+			        subtext: 'Mem',
+			        x:'center'
+			    },
+			    tooltip : {
+			        trigger: 'item',
+			        formatter: "{a} <br/>{b} : {c} ({d}%)"
+			    },
+			    legend: {
+			        orient : 'vertical',
+			        x : 'left',
+			        data:[{% for ds in vmInstance %}
+			    			'{{ds.name}}',	
+			    		 {% endfor %}
+			    		 ]
+			    },
+			    toolbox: {
+			        show : true,
+			        feature : {
+			            mark : {show: true},
+			            dataView : {show: true, readOnly: false},
+			            magicType : {
+			                show: true, 
+			                type: ['pie', 'funnel'],
+			                option: {
+			                    funnel: {
+			                        x: '25%',
+			                        width: '50%',
+			                        funnelAlign: 'left',
+			                        max: 1548
+			                    }
+			                }
+			            },
+			            restore : {show: true},
+			            saveAsImage : {show: true}
+			        }
+			    },
+			    calculable : true,
+			    series : [
+			        {
+			            name:'mem',
+			            type:'pie',
+			            radius : '55%',
+			            center: ['50%', '60%'],
+			            data:[{% for ds in vmInstance %}	
+		    				{value:{{ds.mem}}, name:'{{ds.name}}'},
+			    		 {% endfor %}
+			    		 ]
+			        }
+			    ]
+			};
+			                    
+			                    	   
+	   myChart.setOption(memOption);	   
+	   
+</script> 			
+
+
+	{% else %}
+
+    
+						<div class="error-container">
+									<div class="well">
+										<h1 class="grey lighter smaller">
+											<span class="blue bigger-125">
+												<i class="icon-sitemap"></i>
+												404
+											</span>
+											主机链接连接失败
+										</h1>
+
+										<hr />
+										<h3 class="lighter smaller">尝试链接Libvirt远程服务器，发现连接失败...</h3>
+
+										<div>
+											<form class="form-search">
+												<span class="input-icon align-middle">
+													<i class="icon-search"></i>
+
+													<input type="text" class="search-query" placeholder="Give it a search..." />
+												</span>
+												<button class="btn btn-sm" onclick="return false;">Go!</button>
+											</form>
+
+											<div class="space"></div>
+											<h4 class="smaller">尝试检查一下操作:</h4>
+
+											<ul class="list-unstyled spaced inline bigger-110 margin-15">
+												<li>
+													<i class="icon-hand-right blue"></i>
+													Libvirt已经启动
+												</li>
+												<li>
+													<i class="icon-hand-right blue"></i>
+													Libvirt远程配置正确
+												</li>
+												<li>
+													<i class="icon-hand-right blue"></i>
+													Libvirt已配置允许远程访问
+												</li>
+
+												<li>
+													<i class="icon-hand-right blue"></i>
+													Libvirt已经开放防火墙端口
+												</li>
+											</ul>
+										</div>
+
+										<hr />
+										<div class="space"></div>
+
+										<div class="center">
+											<a href="#" class="btn btn-grey">
+												<i class="icon-arrow-left"></i>
+												返回
+											</a>
+
+											<a href="/listServer" class="btn btn-primary">
+												<i class="icon-dashboard"></i>
+												主页
+											</a>
+										</div>
+									</div>
+								</div>	
+	{% endif %}
+
+{% endblock %}
+				</div>
+				<div class="ace-settings-container" id="ace-settings-container">
+					<div class="btn btn-app btn-xs btn-warning ace-settings-btn" id="ace-settings-btn">
+						<i class="icon-cog bigger-150"></i>
+					</div>
+
+					<div class="ace-settings-box" id="ace-settings-box">
+						<div>
+							<div class="pull-left">
+								<select id="skin-colorpicker" class="hide">
+									<option data-skin="default" value="#438EB9">#438EB9</option>
+									<option data-skin="skin-1" value="#222A2D">#222A2D</option>
+									<option data-skin="skin-2" value="#C6487E">#C6487E</option>
+									<option data-skin="skin-3" value="#D0D0D0">#D0D0D0</option>
+								</select>
+							</div>
+							<span>&nbsp; 选择皮肤</span>
+						</div>
+
+						<div>
+							<input type="checkbox" class="ace ace-checkbox-2" id="ace-settings-navbar" />
+							<label class="lbl" for="ace-settings-navbar"> 固定导航条</label>
+						</div>
+
+						<div>
+							<input type="checkbox" class="ace ace-checkbox-2" id="ace-settings-sidebar" />
+							<label class="lbl" for="ace-settings-sidebar"> 固定滑动条</label>
+						</div>
+
+						<div>
+							<input type="checkbox" class="ace ace-checkbox-2" id="ace-settings-breadcrumbs" />
+							<label class="lbl" for="ace-settings-breadcrumbs">固定面包屑</label>
+						</div>
+
+						<div>
+							<input type="checkbox" class="ace ace-checkbox-2" id="ace-settings-rtl" />
+							<label class="lbl" for="ace-settings-rtl">切换到左边</label>
+						</div>
+
+						<div>
+							<input type="checkbox" class="ace ace-checkbox-2" id="ace-settings-add-container" />
+							<label class="lbl" for="ace-settings-add-container">
+								切换窄屏
+								<b></b>
+							</label>
+						</div>
+					</div>
+				</div><!-- /#ace-settings-container -->
+			</div><!-- /.main-container-inner -->
+
+			<a href="#" id="btn-scroll-up" class="btn-scroll-up btn btn-sm btn-inverse">
+				<i class="icon-double-angle-up icon-only bigger-110"></i>
+			</a>
+		</div><!-- /.main-container -->
+
+		<!-- basic scripts -->
+
+		<!--[if !IE]> -->
+
+		
+
+		<!-- <![endif]-->
+
+		<!--[if IE]>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<![endif]-->
+
+		<!--[if !IE]> -->
+
+		<script type="text/javascript">
+			window.jQuery || document.write("<script src='/static/js/jquery-2.0.3.min.js'>"+"<"+"/script>");
+		</script>
+
+		<!-- <![endif]-->
+
+		<!--[if IE]>
+<script type="text/javascript">
+ window.jQuery || document.write("<script src='/static/js/jquery-1.10.2.min.js'>"+"<"+"/script>");
+</script>
+<![endif]-->
+
+		<script type="text/javascript">
+			if("ontouchend" in document) document.write("<script src='/static/js/jquery.mobile.custom.min.js'>"+"<"+"/script>");
+		</script>
+		<script src="/static/js/bootstrap.min.js"></script>
+		<script src="/static/js/typeahead-bs2.min.js"></script>
+
+		<!-- page specific plugin scripts -->
+
+		<!-- ace scripts -->
+
+		<script src="/static/js/ace-elements.min.js"></script>
+		<script src="/static/js/ace.min.js"></script>
+
+		<!-- inline scripts related to this page -->
+		<script src="/static/js/jquery-ui-1.10.3.custom.min.js"></script>
+		<script src="/static/js/jquery.ui.touch-punch.min.js"></script>
+		<script src="/static/js/chosen.jquery.min.js"></script>
+		<script src="/static/js/fuelux/fuelux.spinner.min.js"></script>
+		<script src="/static/js/date-time/bootstrap-datepicker.min.js"></script>
+		<script src="/static/js/date-time/bootstrap-timepicker.min.js"></script>
+		<script src="/static/js/date-time/moment.min.js"></script>
+		<script src="/static/js/date-time/daterangepicker.min.js"></script>
+		<script src="/static/js/bootstrap-colorpicker.min.js"></script>
+		<script src="/static/js/jquery.knob.min.js"></script>
+		<script src="/static/js/jquery.autosize.min.js"></script>
+		<script src="/static/js/jquery.inputlimiter.1.3.1.min.js"></script>
+		<script src="/static/js/jquery.maskedinput.min.js"></script>
+		<script src="/static/js/bootstrap-tag.min.js"></script>	
+
+	
+</body>
+</html>

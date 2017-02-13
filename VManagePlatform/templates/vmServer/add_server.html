@@ -1,0 +1,146 @@
+{% extends "index.html" %}
+
+{% block content %}
+	<div class="col-xs-3 col-sm-3">
+	</div>
+	<div class="col-xs-6 col-sm-6 widget-container-span">
+		<div class="widget-box">
+			<div class="widget-header widget-header-large">
+					<h4>
+						<i class="icon-edit"></i>
+						添加管理主机
+					</h4>
+
+					<div class="widget-toolbar">
+					<a href="#" data-action="settings">
+						<i class="icon-cog"></i>
+					</a>
+
+					<a href="#" data-action="reload">
+						<i class="icon-refresh"></i>
+					</a>
+
+					<a href="#" data-action="collapse">
+						<i class="icon-chevron-up"></i>
+					</a>
+
+					<a href="#" data-action="close">
+						<i class="icon-remove"></i>
+					</a>
+					</div>
+			</div>
+
+		<div class="widget-body">
+			<div class="widget-main">
+					<form role="form" method="post" id="addHost" class="main form-horizontal">{% csrf_token %}
+					
+						<fieldset>
+
+						<div class="form-group" >
+							 <label class="col-sm-2 control-label">主机名*</label>
+							 <div class="col-sm-6">
+							 	<input type="text" class="form-control" name="vm_hostname" placeholder="hostname" value="" title="请输入主机名称"  class="input-xlarge"/>
+							 </div>
+						</div>
+						
+						<div class="form-group" >
+							 <label class="col-sm-2 control-label">主机地址*</label>
+							 <div class="col-sm-6">
+							 	<input type="text" class="form-control" name="vm_host" placeholder="Ip Address" value="" pattern="^(\d+\.\d+\.\d+\.\d+|[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(/.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+/.?))$" title="请输入IP地址或者域名"  class="input-xlarge"/>
+							 </div>
+						</div>				
+						
+						<div class="form-group">
+							 <label class="col-sm-2 control-label">链接Uri地址*</label>
+							 <div class="col-sm-6">
+							 <input type="text" class="form-control" name="vm_uri" placeholder="qemu+tcp://192.168.1.xxx/system"  class="input-xlarge" value="" />
+							 </div>
+						</div>							
+
+						<div class="form-group" >
+							 <label class="col-sm-2 control-label">虚拟化类型*</label>
+							 <div class="col-sm-6">
+							 	<input type="text" class="form-control" name="vm_type" placeholder="QEMU"    class="input-xlarge" value="" />
+							 </div>
+						</div>
+						
+						<div class="form-group">
+							 <label class="col-sm-2 control-label">内存大小</label>
+							 <div class="col-sm-6">
+							 <input type="text" class="form-control" name="mem" placeholder="Mem"  class="input-xlarge" value="" />
+							 </div>
+						</div>							
+						
+						<div class="form-group">
+							 <label class="col-sm-2 control-label">CPU型号</label>
+							 <div class="col-sm-6">
+							 <input type="text" class="form-control" name="cpu_models" placeholder="Intel(R) Core(TM) i7-5500U"  class="input-xlarge" value="" />
+							 </div>
+						</div>	
+						
+						
+						<div class="form-group">
+							 <label class="col-sm-2 control-label">CPU个数</label>
+							 <div class="col-sm-6">
+							 <input type="text" class="form-control" name="cpu_total" placeholder="2"  class="input-xlarge" value="" />
+							 </div>
+						</div>	
+						
+						
+					
+						</fieldset>
+						<legend></legend>
+						<div class="form-group">
+						<label class="col-sm-3 control-label"></label>
+						<button type="button" id="add_host_submit" onclick="repealFromVaule(this)" class="btn btn-danger" >撤销操作</button>
+				 		<button type="button" id="add_host_submit"  class="btn btn-primary" onclick="addVmServer(this)" >确认提交</button>
+				 		</div>
+				 		
+					</form>	
+					</div><!-- /.col -->
+				</div><!-- /.row -->
+			</div><!-- /.page-content -->
+			
+<script type="text/javascript"> 
+	function addVmServer(obj) {
+		var server_data = {};
+		var form = document.getElementById('addHost');
+		for (var i = 1; i < form.length; ++i) {
+			var name = form[i].name;
+			var value = form[i].value;
+			var assetStart = name.indexOf("vm_");
+			
+			if (assetStart==0 && value.length == 0){
+				window.wxc.xcConfirm("请注意必填项不能为空~", window.wxc.xcConfirm.typeEnum.error);
+				return false;
+			}
+			if ( value.length != 0){
+				server_data[name] = value;
+			}			
+		};
+		$.ajax({
+			dataType: "JSON",
+			url:'/addServer/', //请求地址
+			type:"POST",  //提交类似
+			data:server_data,  //提交参数
+			success:function(response){
+				if (response["code"] == 200){
+					window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
+				}
+				else {
+					window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+				}
+				
+			},
+	    	error:function(response){
+	    		window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+	    	}
+		})	
+	}
+	
+
+	
+</script> 		
+			
+{% endblock %}
+

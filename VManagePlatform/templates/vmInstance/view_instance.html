@@ -1,0 +1,1643 @@
+{% extends "vmServer/index_server.html" %}
+
+{% block content %}
+
+
+		<div class="row">
+		
+			<div class="col-xs-12">
+				
+			
+				<div class="col-sm-4">
+					<h3 class="header smaller lighter blue">
+					<i class="icon-spinner icon-spin orange bigger-125"></i>
+					{{ inStance.name }}资源性能</h3>
+					<div class="table-header"></div>
+					
+					<div class="profile-user-info profile-user-info-striped">
+						<div class="profile-info-row">
+							<div class="profile-info-name"> 名称 </div>
+
+							<div class="profile-info-value">
+								<span class="editable" id="username">{{inStance.name}}</span>
+							</div>
+						</div>
+
+						<div class="profile-info-row">
+							<div class="profile-info-name"> 描述 </div>
+
+							<div class="profile-info-value">
+								<i class="icon-map-marker light-orange bigger-110"></i>
+								<span class="editable" id="country"></span>
+							</div>
+						</div>	
+						
+						
+						
+						<div class="profile-info-row">
+							<div class="profile-info-name"> CPU </div>
+
+							<div class="profile-info-value">
+								<span class="editable" id="age">{{ inStance.cpu }}</span>
+							</div>
+						</div>
+						
+						<div class="profile-info-row">
+							<div class="profile-info-name"> 内存(MB) </div>
+
+							<div class="profile-info-value">
+								<span class="editable" id="age">{{ inStance.mem }}</span>
+							</div>
+						</div>
+						{% for ds in inStance.disks %}
+						<div class="profile-info-row">
+							<div class="profile-info-name"> 硬盘{{ forloop.counter }}(GB) </div>
+
+							<div class="profile-info-value">
+								<span class="editable" id="age">{{ ds.disk_size }}</span>
+							</div>
+						</div>	
+						{% endfor %}	
+						
+						<div class="profile-info-row">
+							<div class="profile-info-name"> CPU/Mem/Disk使用率 </div>
+
+							<div class="profile-info-value">
+								<span class="editable" id="age">
+								
+									{% if inStance.cpu_per > 90  %}
+										<div class="easy-pie-chart percentage" data-percent="{{ inStance.cpu_per }}" data-color="#D15B47">
+											<span class="percent">{{ inStance.cpu_per }}</span>%
+										</div>	
+									{% elif 70 < inStance.cpu_per and inStance.cpu_per < 90 %}	
+										<div class="easy-pie-chart percentage" data-percent="{{ inStance.cpu_per }}" data-color="#87CEEB">
+											<span class="percent">{{ inStance.cpu_per }}</span>%
+										</div>												
+									{% else %}
+										<div class="easy-pie-chart percentage" data-percent="{{ inStance.cpu_per }}" data-color="#87B87F">
+											<span class="percent">{{ inStance.cpu_per }}</span>%
+										</div>							
+									{% endif %}									
+									{% if inStance.mem_per > 90  %}
+										<div class="easy-pie-chart percentage" data-percent="{{ inStance.mem_per }}" data-color="#D15B47">
+											<span class="percent">{{ inStance.mem_per }}</span>%
+										</div>	
+									{% elif 70 < inStance.cpu_per and inStance.mem_per < 90 %}	
+										<div class="easy-pie-chart percentage" data-percent="{{ inStance.mem_per }}" data-color="#87CEEB">
+											<span class="percent">{{ inStance.mem_per }}</span>%
+										</div>												
+									{% else %}
+										<div class="easy-pie-chart percentage" data-percent="{{ inStance.mem_per }}" data-color="#87B87F">
+											<span class="percent">{{ inStance.mem_per }}</span>%
+										</div>							
+									{% endif %}	
+									{% if inStance.disks.0.disk_per > 90  %}
+										<div class="easy-pie-chart percentage" data-percent="{{ inStance.disks.0.disk_per }}" data-color="#D15B47">
+											<span class="percent">{{ inStance.disks.0.disk_per }}</span>%
+										</div>	
+									{% elif 70 < inStance.disks.0.disk_per and inStance.disks.0.disk_per < 90 %}	
+										<div class="easy-pie-chart percentage" data-percent="{{ inStance.disks.0.disk_per }}" data-color="#87CEEB">
+											<span class="percent">{{ inStance.disks.0.disk_per }}</span>%
+										</div>												
+									{% else %}
+										<div class="easy-pie-chart percentage" data-percent="{{ inStance.disks.0.disk_per }}" data-color="#87B87F">
+											<span class="percent">{{ inStance.disks.0.disk_per }}</span>%
+										</div>							
+									{% endif %}								
+								</span>
+							</div>
+						</div>
+						
+						<div class="profile-info-row">
+							<div class="profile-info-name"> 状态 </div>
+
+							<div class="profile-info-value">
+								<span class="editable" id="age">
+									{% if inStance.status == 1 %}
+										<span class="label label-success arrowed">启动</span>
+									{% elif inStance.status == 5 %}										
+										<span class="label label-danger arrowed-in">关闭</span>		
+									{% elif inStance.status == 3 %}										
+										<span class="label label-warning arrowed-in">暂停</span>				                   		 
+									{% endif %}
+								</span>
+							</div>
+						</div>
+						
+					</div>												
+				</div>
+			
+				
+				<div class="col-sm-7">
+				
+					<h3 class="header smaller lighter blue">
+					<i class="icon-cogs icon-animated-hand-pointer blue"></i>
+					配置管理</h3>
+					<div class="table-header"></div>
+
+					<div class="tabbable">
+						<ul class="nav nav-tabs padding-12 tab-color-blue background-blue" id="myTab4">
+							<li class="active">
+								<a data-toggle="tab" href="#profile4">
+								 电源									
+								</a>
+							</li>		
+																
+							<li >
+								<a data-toggle="tab" href="#home4">快照</a>
+							</li>
+
+							<li >
+								<a data-toggle="tab" href="#setting">硬件配置</a>
+							</li>
+							
+							<li >
+								<a data-toggle="tab" href="#migrate">迁移</a>
+							</li>	
+							
+							<li >
+								<a data-toggle="tab" href="#clone">克隆</a>
+							</li>
+							
+							<li >
+								<a data-toggle="tab" href="#xml">XML</a>
+							</li>
+								
+							<li >
+								<a data-toggle="tab" href="#console">Web Console</a>
+							</li>												
+
+						</ul>
+
+							<div class="tab-content">
+								
+								<div id="home4" class="tab-pane">
+										<div class="hr hr32 hr-dotted"></div>
+										<div class="widget-toolbox padding-8 clearfix">
+					
+												<button class="btn btn-xs btn-success pull-left"  data-toggle="modal" data-target="#snapModal">
+													<i class="icon-arrow-right icon-plus"></i>
+													<span class="bigger-110">添加快照</span>
+												</button>
+										</div>										
+										
+										<div class="clearfix">
+											<div>
+												<table class="table table-striped table-bordered">
+													<thead>
+														<tr>
+															<th class="center">序号</th>
+															<th>快照名</th>
+															<th class="center">快照时间</th>
+															<th class="hidden-xs center">是否最新</th>															
+															<th class="hidden-480 center">查看</th>															
+															<th class="center">操作</th>
+														</tr>
+													</thead>
+								
+													<tbody>
+														{% for ds in snapList %}
+														<tr>
+															<td class="center">{{ forloop.counter }}</td>
+															<td>
+																<a>{{ ds.name }}</a>
+															</td>
+															<td class="center">
+																{{ ds.ctime }}
+															</td>
+																<td class="hidden-xs center">
+																	{% if ds.last == 1 %}
+																		 <span class="label label-success arrowed">Yes</span>
+																	{% elif ds.last == 0 %}										
+																		 <span class="label label-danger arrowed-in">No</span>						                   		 
+																	{% endif %}									
+															</td>
+																<td class="hidden-480 center"> 
+																	<a class="blue" href="javascript:" onclick="viewSnapshot(this,{{ vmServer.id }},'{{inStance.name}}','{{ ds.name }}','view')" data-toggle="modal" data-target="#snapViewModal">
+																		<i class="icon-zoom-in bigger-130"></i>																
+																	</a>
+																</td>
+															<td class="center">
+																<button class="btn btn-primary btn-xs" onclick="onBtnHandleSnap(this,{{ vmServer.id}},'{{inStance.name}}','{{ ds.name }}','resume')">
+																	<i class="icon-repeat  bigger-110 icon-only"></i>
+																</button>
+																<button class="btn btn-xs btn-danger" onclick="onBtnHandleSnap(this,{{ vmServer.id}},'{{inStance.name}}','{{ ds.name }}','delete')">
+																	<i class="icon-trash  bigger-110 icon-only"></i>
+																</button>											
+															</td>
+														</tr>
+														{% endfor %}
+													</tbody>
+												</table>
+											</div>
+								
+											<div class="hr"></div>
+								
+											<div class="row">
+												<div class="col-sm-5 pull-right">
+													<h4 class="pull-right">
+														Total Snap :
+														<span class="red">{{ snapList|length }}</span>
+													</h4>
+												</div>
+												<div class="col-sm-7 pull-left"> 汇总信息 </div>
+											</div>									
+						
+										</div>										
+											
+								</div>
+
+												
+								<div id="profile4" class="tab-pane in active">
+									<div class="hr hr32 hr-dotted"></div>
+									<ul class="list-unstyled spaced">
+										<li>
+											<i class="icon-circle green"></i>
+										关闭/开启/暂停/恢复虚拟机
+										</li>													
+									</ul>
+									
+									
+									
+									<div class="btn-group btn-group-sm  pull-right">
+										{% if inStance.status == 1 %}
+											<button type="button" class="btn btn-success" onclick="onBtnHandleIns(this,{{ vmServer.id }},'{{ inStance.name }}','start')" disabled="disabled">
+												<i class="icon-play"></i>
+											</button>
+											<button type="button" class="btn btn-warning" onclick="onBtnHandleIns(this,{{ vmServer.id }},'{{ inStance.name }}','suspend')">
+												<i class="icon-pause"></i>
+											</button>
+											<button type="button" class="btn btn-danger" onclick="onBtnHandleIns(this,{{ vmServer.id }},'{{ inStance.name }}','halt')">
+												<i class="icon-off"></i>
+											</button>		
+										{% elif inStance.status == 5 %}		
+											<button type="button" class="btn btn-success" onclick="onBtnHandleIns(this,{{ vmServer.id }},'{{ inStance.name }}','start')">
+												<i class="icon-play"></i>
+											</button>
+											<button type="button" class="btn btn-warning" onclick="onBtnHandleIns(this,{{ vmServer.id }},'{{ inStance.name }}','suspend')" disabled="disabled">
+												<i class="icon-pause"></i>
+											</button>
+											<button type="button" class="btn btn-danger" onclick="onBtnHandleIns(this,{{ vmServer.id }},'{{ inStance.name }}','halt')" disabled="disabled">
+												<i class="icon-off"></i>
+											</button>								
+										{% else %}
+											<button type="button" class="btn btn-success" onclick="onBtnHandleIns(this,{{ vmServer.id }},'{{ inStance.name }}','resume')">
+												<i class="icon-play"></i>
+											</button>
+											<button type="button" class="btn btn-warning" onclick="onBtnHandleIns(this,{{ vmServer.id }},'{{ inStance.name }}','suspend')" disabled="disabled">
+												<i class="icon-pause"></i>
+											</button>
+											<button type="button" class="btn btn-danger" onclick="onBtnHandleIns(this,{{ vmServer.id }},'{{ inStance.name }}','halt')" >
+												<i class="icon-off"></i>
+											</button>
+										{% endif %}	
+											<button type="button" class="btn btn-danger" onclick="onBtnHandleIns(this,{{ vmServer.id }},'{{ inStance.name }}','delete')">
+												<i class="icon-trash"></i>
+											</button>					
+									</div>									
+									<br>	
+									<br>																		
+																									
+								</div>
+
+								<div id="setting" class="tab-pane">
+									<div class="hr hr32 hr-dotted"></div>															
+									<ul id="myTab" class="nav nav-tabs">
+										<li class="active">
+											<a href="#home" data-toggle="tab">
+												调整配置
+											</a>
+										</li>
+										<li><a href="#add" data-toggle="tab">添加设备</a></li>
+										<li><a href="#ios" data-toggle="tab">删除设备</a></li>
+										<li><a href="#iso" data-toggle="tab">光驱</a></li>
+										
+									</ul>
+									<div id="myTabContent" class="tab-content">
+										<div class="tab-pane fade in active" id="home">
+											<form class="form-horizontal" role="form" id="modfInstance">
+														<div class="form-group">
+															<label class="col-sm-3 control-label no-padding-right" for="form-field-1">
+																 <strong>
+																 	虚拟管理器
+																 </strong> 
+															</label>
+					
+															<div class="col-sm-9">
+																<input class="input-sm" type="text"   value="{{ vmServer.server_ip }}" disabled/>	
+															</div>
+															<div class="col-sm-9" style="display: none;">
+																<input class="input-sm" type="text" name="server_id"   value="{{ vmServer.id }}"/>	
+															</div>											
+														</div>
+					
+														<div class="space-4"></div>
+					
+														<div class="form-group">
+															<label class="col-sm-3 control-label no-padding-right" for="form-field-3"><strong>名称</strong></label>
+					
+															<div class="col-sm-9">
+																<input class="input-sm" type="text" name="vm_name" placeholder="虚拟机名称" value="{{ inStance.name }}" disabled/>											
+																<div class="space-2"></div>									
+															</div>
+														</div>
+														
+														<div class="form-group">
+															<label class="col-sm-3 control-label no-padding-right" for="form-field-2"> <strong>设备类型</strong></label>
+					
+															<div class="col-sm-9">
+																<select id="device-select" name="device" onchange="javascript:oBtDeviceTypeSelect();">
+																	<option value="cpu">CPU</option>	
+																	<option value="mem">内存</option>						
+																	<option value="disk">硬盘</option>																	
+																	<option value="bandwidth">带宽</option>
+																</select>											
+															</div>
+														</div>
+																												
+
+					
+														<div class="space-4"></div>
+														
+														<div class="form-group" style="display:;" id="div_cpu">
+															<label class="col-sm-3 control-label no-padding-right" for="form-field-3"><strong>CPU</strong></label>
+					
+															<div class="col-sm-9">
+																<input class="input-sm" type="text" id="form-field-3" placeholder="个数" name="cpu" value="{{ inStance.cpu }}"  />											
+																<div class="space-2"></div>
+																<div class="help-block" id="input-size-slider-3"></div>										
+															</div>
+														</div>									
+					
+														<div class="form-group" style="display: none;" id="div_mem">
+															<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>内存</strong></label>
+					
+															<div class="col-sm-9">
+																<input class="input-sm" type="text" id="form-field-4" placeholder="单位MB" name="mem" value="{{ inStance.mem }}" />											
+																<div class="space-2"></div>
+																<div class="help-block" id="input-size-slider-4"></div>										
+															</div>
+														</div>
+					
+														<div class="form-group" style="display:none;" id="add-div_storage">
+															<label class="col-sm-3 control-label no-padding-right" for="form-field-2"> <strong>存储池</strong></label>
+					
+															<div class="col-sm-9">
+																<select id="vStorage-select" name="storage">
+																	<option value="">选择存储池</option>
+																	{% for ds in vStorage %}
+																		<option value="{{ds.pool_name}}">{{ds.pool_name}}</option>
+																	{% endfor %}
+																
+																</select>											
+															</div>
+														</div>					
+														<div class="form-group" style="display: none;" id="div_disk">																												
+															<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>硬盘</strong></label>
+					
+															<div class="col-sm-9">
+																<input class="input-sm" type="text" id="form-field-5" placeholder="单位GB" name="disk" value="{{ inStance.disks.0.disk_size }}" />																											
+																<div class="space-2"></div>																
+																<div class="help-block" id="input-size-slider-5"></div>										
+															</div>
+														</div>
+														
+														
+														
+																											
+					
+														<div class="form-group" style="display: none;" id="div_bandwidth">
+															<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>带宽</strong></label>
+					
+															<div class="col-sm-9">
+																<input class="input-sm" type="text" id="form-field-6" placeholder="单位Mbps" name="bandwidth" />											
+																<div class="space-2"></div>
+																<div class="help-block" id="input-size-slider-6"></div>										
+															</div>
+														</div>
+														
+														<div class="form-group" style="display:none;" id="div_bandwidth_port">								
+															<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>网络</strong></label>
+															<div class="col-sm-9">																				
+															<select id="netk-select" name="netk_name">
+																<option value="">选择一个出口设备</option>
+																{% for vd in inStance.netk %}
+																	<option value="{{ vd }}">{{ vd }}</option>	
+																{% endfor %}
+															</select>											
+															</div>
+														</div>
+														
+														<div class="hr hr32 hr-dotted"></div>
+														<div class="form-group">
+															<div class="col-md-offset-3 col-md-9">
+																<button class="btn btn-info" type="button" onclick="addVmInstanceDevice(this)">
+																	<i class="icon-ok bigger-110"></i>
+																	确认
+																</button>
+					
+																&nbsp; &nbsp; &nbsp;
+																<button class="btn" type="reset">
+																	<i class="icon-undo bigger-110"></i>
+																	撤销
+																</button>
+															</div>
+														</div>						
+													</form>
+										</div>
+										
+										
+										<div class="tab-pane fade" id="add">
+											
+											<form class="form-horizontal" role="form" id="addInstance">
+												<div class="form-group">																												
+													<div class="col-sm-9" style="display: none;">
+														<input class="input-sm" type="text" name="server_id"   value="{{ vmServer.id }}"/>	
+													</div>											
+												</div>
+			
+												<div class="space-4"></div>
+			
+												<div class="form-group">
+													<label class="col-sm-3 control-label no-padding-right" for="form-field-3"><strong>名称</strong></label>
+			
+													<div class="col-sm-9">
+														<input class="input-sm" type="text" name="vm_name" placeholder="虚拟机名称" value="{{ inStance.name }}" disabled/>											
+														<div class="space-2"></div>									
+													</div>
+												</div>
+												
+												<div class="form-group">
+													<label class="col-sm-3 control-label no-padding-right" for="form-field-2"> <strong>设备类型</strong></label>
+													<div class="col-sm-9">
+														<select id="add-device-select" name="device" onchange="javascript:oBtAddDeviceTypeSelect();">	
+															<option value="">选择设备类型</option>		
+															<option value="disk">硬盘</option>
+															<option value="netk">网卡</option>
+														</select>											
+													</div>
+												</div>			
+												<div class="form-group" style="display:none;" id="add-div_disk">								
+													<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>存储池</strong></label>
+													<div class="col-sm-9">																				
+													<select id="disk-select" name="pool_name" onchange="javascript:oBtAddDeviceTypeSelect();">
+														<option value="">选择存储池</option>
+														{% for vd in poolInfo %}
+															<option value="{{ vd.pool_name }}">{{ vd.pool_name }}</option>	
+														{% endfor %}
+													</select>											
+													</div>	
+												</div>
+														
+												<div class="form-group" style="display:none;" id="add-vol_drive">
+													<label class="control-label col-xs-12 col-sm-3 no-padding-right" for="email"><strong>卷类型:</strong></label>
+						
+													<div class="col-xs-12 col-sm-9">
+														<div class="clearfix">
+															<select id="vNetwork-select" name="vol_drive">
+																<option value="">选择卷类型</option>
+																<option value="qcow2">qcow2</option>	
+																<option value="raw">raw</option>																		
+															</select>
+														</div>
+													</div>																							
+												</div>																										
+						
+												<div class="form-group" style="display:none;" id="add-vol_name">
+													<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>卷名称:</strong></label>
+							
+													<div class="col-sm-9">
+														<input class="input-sm" type="text" id="form-field-6" placeholder="vm1.img" name="vol_name" />																																					
+													</div>
+												</div>																								
+
+												<div class="form-group" style="display:none;" id="add-vol_size">
+													<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>容量(GB):</strong></label>
+							
+													<div class="col-sm-9">
+														<input class="input-sm" type="text" id="form-field-6" placeholder="20" name="vol_size" />																																					
+													</div>
+												</div>		
+																				
+												<div class="form-group" style="display:none;" id="add-div_netk">								
+													<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>网络</strong></label>
+													<div class="col-sm-9">																				
+													<select id="netk-select" name="netk_name" onchange="javascript:oBtAddDeviceTypeSelect();">
+														<option value="">选择一个网络</option>
+														{% for netk in netkInfo %}
+															<option value="{{ netk.name }}">{{ netk.name  }}</option>	
+														{% endfor %}
+													</select>											
+													</div>
+												</div>
+												
+												<div class="hr hr32 hr-dotted"></div>
+												<div class="form-group">
+													<div class="col-md-offset-3 col-md-9">
+														<button class="btn btn-info" type="button" onclick="addVmInstance(this)">
+															<i class="icon-ok bigger-110"></i>
+															确认
+														</button>
+			
+														&nbsp; &nbsp; &nbsp;
+														<button class="btn" type="reset">
+															<i class="icon-undo bigger-110"></i>
+															撤销
+														</button>
+													</div>
+												</div>						
+											</form>	
+												
+										</div>
+										
+										
+										<div class="tab-pane fade" id="ios">
+											
+											<form class="form-horizontal" role="form" id="delInstance">
+												<div class="form-group">																												
+													<div class="col-sm-9" style="display: none;">
+														<input class="input-sm" type="text" name="server_id"   value="{{ vmServer.id }}"/>	
+													</div>											
+												</div>
+			
+												<div class="space-4"></div>
+			
+												<div class="form-group">
+													<label class="col-sm-3 control-label no-padding-right" for="form-field-3"><strong>名称</strong></label>
+			
+													<div class="col-sm-9">
+														<input class="input-sm" type="text" name="vm_name" placeholder="虚拟机名称" value="{{ inStance.name }}" disabled/>											
+														<div class="space-2"></div>									
+													</div>
+												</div>
+												
+												<div class="form-group">
+													<label class="col-sm-3 control-label no-padding-right" for="form-field-2"> <strong>设备类型</strong></label>
+													<div class="col-sm-9">
+														<select id="del-device-select" name="device" onchange="javascript:oBtDelDeviceTypeSelect();">	
+															<option value="">选择设备类型</option>		
+															<option value="disk">硬盘</option>
+															<option value="netk">网卡</option>
+														</select>											
+													</div>
+												</div>			
+												<div class="form-group" style="display:none;" id="del-div_disk">								
+													<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>硬盘</strong></label>
+													<div class="col-sm-9">																				
+													<select id="disk-select" name="disk" onchange="javascript:oBtDelDeviceTypeSelect();">
+														<option value="">选择一个硬盘设备</option>
+														{% for vd in inStance.disks %}
+															<option value="{{ vd.disk_path }}">{{ vd.disk_sn }}-({{ vd.disk_size }}GB)</option>	
+														{% endfor %}
+													</select>											
+													</div>
+												</div>
+																				
+												<div class="form-group" style="display:none;" id="del-div_netk">								
+													<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>网卡</strong></label>
+													<div class="col-sm-9">																				
+													<select id="netk-select" name="netk" onchange="javascript:oBtDelDeviceTypeSelect();">
+														<option value="">选择一个网卡设备</option>
+														{% for vd in inStance.netk %}
+															<option value="{{ vd }}">{{ vd }}</option>	
+														{% endfor %}
+													</select>											
+													</div>
+												</div>
+												
+												<div class="hr hr32 hr-dotted"></div>
+												<div class="form-group">
+													<div class="col-md-offset-3 col-md-9">
+														<button class="btn btn-info" type="button" onclick="delVmInstance(this)">
+															<i class="icon-ok bigger-110"></i>
+															确认
+														</button>
+			
+														&nbsp; &nbsp; &nbsp;
+														<button class="btn" type="reset">
+															<i class="icon-undo bigger-110"></i>
+															撤销
+														</button>
+													</div>
+												</div>						
+											</form>	
+												
+										</div>
+										<div class="tab-pane fade" id="iso">
+											<div class="hr hr32 hr-dotted"></div>
+											<form class="form-horizontal" role="form" id="umountInstanceImg">
+												<div class="form-group">																												
+													<div class="col-sm-9" style="display: none;">
+														<input class="input-sm" type="text" name="server_id"   value="{{ vmServer.id }}"/>	
+													</div>											
+												</div>
+			
+												<div class="space-4"></div>
+			
+												<div class="form-group">													
+													<div class="col-sm-9" style="display: none;">
+														<input class="input-sm" type="text" name="vm_name" placeholder="虚拟机名称" value="{{ inStance.name }}" disabled/>											
+														<div class="space-2"></div>									
+													</div>
+												</div>
+												<div class="form-group">
+													<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>镜像</strong></label>
+													<div class="col-sm-9">
+														<select name="iso">	
+															{% for ds in imgList %}												
+																<option  value="{{ds.path}}|{{ds.dev}}">{{ds.image}}</option>																														
+															{% endfor %}
+														</select>
+														{% if imgList.0.path %}
+															<button class="btn btn-xs btn-success" type="button" data-toggle="modal" data-target="#mountModal" disabled>
+																		<i class="icon-lock bigger-110"></i>
+																		连接
+															</button>
+														{% else %}
+															<button class="btn btn-xs btn-info" type="button" data-toggle="modal" data-target="#mountModal">
+																		<i class="icon-lock bigger-110"></i>
+																		连接
+															</button>
+														{% endif %}
+														<button class="btn btn-xs btn-danger" type="button" onclick="umountVmInstanceImg(this,'umount')">
+																	<i class="icon-unlock bigger-110"></i>
+																	断开
+														</button>
+													</div>
+												</div>
+											</form>
+										</div>
+									
+									</div>
+																									
+								</div>
+								
+								<div id="migrate" class="tab-pane">
+									<div class="hr hr32 hr-dotted"></div>
+									<form class="form-horizontal" role="form" id="migrateInstance">
+															
+										<div class="form-group">
+											<label class="col-sm-3 control-label no-padding-right" for="form-field-3"><strong>目标服务器</strong></label>
+												<div class="col-sm-9">
+													<select  name="server_tid">
+														<option value="">选择虚拟主机</option>
+													    {% for ds in serverList %}
+															<option value="{{ds.id}}">{{ds.server_ip}}</option>
+														{% endfor %}
+													</select>	
+													<div class="space-2"></div>										
+												</div>											
+											</div>
+							
+										<div class="space-4"></div>
+							
+										<div class="form-group">
+											<label class="col-sm-3 control-label no-padding-right" for="form-field-3"><strong>名称</strong></label>
+							
+											<div class="col-sm-9">
+												<input class="input-sm" type="text" name="vm_tname" placeholder="虚拟机名称" value=""/>											
+												<div class="space-2"></div>									
+											</div>
+										</div>	
+										<div class="hr hr32 hr-dotted"></div>
+										<div class="form-group">
+											<div class="col-md-offset-3 col-md-9">
+												<button class="btn btn-info" type="button" onclick="migrateInstance(this,{{ vmServer.id }},'{{ inStance.name }}')">
+													<i class="icon-ok bigger-110"></i>
+													提交
+												</button>
+	
+												&nbsp; &nbsp; &nbsp;
+												<button class="btn" type="reset">
+													<i class="icon-undo bigger-110"></i>
+													撤销
+												</button>
+											</div>
+										</div>																														
+									</form>														
+																									
+								</div>
+								
+								
+								
+								<div id="clone" class="tab-pane">
+									<div class="hr hr32 hr-dotted"></div>															
+									<form class="form-horizontal" role="form" id="cloneInstance">
+															
+										<div class="form-group">
+											<div class="col-sm-9" style="display: none;">
+												<input class="input-sm" type="text" name="server_id"   value="{{ vmServer.id }}"/>	
+											</div>											
+										</div>
+
+										<div class="form-group">
+											<label class="col-sm-3 control-label no-padding-right" for="form-field-3"><strong>克隆名称</strong></label>
+							
+											<div class="col-sm-9">
+												<input class="input-sm" type="text" name="vm_cname" placeholder="虚拟机名称" value=""/>											
+												<div class="space-2"></div>									
+											</div>
+										</div>	
+										
+										<div class="form-group">
+											<label class="col-sm-3 control-label no-padding-right" for="form-field-3"><strong>硬盘镜像</strong></label>
+							
+											<div class="col-sm-9">
+												<input class="input-sm" type="text" name="vol_name" placeholder="clone.img" value=""/>											
+												<div class="space-2"></div>									
+											</div>
+										</div>
+										
+										<div class="hr hr32 hr-dotted"></div>
+										<div class="form-group">
+											<div class="col-md-offset-3 col-md-9">
+												<button class="btn btn-info" type="button" onclick="cloneInstance(this,'{{ inStance.name }}','clone')">
+													<i class="icon-ok bigger-110"></i>
+													克隆
+												</button>
+	
+												&nbsp; &nbsp; &nbsp;
+												<button class="btn" type="reset">
+													<i class="icon-undo bigger-110"></i>
+													撤销
+												</button>
+											</div>
+										</div>																														
+									</form>	
+									
+																									
+								</div>
+								
+								<div id="xml" class="tab-pane">
+									<div class="hr hr32 hr-dotted"></div>															
+										<div id='xmlResult'>
+											<ul class="list-unstyled spaced">
+												<li>
+													<i class="icon-circle green"></i>
+													查看虚拟机XML配置文件
+												</li>	
+												<li>
+													<i class="icon-warning-sign orange"></i>
+													通过XML修改虚拟机文件，需要重启虚拟机才能生效
+												</li>												
+											</ul>
+										</div>
+										
+										<pre>
+											{{insXml}}
+										</pre>
+										
+										<div class="btn-group btn-group-sm  pull-right">
+																								
+												
+												<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#viewXMLModal">
+													<i class="icon-wrench"></i>编辑
+												</button>
+																	
+										</div>									
+									<br>	
+									<br>															
+								</div>
+								
+								<div id="console" class="tab-pane">
+									<div class="hr hr32 hr-dotted"></div>	
+										<div class='center'>
+											<a href="/vnc/?vs={{ vmServer.id }}&vm={{ inStance.name }}&vnc={{ inStance.vnc }}&token={{ inStance.token }}" target="_black">														
+												<button type="button" class="btn btn-success btn-lg">
+												<i class="icon-laptop bigger-130"></i>
+													链接
+												</button>
+											</a>	
+										</div>													
+								</div>
+
+							</div>
+					</div>
+
+				</div>
+						
+			</div>
+			
+			
+			<div class="modal fade" id="snapModal" tabindex="-1" role="dialog" aria-labelledby="snapModalLabel" aria-hidden="true">
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+								&times;
+							</button>
+							<h4 class="modal-title" id="snapModalLabel">
+								{{inStance.name}}添加快照
+							</h4>
+						</div>
+						<div class="modal-body">
+							<form class="form-horizontal" role="form" id="snapInstance">
+								<div class="form-group">
+									<label class="col-sm-2 control-label no-padding-right">快照名称</label>	
+									<div class="col-sm-9">
+										<span class="input-icon">
+											<input type="text" id="form-field-icon-1" name="snap_name"/>
+											<i class="icon-leaf blue"></i>
+										</span>											
+									</div>
+								</div>
+							</form>
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-default" data-dismiss="modal">关闭
+							</button>
+							<button type="button" class="btn btn-primary" onclick="snapshotInstance(this,{{ vmServer.id }},'{{ inStance.name }}','add')">
+								添加
+							</button>
+						</div>
+					</div><!-- /.modal-content -->
+				</div><!-- /.modal -->
+			</div>
+			
+			<div class="modal fade" id="snapViewModal" tabindex="-1" role="dialog" aria-labelledby="snapViewModalLabel" aria-hidden="true">
+				<div class="modal-dialog" style="width:1000px">
+					<div class="modal-content">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+								&times;
+							</button>
+							<h4 class="modal-title" id="snapViewModalLabel">
+								快照详细配置
+							</h4>
+						</div>
+						<div class="modal-body">
+							
+								<pre>
+									<div id="snapViewModalContent">
+									</div>
+								</pre>
+							</pre>
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-default" data-dismiss="modal">关闭
+							</button>
+						</div>
+					</div><!-- /.modal-content -->
+				</div><!-- /.modal -->
+			</div>
+			
+			
+			<div class="modal fade" id="mountModal" tabindex="-1" role="dialog" aria-labelledby="mountModalLabel" aria-hidden="true">
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+								&times;
+							</button>
+							<h4 class="modal-title" id="mountModalLabel">
+								{{inStance.name}}挂载镜像
+							</h4>
+						</div>
+						<div class="modal-body">
+							{% if isoList %}
+							<form class="form-horizontal" role="form" id="mountInstanceImg">
+									<div class="form-group">																												
+										<div class="col-sm-9" style="display: none;">
+											<input class="input-sm" type="text" name="server_id"   value="{{ vmServer.id }}"/>	
+										</div>											
+									</div>
+									<div class="space-4"></div>
+			
+									<div class="form-group">													
+										<div class="col-sm-9" style="display: none;">
+											<input class="input-sm" type="text" name="vm_name" placeholder="虚拟机名称" value="{{ inStance.name }}" disabled/>											
+											<div class="space-2"></div>									
+										</div>
+									</div>
+									
+									<div class="form-group">
+											<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>光驱</strong></label>
+											<div class="col-sm-9">
+											<select name="dev">	
+												{% for ds in imgList %}												
+													<option  value="{{ds.dev}}">{{ds.dev}}</option>																														
+												{% endfor %}
+											</select>				
+										</div>
+									</div>
+									
+									<div class="form-group">
+										<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>镜像</strong></label>
+										<div class="col-sm-9">
+											<select name="iso">	
+												{% for ds in isoList %}											
+													<option  value="{{ds.vol_path}}">{{ds.vol_name}}</option>																														
+												{% endfor %}
+											</select>	
+										</div>
+									</div>
+							</form>
+							{% else %}
+								<div class="well">未发现ISO存储池</div>
+							{% endif %}
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-default" data-dismiss="modal">关闭
+							</button>
+							<button type="button" class="btn btn-primary" onclick="mountVmInstanceImg(this,'mount')">
+								挂载
+							</button>
+						</div>
+					</div><!-- /.modal-content -->
+				</div><!-- /.modal -->
+			</div>
+			
+			<!-- 模态框（Modal） -->
+			<div class="modal fade" id="viewXMLModal" tabindex="-1" role="dialog" aria-labelledby="viewXMLModalLabel" aria-hidden="true">
+				<div class="modal-dialog" style="width:800px;">
+					<div class="modal-content">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+								&times;
+							</button>
+							<h4 class="modal-title" id="viewXMLModalLabel">
+								{{inStance.name}} XML配置文件
+							</h4>
+						</div>
+						<div class="modal-body">
+							<form role="form" id="confXml"> 
+							  <div class="form-group"> 
+							    <textarea class="form-control" name="xml" rows="30">
+							    	{{insXml}}
+							    </textarea> 
+							  </div> 
+							</form> 
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-default" data-dismiss="modal">关闭
+							</button>
+							<button type="button" class="btn btn-primary" onclick="xmlInstance(this,'{{vmServer.id}}','{{inStance.name}}','xml')">
+								提交更改
+							</button>
+						</div>
+					</div><!-- /.modal-content -->
+				</div><!-- /.modal -->
+			</div>
+			
+		</div>
+
+		<script type="text/javascript">
+	
+		function snapshotInstance(obj,serverId,vmName,op){
+		 	var required = ['snap_name']
+			var server_data = {};
+			var form = document.getElementById('snapInstance');
+			for (var i = 0; i < form.length; ++i) {
+				var name = form[i].name;
+				var id = form[i].id;
+				var value = form[i].value;	
+				idx = $.inArray(name, required);						
+				if (idx >= 0 && value.length == 0){
+					window.wxc.xcConfirm("请注意必填项不能为空~", window.wxc.xcConfirm.typeEnum.error);
+					return false;
+				};	
+				if ( value.length != 0 && name.length != 0 ){						
+					server_data[name] = value;
+				};					
+			};
+			server_data['op'] = op;
+			server_data['server_id'] = serverId;
+			server_data['vm_name'] = vmName;
+			$.ajax({
+				dataType: "JSON",
+				url:'/handleSnapshot/', //请求地址
+				type:"POST",  //提交类似
+				data:server_data,  //提交参数
+				success:function(response){
+					if (response["code"] == 200){
+						window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
+					}
+					else {
+						window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+					}
+					
+				},
+		    	error:function(response){
+		    		window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+		    	}
+			})
+	   }
+		
+		function viewSnapshot(obj, server_id,vm_name,snap,op){
+				$.ajax({
+					url:'/handleSnapshot/', //请求地址
+					type:"POST",  //提交类似
+					data:{
+						"server_id":server_id,
+						"op":op,
+						"vm_name":vm_name,
+						"snap_name":snap
+					},
+					success:function(response){
+						if (response["code"]=="200"){					  						
+							$('#snapViewModalContent').html(response["data"]);
+
+						}
+						else{
+							$('#snapViewModalContent').html("没有数据");
+				        	}						
+						
+					}
+				})
+		}
+		
+		function onBtnHandleSnap(obj, server_id,vm_name,snap,op){
+			var btnObj = $(obj);
+			if ( op == 'view'){
+				var txt=  "确认查看快照？"
+			}
+			else if( op == 'resume' ){
+				var txt=  "是否确认恢复（"+snap+"）?"
+			}	
+			else if( op == 'delete' ){
+				var txt=  "是否确认删除（"+snap+"）?"
+			};				
+			var option = {
+					title: "操作主机("+vm_name+")",
+					btn: parseInt("0011",2),
+					onOk: function(){
+						$.ajax({
+							  type: 'POST',
+							  url: '/handleSnapshot/',
+							  data:{
+									"server_id":server_id,
+									"op":op,
+									"vm_name":vm_name,
+									"snap_name":snap
+								},
+						      success:function(response){			            
+					                if (response["code"]=="200"){ 
+					                	
+					                		
+					                	
+					                	window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
+					                	
+					                	
+										
+					                }
+						        	else{
+						        		window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+						        	}						                
+							},
+				            error:function(response){
+				            	window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+				            },		
+							});
+					},
+					onCancel:function(){	
+					},
+					onClose:function(){
+					}
+				}			
+			window.wxc.xcConfirm(txt, "custom", option);
+		}
+		
+		function migrateInstance(obj,serverId,vmName) {
+			var required = ['vm_tname','server_tid'];
+			var server_data = {};
+			var form = document.getElementById('migrateInstance');
+			for (var i = 0; i < form.length; ++i) {
+				var name = form[i].name;
+				var value = form[i].value;	
+				idx = $.inArray(name, required);	
+				if (idx >= 0 && value.length == 0){
+					window.wxc.xcConfirm("请注意必填项不能为空~", window.wxc.xcConfirm.typeEnum.error);
+					return false;
+				}
+				else if(  value.length != 0 && name.length != 0 ){
+					server_data[name] = value;
+				};				
+			};			
+			server_data['op'] = 'migrate';
+			server_data['server_id'] = serverId;
+			server_data['vm_name'] = vmName;
+			$.ajax({
+				dataType: "JSON",
+				url:'/handleInstance/', //请求地址
+				type:"POST",  //提交类似
+				data:server_data,  //提交参数
+				success:function(response){
+					if (response["code"] == 200){
+						window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
+					}
+					else {
+						window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+					}
+					
+				},
+		    	error:function(response){
+		    		window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+		    	}
+			})	
+		}
+		
+		function oBtAddDeviceTypeSelect() {
+			   var obj = document.getElementById("add-device-select"); 
+			   var index = obj.selectedIndex;
+			   var value = obj.options[index].value; 
+			   if (value=="disk"){
+				   required = ['device','disk','vol_name','vol_drive','vol_size'];
+				   document.getElementById("add-div_disk").style.display="";
+				   document.getElementById("add-vol_name").style.display="";
+				   document.getElementById("add-vol_drive").style.display="";
+				   document.getElementById("add-vol_size").style.display="";
+				   document.getElementById("del-div_netk").style.display="none";
+
+			   }			   
+			   else if (value=="netk"){
+				   required = ['netk']
+				   document.getElementById("add-div_disk").style.display="none";
+				   document.getElementById("add-div_netk").style.display="";
+				   document.getElementById("add-vol_name").style.display="none";
+				   document.getElementById("add-vol_drive").style.display="none";
+				   document.getElementById("add-vol_size").style.display="none";
+
+			   }			   
+		   }
+		   
+		
+		function xmlInstance(obj,server_id,vm_name,op){
+		 	var required = ['vm_cname','xml']
+			var server_data = {};
+			var form = document.getElementById('confXml');
+			for (var i = 0; i < form.length; ++i) {
+				var name = form[i].name;
+				var id = form[i].id;
+				var value = form[i].value;	
+				idx = $.inArray(name, required);						
+				if (idx >= 0 && value.length == 0){
+					window.wxc.xcConfirm("请注意必填项不能为空~", window.wxc.xcConfirm.typeEnum.error);
+					return false;
+				};	
+				if ( value.length != 0 && name.length != 0 ){						
+					server_data[name] = value;
+				};					
+			};
+			server_data['server_id'] = server_id;
+			server_data['op'] = op;
+			server_data['vm_name'] = vm_name;
+			$.ajax({
+				dataType: "JSON",
+				url:'/handleInstance/', //请求地址
+				type:"POST",  //提交类似
+				data:server_data,  //提交参数
+				success:function(response){
+					if (response["code"] == 200){
+						window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
+					}
+					else {
+						window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+					}
+					
+				},
+		    	error:function(response){
+		    		window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+		    	}
+			})
+	   }
+		
+		function cloneInstance(obj,vm_sname,op){
+		 	var required = ['vm_cname','vol_name']
+			var server_data = {};
+			var form = document.getElementById('cloneInstance');
+			for (var i = 0; i < form.length; ++i) {
+				var name = form[i].name;
+				var id = form[i].id;
+				var value = form[i].value;	
+				idx = $.inArray(name, required);						
+				if (idx >= 0 && value.length == 0){
+					window.wxc.xcConfirm("请注意必填项不能为空~", window.wxc.xcConfirm.typeEnum.error);
+					return false;
+				};	
+				if ( value.length != 0 && name.length != 0 ){						
+					server_data[name] = value;
+				};					
+			};
+			server_data['op'] = op;
+			server_data['vm_name'] = vm_sname;
+			$.ajax({
+				dataType: "JSON",
+				url:'/handleInstance/', //请求地址
+				type:"POST",  //提交类似
+				data:server_data,  //提交参数
+				success:function(response){
+					if (response["code"] == 200){
+						window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
+					}
+					else {
+						window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+					}
+					
+				},
+		    	error:function(response){
+		    		window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+		    	}
+			})
+	   }		
+		
+		 function mountVmInstanceImg(obj,op){
+			 	var btnObj = $(obj);
+				btnObj.attr('disabled',true);
+			 	var required = ['iso','dev']
+				var server_data = {};
+				var form = document.getElementById('mountInstanceImg');
+				for (var i = 0; i < form.length; ++i) {
+					var name = form[i].name;
+					var id = form[i].id;
+					var value = form[i].value;	
+					idx = $.inArray(name, required);						
+					if (idx >= 0 && value.length == 0){
+						window.wxc.xcConfirm("请注意必填项不能为空~", window.wxc.xcConfirm.typeEnum.error);
+						return false;
+					};	
+					if ( value.length != 0 && name.length != 0 ){						
+						server_data[name] = value;
+					};					
+				};
+				server_data['op'] = op
+				$.ajax({
+					dataType: "JSON",
+					url:'/handleInstance/', //请求地址
+					type:"POST",  //提交类似
+					data:server_data,  //提交参数
+					success:function(response){
+						btnObj.removeAttr('disabled');
+						if (response["code"] == 200){
+							window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
+						}
+						else {
+							window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+						}
+						
+					},
+			    	error:function(response){
+			    		btnObj.removeAttr('disabled');
+			    		window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+			    	}
+				})
+		   }
+		
+		   function umountVmInstanceImg(obj,op){
+			   	var btnObj = $(obj);
+				btnObj.attr('disabled',true);
+				var server_data = {};
+				var form = document.getElementById('umountInstanceImg');
+				for (var i = 0; i < form.length; ++i) {
+					var name = form[i].name;
+					var id = form[i].id;
+					var value = form[i].value;	
+					idx = $.inArray(name, required);						
+					if (idx >= 0 && value.length == 0){
+						window.wxc.xcConfirm("请注意必填项不能为空~", window.wxc.xcConfirm.typeEnum.error);
+						return false;
+					};	
+					if ( value.length != 0 && name.length != 0 ){
+						if (name == 'iso'){
+							server_data['dev'] = value.split("|")[1];
+						};
+						server_data[name] = value.split("|")[0];
+						
+					};					
+				};
+				server_data['op'] = op
+				$.ajax({
+					dataType: "JSON",
+					url:'/handleInstance/', //请求地址
+					type:"POST",  //提交类似
+					data:server_data,  //提交参数
+					success:function(response){
+						btnObj.removeAttr('disabled');
+						if (response["code"] == 200){
+							window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
+						}
+						else {
+							window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+						}
+						
+					},
+			    	error:function(response){
+			    		btnObj.removeAttr('disabled');
+			    		window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+			    	}
+				})
+		   }
+		
+		
+		   function addVmInstance(obj) {
+				var server_data = {};
+				server_data['op'] = "attach";
+				var form = document.getElementById('addInstance');
+				for (var i = 0; i < form.length; ++i) {
+					var name = form[i].name;
+					var value = form[i].value;	
+					idx = $.inArray(name, required);						
+					if (idx >= 0 && value.length == 0){
+						window.wxc.xcConfirm("请注意必填项不能为空~", window.wxc.xcConfirm.typeEnum.error);
+						return false;
+					};	
+					if ( value.length != 0 && name.length != 0 ){
+						server_data[name] = value;
+					};					
+				};
+				
+				$.ajax({
+					dataType: "JSON",
+					url:'/modfInstance/', //请求地址
+					type:"POST",  //提交类似
+					data:server_data,  //提交参数
+					success:function(response){
+						if (response["code"] == 200){
+							window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
+						}
+						else {
+							window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+						}
+						
+					},
+			    	error:function(response){
+			    		window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+			    	}
+				})	
+			}
+		
+		function oBtDelDeviceTypeSelect() {
+			   var obj = document.getElementById("del-device-select"); 
+			   var index = obj.selectedIndex;
+			   var value = obj.options[index].value; 
+			   if (value=="disk"){
+				   required = ['device','disk'];
+				   document.getElementById("del-div_disk").style.display="";
+				   document.getElementById("del-div_netk").style.display="none";
+
+			   }			   
+			   else if (value=="netk"){
+				   required = ['netk']
+				   document.getElementById("del-div_disk").style.display="none";
+				   document.getElementById("del-div_netk").style.display="";
+
+			   }			   
+		   }
+		   
+		   function delVmInstance(obj) {
+				var server_data = {};
+				server_data['op'] = "detach";
+				var form = document.getElementById('delInstance');
+				for (var i = 0; i < form.length; ++i) {
+					var name = form[i].name;
+					var value = form[i].value;	
+					idx = $.inArray(name, required);						
+					if (idx >= 0 && value.length == 0){
+						window.wxc.xcConfirm("请注意必填项不能为空~", window.wxc.xcConfirm.typeEnum.error);
+						return false;
+					};	
+					if ( value.length != 0 && name.length != 0 ){
+						server_data[name] = value;
+					};					
+				};
+				
+				$.ajax({
+					dataType: "JSON",
+					url:'/modfInstance/', //请求地址
+					type:"POST",  //提交类似
+					data:server_data,  //提交参数
+					success:function(response){
+						if (response["code"] == 200){
+							window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
+						}
+						else {
+							window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+						}
+						
+					},
+			    	error:function(response){
+			    		window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+			    	}
+				})	
+			}
+
+		var required = ['cpu']; /* 必填项列表 */
+		
+		   function oBtDeviceTypeSelect() {
+			   var obj = document.getElementById("device-select"); 
+			   var index = obj.selectedIndex;
+			   var value = obj.options[index].value; 
+			   if (value=="cpu"){
+				   required = ['cpu','device']
+				   document.getElementById("div_cpu").style.display="";   
+				   document.getElementById("div_mem").style.display="none";
+				   document.getElementById("div_disk").style.display="none";
+				   document.getElementById("div_bandwidth").style.display="none";
+				   document.getElementById("div_bandwidth_port").style.display="none";
+				   document.getElementById("div_netk").style.display="none";
+				   document.getElementById("div_storage").style.display="none";
+			   }
+			   else if (value=="mem"){
+				   required = ['mem','device']
+				   document.getElementById("div_cpu").style.display="none";   
+				   document.getElementById("div_mem").style.display="";
+				   document.getElementById("div_disk").style.display="none";
+				   document.getElementById("div_bandwidth").style.display="none";
+				   document.getElementById("div_bandwidth_port").style.display="none";
+				   document.getElementById("div_netk").style.display="none";
+				   document.getElementById("div_storage").style.display="none";
+			   }
+			   else if (value=="disk"){
+				   required = ['disk','storage','device']
+				   document.getElementById("div_cpu").style.display="none";   
+				   document.getElementById("div_mem").style.display="none";
+				   document.getElementById("div_disk").style.display="";
+				   document.getElementById("div_bandwidth").style.display="none";
+				   document.getElementById("div_bandwidth_port").style.display="none";
+				   document.getElementById("div_netk").style.display="none";
+				   document.getElementById("div_storage").style.display="";
+			   }	
+			   else if (value=="bandwidth"){
+				   required = ['bandwidth','netk_name','device']
+				   document.getElementById("div_cpu").style.display="none";   
+				   document.getElementById("div_mem").style.display="none";
+				   document.getElementById("div_disk").style.display="none";
+				   document.getElementById("div_bandwidth").style.display="";
+				   document.getElementById("div_bandwidth_port").style.display="";
+				   document.getElementById("div_netk").style.display="none";
+			   }			   
+		   }
+
+			jQuery(function($) {
+					var oldie = /msie\s*(8|7|6)/.test(navigator.userAgent.toLowerCase());
+					$('.easy-pie-chart.percentage').each(function(){
+						$(this).easyPieChart({
+							barColor: $(this).data('color'),
+							trackColor: '#EEEEEE',
+							scaleColor: false,
+							lineCap: 'butt',
+							lineWidth: 8,
+							animate: oldie ? false : 1000,
+							size:75
+						}).css('color', $(this).data('color'));
+					});
+					
+					$( "#input-size-slider-3" ).css('width','200px').slider({
+						value:1,
+						range: "min",
+						min: 1,
+						max: 8,
+						step: 1,
+						slide: function( event, ui ) {
+							var sizing = ['1', '2', '4', '6', '8', '12', '16', '24', '32'];
+							var val = parseInt(ui.value);
+							$('#form-field-3').attr('class', sizing[val]).val(sizing[val]);
+						}
+					});
+				
+
+				
+				
+				
+					$( "#input-size-slider-4" ).css('width','200px').slider({
+						value:1,
+						range: "min",
+						min: 1,
+						max: 8,
+						step: 1,
+						slide: function( event, ui ) {
+							var sizing = ['128', '512', '1024', '2048', '2048', '4096', '8192', '16384', '32768'];
+							var val = parseInt(ui.value);
+							$('#form-field-4').attr('class', sizing[val]).val(sizing[val]);
+						}
+					});
+				
+					$( "#input-size-slider-5" ).css('width','200px').slider({
+						value:1,
+						range: "min",
+						min: 1,
+						max: 8,
+						step: 1,
+						slide: function( event, ui ) {
+							var sizing = ['10', '20', '30', '40', '50', '60', '80', '100', '120'];
+							var val = parseInt(ui.value);
+							$('#form-field-5').attr('class', sizing[val]).val(sizing[val]);
+						}
+					});
+					
+					
+					$( "#input-size-slider-6" ).css('width','200px').slider({
+						value:1,
+						range: "min",
+						min: 1,
+						max: 8,
+						step: 1,
+						slide: function( event, ui ) {
+							var sizing = ['1','2', '5', '10', '20', '30', '50', '100', '100'];
+							var val = parseInt(ui.value);
+							$('#form-field-6').attr('class', sizing[val]).val(sizing[val]);
+						}
+					});	
+					
+				});
+			
+			   function onBtnHandleIns(obj, server_id,vm_name,op){
+					var btnObj = $(obj);
+					if ( op == 'start'){
+						var txt=  "是否确认启动？"
+					}
+					else if ( op == 'shutdown'){
+						var txt=  "是否确认关闭？"
+					}
+					else if( op == 'resume' ){
+						var txt=  "是否确认恢复？"
+					}
+					else if( op == 'suspend' ){
+						var txt=  "是否确认暂停？"
+					}			
+					else if( op == 'halt' ){
+						var txt=  "是否确认强制关闭？"
+					}	
+					else if( op == 'reboot' ){
+						var txt=  "是否确认重启？"
+					}
+					else if( op == 'delete' ){
+						var txt=  "是否确认删除？"
+					};				
+					var option = {
+							title: "操作主机("+vm_name+")",
+							btn: parseInt("0011",2),
+							onOk: function(){
+								$.ajax({
+									  type: 'POST',
+									  url: '/handleInstance/',
+									  data:{
+											"server_id":server_id,
+											"op":op,
+											"vm_name":vm_name
+										},
+								      success:function(response){			            
+							                if (response["code"]=="200"){ 
+							                	window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
+
+							                }
+								        	else{
+								        		window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+								        	}						                
+									},
+						            error:function(response){
+						            	window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+						            },		
+									});
+							},
+							onCancel:function(){	
+							},
+							onClose:function(){
+							}
+						}			
+					window.wxc.xcConfirm(txt, "custom", option);
+				}
+			
+			   
+			
+			   function addVmInstanceDevice(obj) {
+					var server_data = {}
+					server_data['op'] = "attach";
+					server_data['server_id'] = {{ vmServer.id }};
+					server_data['vm_name']="{{ inStance.name }}" ;
+					var form = document.getElementById('modfInstance');
+					for (var i = 0; i < form.length; ++i) {
+						var name = form[i].name;
+						var value = form[i].value;	
+						idx = $.inArray(name, required);						
+						if (idx >= 0 && value.length == 0){
+							window.wxc.xcConfirm("请注意必填项不能为空~", window.wxc.xcConfirm.typeEnum.error);
+							return false;
+						};	
+						if ( idx >= 0 && value.length != 0 && name.length != 0 ){
+							server_data[name] = value;
+						};					
+					};		
+
+					$.ajax({
+						dataType: "JSON",
+						url:'/modfInstance/', //请求地址
+						type:"POST",  //提交类似
+						data:server_data,  //提交参数
+						success:function(response){
+							if (response["code"] == 200){
+								window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
+							}
+							else {
+								window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+							}
+							
+						},
+				    	error:function(response){
+				    		window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+				    	}
+					})	
+				}	   
+			   
+		</script>										
+
+{% endblock %}

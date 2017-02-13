@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>虚拟化管理平台</title>
+		<meta name="keywords" content="虚拟化,管理" />
+		<meta name="description" content="虚拟化,管理,KVM" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	    <script src="/static/js/jquery-1.11.1.min.js"></script>
+	    <script src="/static/js/jquery.form.js"></script>	
+	    <script src="/static/js/jquery.easy-pie-chart.min.js"></script>	
+		<!-- basic styles -->
+		<link href="/static/css/bootstrap.min.css" rel="stylesheet" />
+		<link rel="stylesheet" href="/static/css/font-awesome.min.css" />
+		<!--   csrf -->
+		<script src="/static/js/csrf.js"></script>
+		<!--    弹窗开始样式 -->
+   		<script src="/static/js/xcConfirm.js" type="text/javascript" charset="utf-8"></script>
+   		<link rel="stylesheet" type="text/css" href="/static/css/xcConfirm.css"/>
+		<script src="/static/js/echarts.js"></script>
+		<!--[if IE 7]>
+		  <link rel="stylesheet" href="/static/css/font-awesome-ie7.min.css" />
+		<![endif]-->
+
+		<!-- page specific plugin styles -->
+
+		<!-- fonts -->
+		
+		<link rel="stylesheet" href="/static/css/bootstrap-select.min.css">
+		<!-- Latest compiled and minified JavaScript -->
+		<script src="/static/js/bootstrap-select.min.js"></script>
+
+		
+		
+		<link rel="stylesheet" href="/static/css/jquery-ui-1.10.3.custom.min.css" />
+		<link rel="stylesheet" href="/static/css/chosen.css" />
+		<link rel="stylesheet" href="/static/css/datepicker.css" />
+		<link rel="stylesheet" href="/static/css/bootstrap-timepicker.css" />
+		<link rel="stylesheet" href="/static/css/daterangepicker.css" />
+		<link rel="stylesheet" href="/static/css/colorpicker.css" />
+		
+		<!-- ace styles -->
+
+		<link rel="stylesheet" href="/static/css/ace.min.css" />
+		<link rel="stylesheet" href="/static/css/ace-rtl.min.css" />
+		<link rel="stylesheet" href="/static/css/ace-skins.min.css" />
+		
+		<!-- timeline  -->
+		<link rel="stylesheet" href="/static/css/timeline.css" >
+		
+		<!--[if lte IE 8]>
+		  <link rel="stylesheet" href="/static/css/ace-ie.min.css" />
+		<![endif]-->
+
+		<!-- inline styles related to this page -->
+
+		<!-- ace settings handler -->
+		<script src="/static/js/ace-extra.min.js"></script>
+		
+<!-- 		<link rel="stylesheet" href="/static/css/bootstrap-select.min.css" /> -->
+<!-- 		<script src="/static/js/bootstrap-select.min.js"></script> -->
+
+		<!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+
+		<!--[if lt IE 9]>
+		<script src="/static/js/html5shiv.js"></script>
+		<script src="/static/js/respond.min.js"></script>
+		<![endif]-->
+	</head>
+
+	<body>
+		<div class="navbar navbar-default" id="navbar">
+			<script type="text/javascript">
+				try{ace.settings.check('navbar' , 'fixed')}catch(e){}
+			</script>
+
+			<div class="navbar-container" id="navbar-container">
+				<div class="navbar-header pull-left">
+					<a href="#" class="navbar-brand">
+						<small>
+							<i class="icon-leaf"></i>
+							虚拟化管理平台
+						</small>
+					</a><!-- /.brand -->
+				</div><!-- /.navbar-header -->
+
+				<div class="navbar-header pull-right" role="navigation">
+					<ul class="nav ace-nav">
+						{% if  msgTotal  %}
+						<li class="purple">
+							<a data-toggle="dropdown" class="dropdown-toggle" href="#">
+								<i class="icon-bell-alt icon-animated-bell"></i>
+								<span class="badge badge-important">{{ msgTotal }}</span>
+							</a>
+
+							<ul class="pull-right dropdown-navbar navbar-pink dropdown-menu dropdown-caret dropdown-close">
+								<li class="dropdown-header">
+									<i class="icon-warning-sign"></i>
+									{{ msgTotal }}条通知
+								</li>
+
+								<li>
+									<a href="#">
+										<div class="clearfix">
+											<span class="pull-left">
+												<i class="btn btn-xs no-hover btn-pink icon-desktop"></i>
+												宿主机丢失
+											</span>
+											<span class="pull-right badge badge-info">{{ totalInfo.serStop }}</span>
+										</div>
+									</a>
+								</li>
+
+								<li>
+									<a href="#">
+										<div class="clearfix">
+											<span class="pull-left">
+												<i class="btn btn-xs no-hover btn-pink  icon-laptop"></i>
+												虚拟机关闭
+											</span>
+											{% if  totalInfo.vmStop  %}
+											<span class="pull-right badge badge-info">{{ totalInfo.vmStop }}</span>
+											{% endif %}
+										</div>
+									</a>
+								</li>
+
+
+								<li>
+									<a href="/profile/#messages">
+										查看所有消息
+										<i class="icon-arrow-right"></i>
+									</a>
+								</li>
+							</ul>
+						</li>
+						{% endif %}
+						<li class="light-blue">
+							<a data-toggle="dropdown" href="#" class="dropdown-toggle">
+								<img class="nav-user-photo" src="/static/avatars/user.jpg" alt="Jason's Photo" />
+								<span class="user-info">
+									<small>欢迎光临,</small>
+									{{ user.username }}
+								</span>
+
+								<i class="icon-caret-down"></i>
+							</a>
+
+							<ul class="user-menu pull-right dropdown-menu dropdown-yellow dropdown-caret dropdown-close">
+								<li>
+									<a href="/profile">
+										<i class="icon-cog"></i>
+										设置
+									</a>
+								</li>
+
+								<li>
+									<a href="/profile">
+										<i class="icon-user"></i>
+										个人资料
+									</a>
+								</li>
+
+								<li class="divider"></li>
+
+								<li>
+									<a href="/logout">
+										<i class="icon-off"></i>
+										退出
+									</a>
+								</li>
+							</ul>
+						</li>
+					</ul><!-- /.ace-nav -->
+				</div><!-- /.navbar-header -->
+			</div><!-- /.container -->
+		</div>
+
+		<div class="main-container" id="main-container">
+			<script type="text/javascript">
+				try{ace.settings.check('main-container' , 'fixed')}catch(e){}
+			</script>
+
+			<div class="main-container-inner">
+				<a class="menu-toggler" id="menu-toggler" href="#">
+					<span class="menu-text"></span>
+				</a>
+
+				<div class="sidebar" id="sidebar">
+					<script type="text/javascript">
+						try{ace.settings.check('sidebar' , 'fixed')}catch(e){}
+					</script>
+
+					<div class="sidebar-shortcuts" id="sidebar-shortcuts">
+						<div class="sidebar-shortcuts-large" id="sidebar-shortcuts-large">
+							<button class="btn btn-success">
+								<i class="icon-signal"></i>
+							</button>
+
+							<button class="btn btn-info">
+								<i class="icon-pencil"></i>
+							</button>
+
+							<button class="btn btn-warning">
+								<i class="icon-group"></i>
+							</button>
+
+							<button class="btn btn-danger">
+								<i class="icon-cogs"></i>
+							</button>
+						</div>
+
+						<div class="sidebar-shortcuts-mini" id="sidebar-shortcuts-mini">
+							<span class="btn btn-success"></span>
+
+							<span class="btn btn-info"></span>
+
+							<span class="btn btn-warning"></span>
+
+							<span class="btn btn-danger"></span>
+						</div>
+					</div><!-- #sidebar-shortcuts -->
+
+					<ul class="nav nav-list">
+						<li class="active">
+							<a href="/">
+								<i class="icon-dashboard"></i>
+								<span class="menu-text"> 控制台 </span>
+							</a>
+						</li>
+
+						<li>
+							<a href="#" class="dropdown-toggle">
+								<i class="icon-desktop"></i>
+								<span class="menu-text"> 虚拟机管理器 </span>
+
+								<b class="arrow icon-angle-down"></b>
+							</a>
+
+							<ul class="submenu">						
+									<li>
+										<a href="/listServer">
+												<i class="icon-leaf"></i>
+												主机列表
+										</a>
+									</li>
+								
+							
+								
+									<li>
+										<a href="/addServer">
+											<i class="icon-leaf"></i>
+												添加主机
+										</a>
+									</li>
+															
+
+																											
+							</ul>
+								
+							
+						</li>
+
+						<li>
+							<a href="/tempInstance" class="dropdown-toggle">
+								<i class="icon-resize-small"></i>
+								<span class="menu-text"> 实例模板 </span>
+							</a>
+						</li>
+
+						<li>
+							<a href="/configDhcp" class="dropdown-toggle">
+								<i class="icon-globe"></i>
+								<span class="menu-text"> DHCP Agent </span>
+
+								
+							</a>
+						</li>
+						
+						<li>
+							<a href="#" class="dropdown-toggle">
+								<i class="icon-cogs"></i>
+								<span class="menu-text"> 任务调度 </span>
+								<b class="arrow icon-angle-down"></b>
+							</a>
+
+							<ul class="submenu">						
+									<li>
+										<a href="/configTask">
+												<i class="icon-leaf"></i>
+												配置中心
+										</a>
+									</li>						
+									<li>
+										<a href="/viewTask">
+											<i class="icon-leaf"></i>
+												运行日志
+										</a>
+									</li>																		
+							</ul>
+						</li>
+						
+						<li>
+							<a href="#" class="dropdown-toggle">
+								<i class="icon-group"></i>
+								<span class="menu-text"> 账户管理 </span>
+								<b class="arrow icon-angle-down"></b>
+							</a>
+
+							<ul class="submenu">						
+									<li>
+										<a href="/usermanage/?op=list">
+												<i class="icon-leaf"></i>
+												用户
+										</a>
+									</li>						
+									<li>
+										<a href="/groupmanage/?op=list">
+											<i class="icon-leaf"></i>
+												用户组
+										</a>
+									</li>																		
+							</ul>
+						</li>
+
+						<li>
+							<a href="#" class="dropdown-toggle">
+								<i class="icon-user"></i>
+								<span class="menu-text"> 用户中心 </span>
+
+								<b class="arrow icon-angle-down"></b>
+							</a>
+
+							<ul class="submenu">
+								<li>
+									<a href="/profile">
+										<i class="icon-double-angle-right"></i>
+										用户中心
+									</a>
+								</li>
+								
+								<li>
+									<a href="/logout">
+										<i class="icon-double-angle-right"></i>
+										退出
+									</a>
+								</li>
+							</ul>
+						</li>
+
+
+
+
+					</ul><!-- /.nav-list -->
+
+					<div class="sidebar-collapse" id="sidebar-collapse">
+						<i class="icon-double-angle-left" data-icon1="icon-double-angle-left" data-icon2="icon-double-angle-right"></i>
+					</div>
+
+					<script type="text/javascript">
+						try{ace.settings.check('sidebar' , 'collapsed')}catch(e){}
+					</script>
+				</div>
+
+				<div class="main-content">
+					<div class="breadcrumbs" id="breadcrumbs">
+						<script type="text/javascript">
+							try{ace.settings.check('breadcrumbs' , 'fixed')}catch(e){}
+						</script>
+
+						<ul class="breadcrumb">
+							{% for ds in localtion %}
+								{% if forloop.counter == 1 %}
+								<li>
+									<i class="icon-home home-icon"></i>
+									<a href="{{ ds.url }}">{{ ds.name }}</a>
+								</li>	
+								{% else  %}
+								<li>
+									
+									<a href="{{ ds.url }}">{{ ds.name }}</a>
+								</li>									
+								{% endif %}						   
+							{% endfor %}
+
+						</ul><!-- .breadcrumb -->
+
+						<div class="nav-search" id="nav-search">
+							<form class="form-search">
+								<span class="input-icon">
+									<input type="text" placeholder="Search ..." class="nav-search-input" id="nav-search-input" autocomplete="off" />
+									<i class="icon-search nav-search-icon"></i>
+								</span>
+							</form>
+						</div><!-- #nav-search -->
+					</div>
+
+					<div class="page-content">
+{% block content %}
+						<div class="row">
+							<div class="col-xs-12">
+							
+								<!-- PAGE CONTENT BEGINS -->
+
+								<div class="alert alert-block alert-success">
+									<button type="button" class="close" data-dismiss="alert">
+										<i class="icon-remove"></i>
+									</button>
+
+									<i class="icon-ok green"></i>
+
+									欢迎使用
+									<strong class="green">
+										虚拟化后台管理系统
+										<small>(v1.1)</small>
+									</strong>
+									,轻量级快速好用.	
+								</div>
+
+								<div class="row">
+								
+									<div class="col-lg-2">
+							            <div class="panel panel-info">
+							              <div class="panel-heading">
+							                <div class="row">
+							                  <div class="col-xs-6">
+							                    <i class=" icon-dashboard bigger-230"></i>
+							                  </div>
+							                  <div class="col-xs-6 text-right">
+							                    <p class="announcement-heading" id="cpu_per"><strong>{{ totalInfo.serTotal }}</strong></p>
+							                    <p class="announcement-text">Total</p>
+							                  </div>
+							                </div>
+							              </div>
+							              <a href="#">
+							                <div class="panel-footer announcement-bottom">
+							                  <div class="row">
+							                    <div class="col-xs-6">
+							                      	<strong>宿主机</strong>
+							                    </div>
+							                    <div class="col-xs-6 text-right">
+							                      <i class="icon-arrow-right"></i>
+							                    </div>
+							                  </div>
+							                </div>
+							              </a>
+							            </div>
+							          </div>
+							          
+							          
+							          <div class="col-lg-2">
+							            <div class="panel panel-success">
+							              <div class="panel-heading">
+							                <div class="row">
+							                  <div class="col-xs-6">
+							                    <i class="icon-ok bigger-230"></i>
+							                  </div>
+							                  <div class="col-xs-6 text-right">
+							                    <p class="announcement-heading" id="cpu_per"><strong>{{ totalInfo.serRun }}</strong></p>
+							                    <p class="announcement-text">Connect</p>
+							                  </div>
+							                </div>
+							              </div>
+							              <a href="#">
+							                <div class="panel-footer announcement-bottom">
+							                  <div class="row">
+							                    <div class="col-xs-6">
+							                      	<strong>宿主机</strong>
+							                    </div>
+							                    <div class="col-xs-6 text-right">
+							                      <i class="icon-arrow-right"></i>
+							                    </div>
+							                  </div>
+							                </div>
+							              </a>
+							            </div>
+							          </div>
+							          
+							          <div class="col-lg-2">
+							            <div class="panel panel-danger">
+							              <div class="panel-heading">
+							                <div class="row">
+							                  <div class="col-xs-6">
+							                    <i class="icon-remove bigger-230"></i>
+							                  </div>
+							                  <div class="col-xs-6 text-right">
+							                    <p class="announcement-heading" id="cpu_per"><strong>{{ totalInfo.serStop }}</strong></p>
+							                    <p class="announcement-text">Disconnect</p>
+							                  </div>
+							                </div>
+							              </div>
+							              <a href="#">
+							                <div class="panel-footer announcement-bottom">
+							                  <div class="row">
+							                    <div class="col-xs-6">
+							                      	<strong>宿主机</strong>
+							                    </div>
+							                    <div class="col-xs-6 text-right">
+							                      <i class="icon-arrow-right"></i>
+							                    </div>
+							                  </div>
+							                </div>
+							              </a>
+							            </div>
+							          </div>
+							          
+							          
+							          <div class="col-lg-2">
+							            <div class="panel panel-info">
+							              <div class="panel-heading">
+							                <div class="row">
+							                  <div class="col-xs-6">
+							                    <i class="icon-globe bigger-230"></i>
+							                  </div>
+							                  <div class="col-xs-6 text-right">
+							                    <p class="announcement-heading" id="cpu_per"><strong>{{ totalInfo.vmTotal }}</strong></p>
+							                    <p class="announcement-text">Total</p>
+							                  </div>
+							                </div>
+							              </div>
+							              <a href="#">
+							                <div class="panel-footer announcement-bottom">
+							                  <div class="row">
+							                    <div class="col-xs-6">
+							                      	<strong>虚拟主机</strong>
+							                    </div>
+							                    <div class="col-xs-6 text-right">
+							                      <i class="icon-arrow-right"></i>
+							                    </div>
+							                  </div>
+							                </div>
+							              </a>
+							            </div>
+							          </div>
+							          <div class="col-lg-2">
+							            <div class="panel panel-success">
+							              <div class="panel-heading">
+							                <div class="row">
+							                  <div class="col-xs-6">
+							                    <i class="icon-play-circle bigger-230"></i>
+							                  </div>
+							                  <div class="col-xs-6 text-right">
+							                    <p class="announcement-heading" id="cpu_per"><strong>{{ totalInfo.vmRun }}</strong></p>
+							                    <p class="announcement-text">Running</p>
+							                  </div>
+							                </div>
+							              </div>
+							              <a href="#">
+							                <div class="panel-footer announcement-bottom">
+							                  <div class="row">
+							                    <div class="col-xs-6">
+							                      	<strong>虚拟主机</strong>
+							                    </div>
+							                    <div class="col-xs-6 text-right">
+							                      <i class="icon-arrow-right"></i>
+							                    </div>
+							                  </div>
+							                </div>
+							              </a>
+							            </div>
+							          </div>
+									  <div class="col-lg-2">
+							            <div class="panel panel-danger">
+							              <div class="panel-heading">
+							                <div class="row">
+							                  <div class="col-xs-6">
+							                    <i class="icon-stop bigger-230"></i>
+							                  </div>
+							                  <div class="col-xs-6 text-right">
+							                    <p class="announcement-heading" id="cpu_per"><strong>{{ totalInfo.vmStop }}</strong></p>
+							                    <p class="announcement-text">Stop</p>
+							                  </div>
+							                </div>
+							              </div>
+							              <a href="#">
+							                <div class="panel-footer announcement-bottom">
+							                  <div class="row">
+							                    <div class="col-xs-6">
+							                      	<strong>虚拟主机</strong>
+							                    </div>
+							                    <div class="col-xs-6 text-right">
+							                      <i class="icon-arrow-right"></i>
+							                    </div>
+							                  </div>
+							                </div>
+							              </a>
+							            </div>
+							          </div>
+								
+								</div>
+								
+								<div class="row">	
+									<div class="col-xs-12 col-sm-12 widget-container-span">
+										<div class="widget-box">
+											<div class="widget-header widget-header-large">
+												<h4>简介</h4>
+
+												<div class="widget-toolbar">
+													<a href="#" data-action="settings">
+														<i class="icon-cog"></i>
+													</a>
+
+													<a href="#" data-action="reload">
+														<i class="icon-refresh"></i>
+													</a>
+
+													<a href="#" data-action="collapse">
+														<i class="icon-chevron-up"></i>
+													</a>
+
+													<a href="#" data-action="close">
+														<i class="icon-remove"></i>
+													</a>
+												</div>
+											</div>
+
+											<div class="widget-body">
+												<div class="widget-main">
+													
+														<h1>虚拟机管理平台<br>
+															<small>This's a Web UI for show virtual machine.</small>
+														</h1>
+														<p>总共分为五大项：虚拟机管理、网络管理、存储池、虚拟机资产管理、用户管理。</p>
+														<p>
+															<b>宿主机：资源利用率，实例控制。</b>															
+														</p>
+														<p>
+															<b>虚拟机管理：功能包括虚拟机迁移，生存周期管理，在线调整内存、CPU资源，热添加、删除硬盘，流量限制，快照技术，Web Console等等。</b>															
+														</p>
+														<p>
+															<b>存储管理：增减卷，支持主流类型存储类型</b>
+														</p>
+														<p>
+															<b>网络管理：支持SDN，底层网络使用OpenVSwitch/Linux Bridge，支持子网隔离，IP地址分配，网卡流量限制等等。</b>
+														</p>
+														<p>
+															<b>用户管理：支持用户权限，用户组，用户虚拟机资源分配等等。</b>
+														</p>
+																											
+												</div>
+											</div>
+										</div>
+									</div>										
+									
+								</div>
+									
+
+								
+								<div class="row">																							
+									<div class="col-xs-12 col-sm-12 widget-container-span">
+										<div class="widget-box">
+											<div class="widget-header widget-header-large">
+												<h4>操作日志</h4>
+
+												<div class="widget-toolbar">
+													<a href="#" data-action="settings">
+														<i class="icon-cog"></i>
+													</a>
+
+													<a href="#" data-action="reload">
+														<i class="icon-refresh"></i>
+													</a>
+
+													<a href="#" data-action="collapse">
+														<i class="icon-chevron-up"></i>
+													</a>
+
+													<a href="#" data-action="close">
+														<i class="icon-remove"></i>
+													</a>
+												</div>
+											</div>
+
+											<div class="widget-body">
+												<div class="widget-main">
+												<ul class="timeline">
+					    							{% for ds in logList %}
+					    								
+					    								{% if forloop.counter|divisibleby:2 %}
+													        <li>
+													          <div class="timeline-badge"><i class="icon-check"></i></div>
+													          <div class="timeline-panel">
+													            <div class="timeline-heading">
+													              <h4 class="timeline-title"><i class="icon-calendar">&nbsp;</i>{{ ds.createTime|date:"Y/m/d H:i:s" }}</h4>
+													              <p><small class="text-muted"><i class="icon-time"></i> {{ ds.createTime }} </small></p>
+													            </div>
+													            <div class="timeline-body">
+													              <p>内容：<strong>{{ ds.desc }}</strong></p>
+													              <p>操作对象：<a href="#">{{ ds.object }}</a></p>
+													              <p>操作人：{{ ds.user }}</p>
+													              {% if ds.status == 0 %}
+													              		<p>结果：<span class="label label-success arrowed">Success</span></p>
+													              		{% else %}
+													              		<p>结果：<span class="label label-danger arrowed-in">Failed</span></p>
+													              {% endif %}
+													            </div>
+													          </div>
+													        </li>				    		
+												    	{% else %}
+													        <li class="timeline-inverted">
+													          <div class="timeline-badge warning"><i class="icon-credit-card"></i></div>
+													          <div class="timeline-panel">
+													            <div class="timeline-heading">
+													              <h4 class="timeline-title"><i class="icon-calendar">&nbsp;</i>{{ ds.createTime|date:"Y/m/d H:i:s" }}</h4>
+													              <p><small class="text-muted"><i class="icon-time"></i> {{ ds.createTime }} </small></p>
+													            </div>
+													             <div class="timeline-body">
+													              <p>内容：<strong>{{ ds.desc }}</strong></p>
+													              <p>操作对象：<a href="#">{{ ds.object }}</a></p>
+													              <p>操作人：{{ ds.user }}</p>													              
+													              {% if ds.status == 0 %}
+													              		<p>结果：<span class="label label-success arrowed">Success</span></p>
+													              		{% else %}
+													              		<p>结果：<span class="label label-danger arrowed-in">Failed</span></p>
+													              {% endif %}
+													            </div>
+													          </div>
+													        </li>				    		
+												    	{% endif %}
+					    									
+					    							{% endfor %}
+					        					</ul>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>	
+							<div class="hr hr32 hr-dotted"></div>
+
+{% endblock %}
+				</div>
+				<div class="ace-settings-container" id="ace-settings-container">
+					<div class="btn btn-app btn-xs btn-warning ace-settings-btn" id="ace-settings-btn">
+						<i class="icon-cog bigger-150"></i>
+					</div>
+
+					<div class="ace-settings-box" id="ace-settings-box">
+						<div>
+							<div class="pull-left">
+								<select id="skin-colorpicker" class="hide">
+									<option data-skin="default" value="#438EB9">#438EB9</option>
+									<option data-skin="skin-1" value="#222A2D">#222A2D</option>
+									<option data-skin="skin-2" value="#C6487E">#C6487E</option>
+									<option data-skin="skin-3" value="#D0D0D0">#D0D0D0</option>
+								</select>
+							</div>
+							<span>&nbsp; 选择皮肤</span>
+						</div>
+
+						<div>
+							<input type="checkbox" class="ace ace-checkbox-2" id="ace-settings-navbar" />
+							<label class="lbl" for="ace-settings-navbar"> 固定导航条</label>
+						</div>
+
+						<div>
+							<input type="checkbox" class="ace ace-checkbox-2" id="ace-settings-sidebar" />
+							<label class="lbl" for="ace-settings-sidebar"> 固定滑动条</label>
+						</div>
+
+						<div>
+							<input type="checkbox" class="ace ace-checkbox-2" id="ace-settings-breadcrumbs" />
+							<label class="lbl" for="ace-settings-breadcrumbs">固定面包屑</label>
+						</div>
+
+						<div>
+							<input type="checkbox" class="ace ace-checkbox-2" id="ace-settings-rtl" />
+							<label class="lbl" for="ace-settings-rtl">切换到左边</label>
+						</div>
+
+						<div>
+							<input type="checkbox" class="ace ace-checkbox-2" id="ace-settings-add-container" />
+							<label class="lbl" for="ace-settings-add-container">
+								切换窄屏
+								<b></b>
+							</label>
+						</div>
+					</div>
+				</div><!-- /#ace-settings-container -->
+			</div><!-- /.main-container-inner -->
+
+			<a href="#" id="btn-scroll-up" class="btn-scroll-up btn btn-sm btn-inverse">
+				<i class="icon-double-angle-up icon-only bigger-110"></i>
+			</a>
+		</div><!-- /.main-container -->
+
+		<!-- basic scripts -->
+
+		<!--[if !IE]> -->
+
+		
+
+		<!-- <![endif]-->
+
+		<!--[if IE]>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<![endif]-->
+
+		<!--[if !IE]> -->
+
+		<script type="text/javascript">
+			window.jQuery || document.write("<script src='/static/js/jquery-2.0.3.min.js'>"+"<"+"/script>");
+		</script>
+
+		<!-- <![endif]-->
+
+		<!--[if IE]>
+<script type="text/javascript">
+ window.jQuery || document.write("<script src='/static/js/jquery-1.10.2.min.js'>"+"<"+"/script>");
+</script>
+<![endif]-->
+
+		<script type="text/javascript">
+			if("ontouchend" in document) document.write("<script src='/static/js/jquery.mobile.custom.min.js'>"+"<"+"/script>");
+		</script>
+		<script src="/static/js/bootstrap.min.js"></script>
+		<script src="/static/js/typeahead-bs2.min.js"></script>
+
+		<!-- page specific plugin scripts -->
+
+		<!-- ace scripts -->
+
+		<script src="/static/js/ace-elements.min.js"></script>
+		<script src="/static/js/ace.min.js"></script>
+
+		<!-- inline scripts related to this page -->
+		<script src="/static/js/jquery-ui-1.10.3.custom.min.js"></script>
+		<script src="/static/js/jquery.ui.touch-punch.min.js"></script>
+		<script src="/static/js/chosen.jquery.min.js"></script>
+		<script src="/static/js/fuelux/fuelux.spinner.min.js"></script>
+		<script src="/static/js/date-time/bootstrap-datepicker.min.js"></script>
+		<script src="/static/js/date-time/bootstrap-timepicker.min.js"></script>
+		<script src="/static/js/date-time/moment.min.js"></script>
+		<script src="/static/js/date-time/daterangepicker.min.js"></script>
+		<script src="/static/js/bootstrap-colorpicker.min.js"></script>
+		<script src="/static/js/jquery.knob.min.js"></script>
+		<script src="/static/js/jquery.autosize.min.js"></script>
+		<script src="/static/js/jquery.inputlimiter.1.3.1.min.js"></script>
+		<script src="/static/js/jquery.maskedinput.min.js"></script>
+		<script src="/static/js/bootstrap-tag.min.js"></script>	
+
+	
+</body>
+</html>
