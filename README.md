@@ -37,4 +37,4 @@
     虚拟机资源
 ![](https://github.com/welliamcao/VManagePlatform/raw/master/demo_images/instance.png)
     Web Console
-![](https://github.com/welliamcao/VManagePlatform/raw/master/demo_images/consle.png)
+    ![](https://github.com/welliamcao/VManagePlatform/raw/master/demo_images/consle.png)
