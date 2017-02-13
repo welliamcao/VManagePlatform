@@ -1,6 +1,3 @@
-Kvm Server Manage Platform
-===========================
-
 ##VManagePlatform是什么?
 一个KVM虚拟化管理平台
 
@@ -25,3 +22,6 @@ Kvm Server Manage Platform
     *  支持用户权限，用户组，用户虚拟机资源分配等等 
 * 宿主机
     *  资源利用率，实例控制
+
+##部分功能截图
+![](https://github.com/welliamcao/VManagePlatform/raw/master/demo_images/login.png)
