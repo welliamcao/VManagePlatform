@@ -6,7 +6,7 @@ Kvm Server Manage Platform
 * 后端Web框架：Django  
 * 后端Task框架：Celery + Redis
 
----
+＝
 
         Kvm虚拟机管理平台，大致有以下几个功能：
                 1）虚拟机管理
@@ -23,6 +23,5 @@ Kvm Server Manage Platform
                 5）宿主机
                         5.1）资源利用率，实例控制。
 
-
----
+＝
 部分功能截图：
