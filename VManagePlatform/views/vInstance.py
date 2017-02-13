@@ -282,8 +282,11 @@ def handleInstance(request):
                 VMS.close()
                 return  JsonResponse({"code":200,"data":None,"msg":"克隆任务提交成功."}) 
             elif op == 'xml':
-                result = INSTANCE.defineXML(xml=request.POST.get('xml')) 
-                if result:result = 0            
+                try:
+                    result = INSTANCE.defineXML(xml=request.POST.get('xml')) 
+                except Exception,e:
+                    result = e
+            if result:result = 0            
             VMS.close()  
             recordLogs.delay(user=request.user,action=op,status=result,vm_name=insName)   
             if result == 0:return  JsonResponse({"code":200,"data":None,"msg":"操作成功。"}) 
