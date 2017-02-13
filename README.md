@@ -7,7 +7,7 @@ Kvm Server Manage Platform
 * 后端Task框架：Celery + Redis
 
 ---
-        Kvm虚拟机管理平台，大致有以下几个功能：
+          Kvm虚拟机管理平台，大致有以下几个功能：
                 1）虚拟机管理
                         1.1）资源利用率（如：CPU、MEM、磁盘、网络）
                         1.2）实例控制（如：生存周期管理、快照技术，Web Console等等）
@@ -21,6 +21,7 @@ Kvm Server Manage Platform
                         4.1）支持用户权限，用户组，用户虚拟机资源分配等等                
                 5）宿主机
                         5.1）资源利用率，实例控制。
+
 
 ---
 部分功能截图：
