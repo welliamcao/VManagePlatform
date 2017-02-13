@@ -28,13 +28,13 @@
 ![](https://github.com/welliamcao/VManagePlatform/raw/master/demo_images/login.png)</br>
     用户注册需要admin激活才能登陆</br>
 ![](https://github.com/welliamcao/VManagePlatform/raw/master/demo_images/register.png)</br>
-    主页</br>
+    主页
 ![](https://github.com/welliamcao/VManagePlatform/raw/master/demo_images/index.png)</br>
-    任务调度</br>
+    任务调度
 ![](https://github.com/welliamcao/VManagePlatform/raw/master/demo_images/task.png)</br>
     宿主机资源</br>
 ![](https://github.com/welliamcao/VManagePlatform/raw/master/demo_images/server.png)</br>
     虚拟机资源</br>
 ![](https://github.com/welliamcao/VManagePlatform/raw/master/demo_images/instance.png)</br>
     Web Console</br>
-    ![](https://github.com/welliamcao/VManagePlatform/raw/master/demo_images/consle.png)</br>
+![](https://github.com/welliamcao/VManagePlatform/raw/master/demo_images/consle.png)</br>
