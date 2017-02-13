@@ -23,8 +23,8 @@
 * 宿主机
     *  资源利用率，实例控制
 
-##部分功能截图登陆页面
-    登录页面</br>
+##部分功能截图:
+    登录页面
 ![](https://github.com/welliamcao/VManagePlatform/raw/master/demo_images/login.png)</br>
     用户注册需要admin激活才能登陆</br>
 ![](https://github.com/welliamcao/VManagePlatform/raw/master/demo_images/register.png)</br>
