@@ -23,5 +23,17 @@
 * 宿主机
     *  资源利用率，实例控制
 
-##部分功能截图
+##部分功能截图登陆页面
 ![](https://github.com/welliamcao/VManagePlatform/raw/master/demo_images/login.png)
+用户注册需要admin激活才能登陆
+![](https://github.com/welliamcao/VManagePlatform/raw/master/demo_images/register.png)
+主页
+![](https://github.com/welliamcao/VManagePlatform/raw/master/demo_images/index.png)
+任务调度
+![](https://github.com/welliamcao/VManagePlatform/raw/master/demo_images/task.png)
+宿主机资源
+![](https://github.com/welliamcao/VManagePlatform/raw/master/demo_images/server.png)
+虚拟机资源
+![](https://github.com/welliamcao/VManagePlatform/raw/master/demo_images/instance.png)
+Web Console
+![](https://github.com/welliamcao/VManagePlatform/raw/master/demo_images/consle.png)
