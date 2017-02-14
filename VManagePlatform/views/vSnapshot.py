@@ -15,7 +15,7 @@ def handleSnapshot(request):
         server_id = request.POST.get('server_id')
         insName = request.POST.get('vm_name')
         snapName = request.POST.get('snap_name')
-        if op in ['view','resume','delete','add']:
+        if op in ['view','resume','delete','add'] and request.user.has_perm('VManagePlatform.change_vmserverinstance'):
             try:
                 vMserver = VMServer.selectOneHost(id=server_id)
             except:

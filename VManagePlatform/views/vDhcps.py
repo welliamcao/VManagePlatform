@@ -6,10 +6,11 @@ from django.contrib.auth.decorators import login_required
 from django.template import RequestContext
 from VManagePlatform.data.vMdhcp import VMDhcp
 from VManagePlatform.utils.vDHCPConfigUtils import DHCPConfig
-
+from django.contrib.auth.decorators import permission_required
 
 
 @login_required
+@permission_required('VManagePlatform.read_vmserver',login_url='/noperm/')
 def configDhcp(request):
     if request.method == "GET":
         dataList = VMDhcp.listVmDhcp()
@@ -37,6 +38,7 @@ def configDhcp(request):
             else:return  JsonResponse({"code":500,"msg":"DHCP添加失败","data":None})
 
 @login_required
+@permission_required('VManagePlatform.change_vmserver',login_url='/noperm/')
 def handleDhcp(request):
     if request.method == "POST":    
         op = request.POST.get('op')

@@ -7,8 +7,10 @@ from django.contrib.auth.decorators import login_required
 from django.template import RequestContext
 from celery.registry import tasks
 from celery.five import keys, items
+from django.contrib.auth.decorators import permission_required
 
 @login_required
+@permission_required('VManagePlatform.change_periodictask',login_url='/noperm/')
 def configTask(request):
     if request.method == "GET":
         #获取注册的任务
@@ -31,7 +33,9 @@ def configTask(request):
                                   context_instance=RequestContext(request))
     elif request.method == "POST":
         op = request.POST.get('op') 
-        if op in ['addCrontab','delCrontab','addInterval','delInterval','addTask','editTask','delTask'] and request.user.has_perm('VManagePlatform.change_crontabschedule'):
+        if op in ['addCrontab','delCrontab','addInterval',
+                  'delInterval','addTask','editTask',
+                  'delTask'] and request.user.has_perm('VManagePlatform.change_periodictask'):
             if op == 'addCrontab':
                 try:
                     CrontabSchedule.objects.create(minute=request.POST.get('minute'),hour=request.POST.get('hour'),
@@ -101,6 +105,7 @@ def configTask(request):
     
     
 @login_required
+@permission_required('VManagePlatform.read_periodictask',login_url='/noperm/')
 def viewTask(request):
     if request.method == "GET":
         try:

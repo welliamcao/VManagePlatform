@@ -5,6 +5,7 @@ from django.http import JsonResponse
 from django.shortcuts import render_to_response
 from django.contrib.auth.decorators import login_required
 from django.template import RequestContext
+from django.contrib.auth.decorators import permission_required
 
 def register(request):
     if request.method == "POST":
@@ -27,7 +28,8 @@ def register(request):
         else:return JsonResponse({"code":500,"data":None,"msg":"密码不一致，用户注册失败。"}) 
         
 
-@login_required         
+@login_required      
+@permission_required('VManagePlatform.change_group',login_url='/noperm/')    
 def groupmanage(request):
     if request.method == "GET":
         op = request.GET.get('op')
@@ -105,7 +107,8 @@ def groupmanage(request):
         else:return  JsonResponse({"code":500,"data":None,"msg":"不支持的操作或者您没有权限操作操作此项。"})            
     else:return  JsonResponse({"code":500,"data":None,"msg":"不支持的HTTP操作"})
           
-@login_required       
+@login_required    
+@permission_required('VManagePlatform.change_user',login_url='/noperm/')   
 def usermanage(request):
     if request.method == "GET":
         op = request.GET.get('op')
@@ -144,7 +147,7 @@ def usermanage(request):
             
     elif request.method == "POST":
         op = request.POST.get('op')
-        if op in ['active','superuser','delete','modify'] and request.user.has_perm('VManagePlatform.change_user'):
+        if op in ['active','superuser','delete','modify']:
             try:
                 user = User.objects.get(id=request.POST.get('id'))
             except:

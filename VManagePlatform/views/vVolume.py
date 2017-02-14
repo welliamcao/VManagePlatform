@@ -12,7 +12,7 @@ def handleVolume(request):
         op = request.POST.get('op') 
         server_id = request.POST.get('server_id') 
         pool_name = request.POST.get('pool_name') 
-        if op in ['delete','add']:
+        if op in ['delete','add'] and request.user.has_perm('VManagePlatform.change_vmserverinstance'):
             try:
                 vmServer = VMServer.selectOneHost(id=server_id)
             except:

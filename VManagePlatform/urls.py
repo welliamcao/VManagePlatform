@@ -30,7 +30,7 @@ from VManagePlatform.restfull import rest_vMserver
 
 
 urlpatterns = [
-    url(r'^admin/', include(admin.site.urls)),
+#     url(r'^admin/', include(admin.site.urls)),
     url(r'^$',vComs.index),
     url(r'^login/',vComs.login),
     url(r'^register/',vUser.register),

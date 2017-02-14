@@ -18,6 +18,7 @@ def listVmServer(request):
     
 
 @login_required
+@permission_required('VManagePlatform.read_vmserver',login_url='/noperm/')
 def viewVmServer(request):
     if request.GET.get('op') =="view":
         sid = request.GET.get('id')
