@@ -12,7 +12,7 @@ def profile(request):
     if request.method == "GET":
         try:
             logList = VmLogs.objects.filter(user=request.user).all().order_by("-id")[0:10]
-            vmList = VmServerInstance.objects.filter(owner=request.user).all().order_by("-id")[0:100]
+            vmList = VmServerInstance.objects.select_related().filter(owner=request.user).all().order_by("-id")[0:100]
         except:
             logList = None
             vmList = None

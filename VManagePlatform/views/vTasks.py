@@ -73,6 +73,7 @@ def configTask(request):
                                                 args = request.POST.get('args','[]'),
                                                 kwargs = request.POST.get('kwargs','{}'),
                                                 queue = request.POST.get('queue',None),
+                                                enabled = int(request.POST.get('enabled',1)),
                                                 expires = request.POST.get('expires',None)
                                                       )
                     return  JsonResponse({"code":200,"data":None,"msg":"添加成功"})
@@ -94,6 +95,7 @@ def configTask(request):
                     task.kwargs = request.POST.get('kwargs')
                     task.queue = request.POST.get('queue',None)
                     task.expires = request.POST.get('expires',None)
+                    task.enabled = int(request.POST.get('enabled'))
                     task.save()
                     return  JsonResponse({"code":200,"data":None,"msg":"修改成功"})
                 except Exception,e:

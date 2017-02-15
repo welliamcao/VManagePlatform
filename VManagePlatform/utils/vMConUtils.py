@@ -225,7 +225,17 @@ class VMServer(VMBase):
             try:
                 vnc_port = xml.getElementsByTagName('graphics')[0].getAttribute("port") 
             except:
-                vnc_port = 0                                             
+                vnc_port = 0 
+            ntkList = []
+            #获取主机Mac地址
+            for nk in xml.getElementsByTagName('interface'):
+                if nk.getElementsByTagName('mac') and nk.getElementsByTagName('target'):
+                    ntkData = dict()
+                    mac = nk.getElementsByTagName('mac')[0].getAttribute('address')
+                    name = nk.getElementsByTagName('target')[0].getAttribute("dev")
+                    ntkData['name'] = name
+                    ntkData['mac'] = mac
+                    ntkList.append(ntkData)
             data = dict()
             data["name"] = ins.name()
             data["status"] = ins.state()[0]
@@ -235,6 +245,7 @@ class VMServer(VMBase):
             data["mem"] = mem
             data["vnc"] = vnc_port
             data['token'] = TokenUntils.makeToken(str=server_ip+data["name"])
+            data['netk'] = ntkList
             dataList.append(data)
         return dataList
     

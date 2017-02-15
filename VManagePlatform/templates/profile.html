@@ -53,8 +53,8 @@
 																				<span class="lbl"></span>
 																			</label>
 																		</th>
+																		<th>宿主机</th>
 																		<th>实例名称</th>
-																		<th>IP地址</th>
 																		<th>CPU</th>			
 																		<th>
 																			<i class="icon-time bigger-110"></i>
@@ -76,13 +76,12 @@
 																		</td>
 				
 																		<td>
+																			<a href="/viewServer/?op=view&id={{ds.server.id}}">{{ ds.server.server_ip }}</a>
 																			
-																			<a href="/viewInstance/?id={{ds.server_id}}&vm_name={{ ds.name }}">
-																				{{ ds.name }}
-																			</a>
 																		</td>
 																		<td>
-																			{{ ds.ip }}
+																			<a href="/viewInstance/?id={{ds.server_id}}&vm_name={{ ds.name }}">
+																			{{ ds.name }}
 																			</a>
 																		</td>
 																		<td>{{ ds.cpu }}</td>

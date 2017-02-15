@@ -81,7 +81,7 @@ def updateVMinstance(host=None):
             SERVER = VMS.genre(model='server')    
             if SERVER:
                 dataList = SERVER.getVmInstanceBaseInfo(server_ip=server.server_ip,server_id=server.id)
-                for ds in dataList:
+                for ds in dataList:                            
                     result = VmServerInstance.objects.filter(server=server,name=ds.get('name'))
                     if result:VmServerInstance.objects.filter(server=server,name=ds.get('name')).update(server=server,cpu=ds.get('cpu'),
                                                                                                         mem=ds.get('mem'),vnc=ds.get('vnc'),

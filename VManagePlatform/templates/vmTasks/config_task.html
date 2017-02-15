@@ -294,11 +294,11 @@
 																		<td>
 														                   	{% if ds.enabled == 1 %}
 														                   		 <span class="label label-success arrowed">
-																					已激活
+																					激活
 																				</span>													                   
 														                   	{% else %}
 														                   		 <span class="label label-danger arrowed">
-																					未激活
+																					冻结
 																				</span>							                   		 
 														                   	{% endif %}																
 																			
@@ -416,14 +416,14 @@
 										<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>参数列表</strong></label>
 							
 											<div class="col-sm-9">
-												<input class="input-sm" type="text"   value="{{ds.args}}" placeholder="['192.168.1.233']" name="args" />																														
+												<input class="input-sm" type="text"   value="{{ds.args}}" placeholder='["192.168.1.233"]' name="args" />																														
 										</div>
 								</div>							
 										
 								<div class="form-group">
 										<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>参数字典</strong></label>							
 											<div class="col-sm-9">
-											<input class="input-sm" type="text"   value="{{ds.kwargs}}" placeholder="{'key':'value'}" name="kwargs" />																												
+											<input class="input-sm" type="text"   value="{{ds.kwargs}}" placeholder='{"key":"value"}' name="kwargs" />																												
 										</div>
 								</div>
 								<div class="form-group">
@@ -447,7 +447,24 @@
 											{% endif %}																			
 										</div>																				
 										
-								</div>					
+								</div>	
+								<div class="form-group">
+										<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>是否激活</strong></label>
+							
+
+										<div class="col-sm-9">
+											<select name="enabled">
+													{% if ds.enabled == 1 %}
+													<option selected="selected" value="1">激活</option>
+													<option value="0">冻结</option>
+													{% else %}
+													<option  value="1">激活</option>
+													<option selected="selected" value="0">冻结</option>
+													{% endif %}																																								
+											</select>																				
+										</div>																				
+										
+								</div>				
 																		
 						</form>	
 						
@@ -485,7 +502,7 @@
 										<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>分</strong></label>
 							
 											<div class="col-sm-9">
-											<input class="input-sm" type="text"   value="5" placeholder="5" name="every" />																				
+											<input class="input-sm" type="text"   value="*/5" placeholder="*/5" name="minute" />																				
 										</div>
 								</div>
 
@@ -693,7 +710,19 @@
 											<input class="input-sm" type="text"   value="" placeholder="2017-01-10 00:00:01" name="expires" />																				
 										</div>																				
 										
-								</div>					
+								</div>	
+								<div class="form-group">
+										<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>是否激活</strong></label>
+							
+
+										<div class="col-sm-9">
+											<select name="enabled">
+													<option selected="selected" value="1">激活</option>
+													<option value="0">冻结</option>																																								
+											</select>																				
+										</div>																				
+										
+								</div>				
 																		
 						</form>	
 						
