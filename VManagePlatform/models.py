@@ -17,11 +17,11 @@ class VmServer(models.Model):
     modifyTime = models.DateTimeField(auto_now=True,blank=True,null=True)
     class Meta:
         permissions = (
-            ("read_vmserver", "Can read host vmserver"),
+            ("read_vmserver", "Can read 虚拟主机信息"),
         )
-        verbose_name = '虚拟主机连接表'  
-        verbose_name_plural = '虚拟主机连接表'
-#         unique_together = (("server_ip", "uri"))
+        verbose_name = '虚拟主机信息'  
+        verbose_name_plural = '虚拟主机信息'
+
 
 class VmDHCP(models.Model):
     mode = models.CharField(unique=True,max_length=100,verbose_name='dhcp类型')
@@ -38,10 +38,10 @@ class VmDHCP(models.Model):
     modifyTime = models.DateTimeField(auto_now=True,blank=True,null=True)
     class Meta:
         permissions = (
-            ("read_vmdhcp", "Can read host vmdhcp"),
+            ("read_vmdhcp", "Can read 虚拟主机DHCP配置"),
         )
-        verbose_name = '虚拟主机DHCP配置表'  
-        verbose_name_plural = '虚拟主机DHCP配置表'
+        verbose_name = '虚拟主机DHCP配置'  
+        verbose_name_plural = '虚拟主机DHCP配置'
         unique_together = (("mode", "brName"))
 
 class VmInstance_Template(models.Model):
@@ -51,9 +51,12 @@ class VmInstance_Template(models.Model):
     disk =  models.SmallIntegerField(verbose_name='磁盘大小') 
     class Meta:
         permissions = (
-            ("read_vminstance_template", "Can read host vminstance template"),
+            ("read_vminstance_template", "Can read 虚拟主机模板"),
         )
-    
+        verbose_name = '虚拟主机模板'  
+        verbose_name_plural = '虚拟主机模板'
+        
+        
 class VmServerInstance(models.Model):  
     server = models.ForeignKey('VmServer') 
     name =  models.CharField(max_length=100,verbose_name='实例名称')
@@ -66,10 +69,10 @@ class VmServerInstance(models.Model):
     vnc = models.SmallIntegerField(blank=True,null=True,verbose_name='VNC端口')
     class Meta:
         permissions = (
-            ("read_vmserver_instance", "Can read vmserver_instance"),
+            ("read_vmserver_instance", "Can read 虚拟主机实例"),
         )
-        verbose_name = '虚拟主机实例表'  
-        verbose_name_plural = '虚拟主机实例表'  
+        verbose_name = '虚拟主机实例'  
+        verbose_name_plural = '虚拟主机实例'  
     unique_together = (("server", "name"))    
         
 
@@ -86,5 +89,7 @@ class VmLogs(models.Model):
     createTime = models.DateTimeField(auto_now_add=True,blank=True,null=True)
     class Meta:
         permissions = (
-            ("read_vmlogs", "Can read vmlogs"),
+            ("read_vmlogs", "Can read 虚拟主机操作日志"),
         )
+        verbose_name = '虚拟主机操作日志'  
+        verbose_name_plural = '虚拟主机操作日志' 

@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.template import RequestContext
 from django.contrib.auth.decorators import permission_required
 
+
 def register(request):
     if request.method == "POST":
         if request.POST.get('password') == request.POST.get('c_password'):
@@ -29,7 +30,7 @@ def register(request):
         
 
 @login_required      
-@permission_required('VManagePlatform.change_group',login_url='/noperm/')    
+@permission_required('auth.change_group',login_url='/noperm/')    
 def groupmanage(request):
     if request.method == "GET":
         op = request.GET.get('op')
@@ -55,7 +56,7 @@ def groupmanage(request):
                                   context_instance=RequestContext(request)) 
     elif request.method == "POST":
         op = request.POST.get('op')
-        if op == 'add' and request.user.has_perm('VManagePlatform.add_group'):
+        if op == 'add' and request.user.has_perm('auth.add_group'):
             try:
                 group = Group()
                 group.name = request.POST.get('name')
@@ -108,7 +109,7 @@ def groupmanage(request):
     else:return  JsonResponse({"code":500,"data":None,"msg":"不支持的HTTP操作"})
           
 @login_required    
-@permission_required('VManagePlatform.change_user',login_url='/noperm/')   
+@permission_required('auth.change_user',login_url='/noperm/')   
 def usermanage(request):
     if request.method == "GET":
         op = request.GET.get('op')
