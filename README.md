@@ -30,9 +30,9 @@
 * SDN需求：OpenVswitch Or Linux Birdge
 
 ##TIPS：
-* 控制服务器：执行1-7步骤 
+* 控制服务器：执行1-10步骤 
 * 节点服务器：执行2/3/4步骤，在控制服务器上执行5步骤中的ssh-copy-id
-
+* 为了更好的体验，建议使用Chrome或者Foxfire
 
 ##安装环境配置</br>
 
@@ -142,6 +142,58 @@ TEMPLATE_DIRS = (
 #     os.path.join(BASE_DIR,'mysite\templates'),
     '/yourpath/VManagePlatform/VManagePlatform/templates',
 )
+```
+
+八、生成VManagePlatform数据表
+```
+# cd /yourpath/VManagePlatform/VManagePlatform/
+# python manage.py migrate
+# python manage.py createsuperuser
+```
+九、启动VManagePlatform
+```
+# cd /yourpath/VManagePlatform/VManagePlatform/
+# python manage.py runserver youripaddr:8000
+```
+
+十、配置任务系统
+```
+# echo_supervisord_conf > /etc/supervisord.conf
+# vim /etc/supervisord.conf
+最后添加
+[program:celery-worker]
+command=/usr/bin/python manage.py celery worker --loglevel=info -E -B  -c 2
+directory=/yourpath/VManagePlatform
+stdout_logfile=/var/log/celery-worker.log
+autostart=true
+autorestart=true
+redirect_stderr=true
+stopsignal=QUIT
+numprocs=1
+
+[program:celery-beat]
+command=/usr/bin/python manage.py celery beat
+directory=/yourpath/VManagePlatform
+stdout_logfile=/var/log/celery-beat.log
+autostart=true
+autorestart=true
+redirect_stderr=true
+stopsignal=QUIT
+numprocs=1
+
+[program:celery-cam]
+command=/usr/bin/python manage.py celerycam
+directory=/yourpath/VManagePlatform
+stdout_logfile=/var/log/celery-celerycam.log
+autostart=true
+autorestart=true
+redirect_stderr=true
+stopsignal=QUIT
+numprocs=1
+
+启动celery
+# /usr/local/bin/supervisord -c /etc/supervisord.conf
+# supervisorctl status
 ```
 
 
