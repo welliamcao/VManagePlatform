@@ -27,9 +27,6 @@ CELERY_TRACK_STARTED = True
 CELERY_TIMEZONE='Asia/Shanghai'
 platforms.C_FORCE_ROOT = True
 
-'''config redis db'''
-REDIS_KWARGS_VMANAGE = {'host':'192.168.1.233','port':6379,'db':0}
-REDIS_POOLS_VMANAGE = None
 
 '''on_vnc config'''
 VNC_PROXY_PORT = 6080
@@ -37,7 +34,6 @@ VNC_TOKEN_PATH = os.path.join(os.getcwd(), 'vnc', 'utils', 'vnc_tokens')
 
 
 
-IMAGES_NFS_PATH = '/opt/iso/'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
