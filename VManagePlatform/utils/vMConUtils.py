@@ -956,15 +956,45 @@ class VMInstance(VMBase):
         return vMUtil.get_xml_path(instance.XMLDesc(0) , func=interface)        
             
     def setInterfaceBandwidth(self,instance,port,bandwidth):
-        bandXml = '''
-        <bandwidth>
-            <inbound average='{bandwidth}' peak='{bandwidth}' burst='1024'/>
-            <outbound average='{bandwidth}' peak='{bandwidth}' burst='1024'/>
-        </bandwidth>'''.format(bandwidth=int(bandwidth)*1024)
-        devStr = "<target dev='{port}'/>".format(port=port)
+        '''限制流量'''
         domXml = instance.XMLDesc(0)
-        domXml = domXml.replace(devStr,devStr+bandXml)
-        if self.defineXML(domXml):return 0          
+        root = ElementTree.fromstring(domXml)
+        try:
+            for dev in root.findall('.//devices/'):
+                if dev.tag == 'interface':
+                    for iter in dev:
+                        if iter.tag == 'target' and iter.get('dev') == port:
+                            bwXml = ElementTree.SubElement(dev,'bandwidth')   
+                            inbdXml = ElementTree.Element('inbound')
+                            inbdXml.set('average',str(int(bandwidth)*1024))
+                            inbdXml.set('peak',str(int(bandwidth)*1024))
+                            inbdXml.set('burst','1024')
+                            outbdXml = ElementTree.Element('outbound')
+                            outbdXml.set('average',str(int(bandwidth)*1024))
+                            outbdXml.set('peak',str(int(bandwidth)*1024))
+                            outbdXml.set('burst','1024')
+                            bwXml.append(inbdXml)
+                            bwXml.append(outbdXml)
+            domXml = ElementTree.tostring(root)
+        except Exception,e:
+            return {"status":"faild",'data':e}
+        if self.defineXML(domXml):return {"status":"success",'data':None} 
+    
+    def cleanInterfaceBandwidth(self,instance,port):
+        '''清除流量限制'''
+        domXml = instance.XMLDesc(0)
+        root = ElementTree.fromstring(domXml)
+        try:
+            for dev in root.findall('.//devices/'):
+                if dev.tag == 'interface':
+                    for iter in dev:
+                        if iter.get('dev') == port:
+                            for iter in dev:
+                                if iter.tag == 'bandwidth':dev.remove(iter) 
+            domXml = ElementTree.tostring(root)
+        except Exception,e:
+            return {"status":"faild",'data':e}
+        if self.defineXML(domXml):return {"status":"success",'data':None}     
         
     def getInstanceIsActive(self,instance):
         if instance.isActive():status = 0  

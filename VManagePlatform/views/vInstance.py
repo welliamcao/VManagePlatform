@@ -221,10 +221,11 @@ def modfInstance(request):
                         if int(request.POST.get('bandwidth')) == 0:result = OVS.ovsCleanBandwidth(port=request.POST.get('netk_name'))
                         else:result = OVS.ovsConfBandwidth(port=request.POST.get('netk_name'), bandwidth=request.POST.get('bandwidth'))
                     else:
+                        if int(request.POST.get('bandwidth')) == 0:result = INSTANCE.cleanInterfaceBandwidth(instance, request.POST.get('netk_name'))
                         result = INSTANCE.setInterfaceBandwidth(instance, port=request.POST.get('netk_name'), bandwidth=request.POST.get('bandwidth'))
                     SSH.close()
                     LIBMG.close()
-                    if result.get('status') == 'success' or result == 0:return  JsonResponse({"code":200,"data":None,"msg":"操作成功。"}) 
+                    if result.get('status') == 'success':return  JsonResponse({"code":200,"data":None,"msg":"操作成功。"}) 
                     else:return  JsonResponse({"code":500,"data":None,"msg":"未设置带宽，不需要清除"})    
                             
                        
