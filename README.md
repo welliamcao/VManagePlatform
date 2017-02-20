@@ -48,18 +48,21 @@
 # chkconfig NetworkManager off
 
 2、安装kvm虚拟机
-# yum install kvm libvirt libvirt-devel python-virtinst python-virtinst qemu-kvm virt-viewer bridge-utils virt-top libguestfs-tools ca-certificates audit-libs-python device-mapper-libs
+# yum install kvm libvirt libvirt-devel python-virtinst python-virtinst qemu-kvm virt-viewer bridge-utils virt-top libguestfs-tools ca-certificates audit-libs-python device-mapper-libs 
 # 启动服务
 # /etc/init.d/libvirtd start
 注：下载virtio-win-1.5.2-1.el6.noarch.rpm，如果不安装window虚拟机或者使用带virtio驱动的镜像可以不用安装
 # rpm -ivh virtio-win-1.5.2-1.el6.noarch.rpm
 
+节点服务器不必执行
+# yum -y install dnsmasq
+# mkdir -p /var/run/dnsmasq/
 ```
 
 三、安装OpenVswitch（如果使用底层网络使用Linux Bridge可以不必安装）
 ```
 安装openvswitch
-# yum install gcc make python-devel openssl-devel kernel-devel graphviz kernel-debug-devel autoconf automake rpm-build redhat-rpm-config libtool dnsmasq
+# yum install gcc make python-devel openssl-devel kernel-devel graphviz kernel-debug-devel autoconf automake rpm-build redhat-rpm-config libtool 
 # wget http://openvswitch.org/releases/openvswitch-2.3.1.tar.gz
 # tar xfz openvswitch-2.3.1.tar.gz
 # mkdir -p ~/rpmbuild/SOURCES
