@@ -74,12 +74,13 @@ def handleDhcp(request):
                 if vMdhcp.isAlive == 0 and vMdhcp.status == 1:
                     if vMdhcp.mode == 'dhcp-ext':
                         status = DHCP.start(netnsName=vMdhcp.mode, iprange=vMdhcp.ip_range, 
-                                            port=vMdhcp.dhcp_port, mode='ext', 
+                                            port=vMdhcp.dhcp_port, mode='ext',
+                                            brName=vMdhcp.brName,drive=vMdhcp.drive,
                                             gateway=vMdhcp.gateway, dns=vMdhcp.dns)
                     elif vMdhcp.mode == 'dhcp-int':
-                        status = DHCP.start(netnsName=vMdhcp.mode, iprange=vMdhcp.ip_range, 
-                                            port=vMdhcp.dhcp_port, mode='int', 
-                                            gateway=vMdhcp.gateway, dns=vMdhcp.dns)
+                        status = DHCP.start(netnsName=vMdhcp.mode, iprange=vMdhcp.ip_range,
+                                            drive=vMdhcp.drive,port=vMdhcp.dhcp_port, 
+                                            mode='int',brName=vMdhcp.brName)
                     if status[0] == 0:
                         VMDhcp.updateStatus(id=dhcp_id, status=0)
                         return JsonResponse({"code":200,"msg":"DHCP服务启动成功。","data":None})
@@ -95,9 +96,9 @@ def handleDhcp(request):
                         status = DHCP.stop(mode='int')
                     if status[0] == 0:
                         VMDhcp.updateStatus(id=dhcp_id, status=1)
-                        return JsonResponse({"code":200,"msg":"DHCP服务启动成功。","data":None})
+                        return JsonResponse({"code":200,"msg":"DHCP服关闭成功。","data":None})
                     else:
-                        return JsonResponse({"code":500,"msg":"DHCP服务启动失败。","data":status[1]}) 
+                        return JsonResponse({"code":500,"msg":"DHCP服务关闭失败。","data":status[1]}) 
                 else:
                     return JsonResponse({"code":500,"msg":"请先激活DHCP配置或者DHCP服务已是关闭状态。","data":None})  
                 

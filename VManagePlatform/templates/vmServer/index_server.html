@@ -493,7 +493,7 @@
 							                	<td>
 								                  <strong>卷个数	</strong>
 							                	</td>			
-							                	<td class="col-xs-1">
+							                	<td class="center col-xs-1">
 								                  <strong>操作	</strong>
 							                	</td>					                			                							                						                	
 							                </tr>				           	
@@ -512,7 +512,7 @@
 							                	<td>
 								                  {{ ds.pool_available }}
 							                	</td>
-							                	<td>
+							                	<td class="center col-xs-2">
 													<div class="progress  progress-striped" data-percent="{{ ds.pool_per }}%">
 														{% if ds.pool_per > 90  %}
 															<div class="progress-bar progress-bar-danger" style="width: {{ ds.pool_per }}%;"></div>
@@ -537,33 +537,16 @@
 								                  {{ ds.pool_volumes }}
 							                	</td>
 							                
-							                	<td>
-													<div class="btn-group">
-														<button data-toggle="dropdown" class="btn btn-inverse btn-sm dropdown-toggle">
-															<i class="icon-wrench  bigger-110 icon-only"> </i>
-															<span class="icon-caret-down icon-on-right"></span>
-														</button>
-		
-														<ul class="dropdown-menu dropdown-info pull-right">
-															<li>
-																<a href="#">禁用</a>
-															</li>
-		
-															<li>
-																<a href="#">新增卷</a>
-															</li>
-		
-															<li>
-																<a href="#">删除卷</a>
-															</li>
-		
-															<li class="divider"></li>
-		
-															<li>
-																<a href="javascript:" onclick="onBtnHandleStorage(this,{{ vmServer.id }},'{{ vmServer.server_ip }}','{{ ds.pool_name }}','delete')">删除存储池</a>
-															</li>													
-														</ul>
-													</div>						                  
+							                	<td class="center col-sm-2">
+														
+													<div class="visible-md visible-lg hidden-sm hidden-xs action-buttons">															
+														<a class="black" href="/viewStorage/?id={{ vmServer.id }}&pool={{ ds.pool_name }}">
+															<i class="icon-zoom-in  bigger-120"></i>
+														</a>														
+														<a class="red" href="javascript:" onclick="onBtnHandleStorage(this,{{ vmServer.id }},'{{ vmServer.server_ip }}','{{ ds.pool_name }}','delete')">
+															<i class="icon-trash  bigger-120"></i>
+														</a>																																																
+													</div>					                  
 							                	</td>					                	
 							                </tr>
 							                					                						                				                					                		           			

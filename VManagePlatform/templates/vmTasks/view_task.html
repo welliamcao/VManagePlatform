@@ -5,12 +5,22 @@
 							<div class="row">
 									<div class="col-xs-12">
 																			
-										
+										<div class="pull-right">				
+											<select class="chosen-select"  data-placeholder="选择Task类型" id="task-select"  onchange="javascript:oBtTaskTypeSelect();">
+												<option value="">选择Task类型</option>
+												{% for ds in taskList %}
+													<option value="{{ds.id}}">{{ds.name}}</option>
+												{% endfor %}															
+											</select>
+										</div>
 										
 										<h3 class="header smaller lighter blue">
 											<i class="icon-rss icon-animated-hand-pointer blue"></i>
 											任务运行日志列表
 										</h3>
+										
+											
+																										
 										<div class="table-header">
 											当前最近300条任务日志
 										</div>
@@ -182,7 +192,16 @@
 				});
 					
 			});
-		
+			
+			
+				
+			$(".chosen-select").chosen(); 
+			$('#chosen-multiple-style').on('click', function(e){
+					var target = $(e.target).find('input[type=radio]');
+					var which = parseInt(target.val());
+					if(which == 2) $('#form-field-select-4').addClass('tag-input-style');
+					 else $('#form-field-select-4').removeClass('tag-input-style');
+			});
 		
 			$('[data-rel="tooltip"]').tooltip({placement: tooltip_placement});
 			function tooltip_placement(context, source) {
@@ -199,6 +218,16 @@
 			}
 		});
 
+		
+		function oBtTaskTypeSelect() {
+			   var obj = document.getElementById("task-select"); 
+			   var index = obj.selectedIndex;
+			   var value = obj.options[index].value;
+			   if ( value.length >0 ) {
+				   window.location.href='/viewTask/?taskid='+ value;
+			   }
+			   
+		}
 		
 		function onBtnViewTaskLog(obj, id,task_id,op){
 			var btnObj = $(obj);

@@ -893,15 +893,17 @@ class VMInstance(VMBase):
         if netk:
             xml = netk.XMLDesc(0)
             tree = ElementTree.fromstring(xml)
-            mode = tree.find('virtualport').get('type')        
-            if mode is None:mode = 'brct'    
+            try:
+                mode = tree.find('virtualport').get('type')  
+            except:
+                mode = 'brct'         
             interXml = Const.CreateNetcard(nkt_br=brName, ntk_name=brName +'-'+CommTools.radString(length=4), mode=mode)
             try:
-                result = instance.attachDeviceFlags(interXml,3)#如果是关闭状态则标记flags为3，保证添加的硬盘重启不会丢失 
-            except:
-                return False
-            if result == 0:return True
-            else:return False
+                return instance.attachDeviceFlags(interXml,3)#如果是关闭状态则标记flags为3，保证添加的硬盘重启不会丢失 
+            except Exception,e:
+                return e
+        else:return False 
+
         
     def delInstanceInterface(self,instance,interName): 
         '''添加网络设备''' 

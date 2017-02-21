@@ -361,6 +361,7 @@
 						success:function(response){
 							if (response["code"] == 200){
 								window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
+								location.reload();
 							}
 							else {
 								window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
@@ -404,7 +405,7 @@
 									      success:function(response){			            
 								                if (response["code"]=="200"){ 
 								                	window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
-			
+								                	location.reload();
 								                }
 									        	else{
 									        		window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);

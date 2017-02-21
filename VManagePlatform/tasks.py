@@ -6,9 +6,8 @@ from VManagePlatform.data.vMserver import VMServer
 from VManagePlatform.data.vMdhcp import VMDhcp
 from VManagePlatform.utils.vDHCPConfigUtils import DHCPConfig
 from VManagePlatform.utils.vMConUtils import LibvirtManage
-from VManagePlatform.utils.LoggerUtils import BaseLogging
 from VManagePlatform.models import VmLogs,VmServerInstance
-from VManagePlatform.utils.vConnUtils import TokenUntils
+
 
 '''
 Django 版本大于等于1.7的时候，需要加上下面两句
@@ -105,14 +104,16 @@ def startDhcpServer():
             if dh.mode == 'dhcp-int': 
                 status = DHCP.status(mode='int')               
                 if status[0] > 0:
-                    DHCP.start(netnsName=dh.mode, iprange=dh.ip_range, 
-                                   port=dh.dhcp_port, mode='int', 
-                                   gateway=dh.gateway, dns=dh.dns)                          
+                    DHCP.start(netnsName=dh.mode, iprange=dh.ip_range,
+                               port=dh.dhcp_port,drive=dh.drive,
+                               mode='int',brName=dh.brName,
+                               gateway=dh.gateway, dns=dh.dns)                          
             elif dh.mode == 'dhcp-ext':
                 status = DHCP.status(mode='ext')
                 if status[0] > 0:
-                    DHCP.start(netnsName=dh.mode, iprange=dh.ip_range, 
-                               port=dh.dhcp_port, mode='ext', 
+                    DHCP.start(netnsName=dh.mode, iprange=dh.ip_range,
+                               port=dh.dhcp_port, drive=dh.drive,
+                               mode='ext',brName=dh.brName,
                                gateway=dh.gateway, dns=dh.dns)               
             
 

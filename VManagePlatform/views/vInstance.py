@@ -286,11 +286,10 @@ def handleInstance(request):
                 try:
                     result = INSTANCE.defineXML(xml=request.POST.get('xml')) 
                 except Exception,e:
-                    result = e
-            if result:result = 0            
+                    result = e           
             VMS.close()  
             recordLogs.delay(user=request.user,action=op,status=result,vm_name=insName)   
-            if result == 0:return  JsonResponse({"code":200,"data":None,"msg":"操作成功。"}) 
+            if isinstance(result,int):return  JsonResponse({"code":200,"data":None,"msg":"操作成功。"}) 
             else:return  JsonResponse({"code":500,"data":result,"msg":"操作失败。"})           
         else:
             return  JsonResponse({"code":500,"data":None,"msg":"不支持的操作或者您没有权限操作操作此项。"})            

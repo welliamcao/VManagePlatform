@@ -112,11 +112,17 @@ def viewTask(request):
     if request.method == "GET":
         try:
             task = {}
+            taskList = PeriodicTask.objects.all().order_by("-id")
             for ds in PeriodicTask.objects.all():
-                task[ds.task] = ds.name
+                task[ds.task] = [ds.name]
             taskLog = []
-            for ds in TaskState.objects.all().order_by("-id")[0:300]:
-                if task.has_key(ds.name):ds.name = task[ds.name]
+            if request.GET.get('taskid'):
+                tasks =  PeriodicTask.objects.get(id=int(request.GET.get('taskid')))
+                dataList = TaskState.objects.filter(name=tasks.task).order_by("-id")[0:300]
+            else:
+                dataList = TaskState.objects.all().order_by("-id")[0:300]
+            for ds in dataList:
+                if task.has_key(ds.name):ds.name = task[ds.name][0]
                 ds.args = ds.args.replace('[u','[')
                 taskLog.append(ds)
         except:
@@ -124,7 +130,7 @@ def viewTask(request):
         return render_to_response('vmTasks/view_task.html',
                                   {"user":request.user,"localtion":[{"name":"首页","url":'/'},{"name":"任务调度","url":'#'},
                                                                     {"name":"运行日志","url":"/viewTask"}],
-                                    "taskLog":taskLog},
+                                    "taskLog":taskLog,"taskList":taskList},
                                   context_instance=RequestContext(request))
     elif request.method == "POST":
         op = request.POST.get('op')
