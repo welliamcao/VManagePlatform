@@ -1011,6 +1011,7 @@
 				success:function(response){
 					if (response["code"] == 200){
 						window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
+						location.reload();
 					}
 					else {
 						window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
@@ -1071,14 +1072,9 @@
 									"snap_name":snap
 								},
 						      success:function(response){			            
-					                if (response["code"]=="200"){ 
-					                	
-					                		
-					                	
+					                if (response["code"]=="200"){ 					                						                					
 					                	window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
-					                	
-					                	
-										
+					                	location.reload();
 					                }
 						        	else{
 						        		window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
