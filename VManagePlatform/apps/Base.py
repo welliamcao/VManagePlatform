@@ -1,10 +1,8 @@
 # -*- coding=utf-8 -*-
-import chardet,logging
+import logging
 from logging.handlers import RotatingFileHandler
-import os,sys,time,json,imp
-from datetime import datetime,date,timedelta
-from email.mime.text import MIMEText
-from requests.auth import HTTPDigestAuth
+import os,sys
+
 
 
 gProDir = os.path.dirname(os.path.abspath(sys.argv[ 0])) + '/'

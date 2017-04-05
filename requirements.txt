@@ -6,5 +6,4 @@ djangorestframework
 paramiko
 redis
 libvirt-python
-libxml2-python
 supervisor
