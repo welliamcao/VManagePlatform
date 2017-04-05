@@ -349,7 +349,7 @@
 																<select id="device-select" name="device" onchange="javascript:oBtDeviceTypeSelect();">
 																	<option value="cpu">CPU</option>	
 																	<option value="mem">内存</option>						
-																	<option value="disk">硬盘</option>																	
+<!-- 																	<option value="disk">硬盘</option>																	 -->
 																	<option value="bandwidth">带宽</option>
 																</select>											
 															</div>
@@ -392,19 +392,16 @@
 																</select>											
 															</div>
 														</div>					
-														<div class="form-group" style="display: none;" id="div_disk">																												
-															<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>硬盘</strong></label>
+<!-- 														<div class="form-group" style="display: none;" id="div_disk">																												 -->
+<!-- 															<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>硬盘</strong></label> -->
 					
-															<div class="col-sm-9">
-																<input class="input-sm" type="text" id="form-field-5" placeholder="单位GB" name="disk" value="{{ inStance.disks.0.disk_size }}" />																											
-																<div class="space-2"></div>																
-																<div class="help-block" id="input-size-slider-5"></div>										
-															</div>
-														</div>
-														
-														
-														
-																											
+<!-- 															<div class="col-sm-9"> -->
+<!-- 																<input class="input-sm" type="text" id="form-field-5" placeholder="单位GB" name="disk" value="{{ inStance.disks.0.disk_size }}" />																											 -->
+<!-- 																<div class="space-2"></div>																 -->
+<!-- 																<div class="help-block" id="input-size-slider-5"></div>										 -->
+<!-- 															</div> -->
+<!-- 														</div> -->
+																							
 					
 														<div class="form-group" style="display: none;" id="div_bandwidth">
 															<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>带宽</strong></label>
@@ -1426,7 +1423,7 @@
 				   required = ['cpu','device']
 				   document.getElementById("div_cpu").style.display="";   
 				   document.getElementById("div_mem").style.display="none";
-				   document.getElementById("div_disk").style.display="none";
+// 				   document.getElementById("div_disk").style.display="none";
 				   document.getElementById("div_bandwidth").style.display="none";
 				   document.getElementById("div_bandwidth_port").style.display="none";
 				   document.getElementById("div_netk").style.display="none";
@@ -1436,27 +1433,27 @@
 				   required = ['mem','device']
 				   document.getElementById("div_cpu").style.display="none";   
 				   document.getElementById("div_mem").style.display="";
-				   document.getElementById("div_disk").style.display="none";
+// 				   document.getElementById("div_disk").style.display="none";
 				   document.getElementById("div_bandwidth").style.display="none";
 				   document.getElementById("div_bandwidth_port").style.display="none";
 				   document.getElementById("div_netk").style.display="none";
 				   document.getElementById("div_storage").style.display="none";
 			   }
-			   else if (value=="disk"){
-				   required = ['disk','storage','device']
-				   document.getElementById("div_cpu").style.display="none";   
-				   document.getElementById("div_mem").style.display="none";
-				   document.getElementById("div_disk").style.display="";
-				   document.getElementById("div_bandwidth").style.display="none";
-				   document.getElementById("div_bandwidth_port").style.display="none";
-				   document.getElementById("div_netk").style.display="none";
-				   document.getElementById("div_storage").style.display="";
-			   }	
+// 			   else if (value=="disk"){
+// 				   required = ['disk','storage','device']
+// 				   document.getElementById("div_cpu").style.display="none";   
+// 				   document.getElementById("div_mem").style.display="none";
+// 				   document.getElementById("div_disk").style.display="";
+// 				   document.getElementById("div_bandwidth").style.display="none";
+// 				   document.getElementById("div_bandwidth_port").style.display="none";
+// 				   document.getElementById("div_netk").style.display="none";
+// 				   document.getElementById("div_storage").style.display="";
+// 			   }	
 			   else if (value=="bandwidth"){
 				   required = ['bandwidth','netk_name','device']
 				   document.getElementById("div_cpu").style.display="none";   
 				   document.getElementById("div_mem").style.display="none";
-				   document.getElementById("div_disk").style.display="none";
+// 				   document.getElementById("div_disk").style.display="none";
 				   document.getElementById("div_bandwidth").style.display="";
 				   document.getElementById("div_bandwidth_port").style.display="";
 				   document.getElementById("div_netk").style.display="none";

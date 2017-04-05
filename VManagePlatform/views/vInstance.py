@@ -79,7 +79,7 @@ def addInstance(request):
                                                           mem=int(request.POST.get('mem')),cpu=request.POST.get('cpu'),disk=disk_xml,
                                                           iso_path=request.POST.get('system'),network=networkXml)
                             dom = SERVER.createInstance(dom_xml)
-                            recordLogs.delay(user=request.user,action=op,status=dom,vm_name=request.POST.get('vm_name'))
+                            recordLogs.delay(user=str(request.user),action=op,status=dom,vm_name=request.POST.get('vm_name'))
                             if dom==0:    
                                 VMS.close()
                                 VmInstance.insertInstance(dict(server=vMserver,name=request.POST.get('vm_name'),
@@ -95,7 +95,7 @@ def addInstance(request):
                     domXml = request.POST.get('xml')
                     dom = SERVER.defineXML(xml=domXml)
                     VMS.close() 
-                    recordLogs.delay(user=request.user,action=op,status=dom,vm_name=request.POST.get('vm_name'))
+                    recordLogs.delay(user=str(request.user),action=op,status=dom,vm_name=request.POST.get('vm_name'))
                     if dom:return  JsonResponse({"code":200,"data":None,"msg":"虚拟主机添加成功。"})
                     else:return JsonResponse({"code":500,"data":None,"msg":"虚拟主机添加失败。"})
                 elif op=='template':
@@ -119,7 +119,7 @@ def addInstance(request):
                                                           mem=temp.mem,cpu=temp.cpu,disk=disk_xml,
                                                           iso_path=request.POST.get('system'),network=None)
                             dom = SERVER.createInstance(dom_xml)
-                            recordLogs.delay(user=request.user,action=op,status=dom,vm_name=request.POST.get('vm_name'))
+                            recordLogs.delay(user=str(request.user),action=op,status=dom,vm_name=request.POST.get('vm_name'))
                             if dom==0:    
                                 VMS.close()        
                                 return JsonResponse({"code":200,"data":None,"msg":"虚拟主机添加成功。"}) 
@@ -142,7 +142,6 @@ def modfInstance(request):
             SERVER = LIBMG.genre(model='server')
             STROAGE = LIBMG.genre(model='storage')
             INSTANCE = LIBMG.genre(model='instance')
-            NETWORK = LIBMG.genre(model='network')
             if SERVER:
                 instance = INSTANCE.queryInstance(name=str(request.POST.get('vm_name')))  
                 if instance is False:
@@ -166,11 +165,11 @@ def modfInstance(request):
                         status = INSTANCE.addInstanceDisk(instance, volPath)
                         LIBMG.close()
                         if status:
-                            recordLogs.delay(user=request.user,action='attach_disk',status=0,vm_name=request.POST.get('vm_name'))
+                            recordLogs.delay(user=str(request.user),action='attach_disk',status=0,vm_name=request.POST.get('vm_name'))
                             return  JsonResponse({"code":200,"data":None,"msg":"操作成功。"})
                         else:
                             STROAGE.deleteVolume(storage, volume_name)
-                            recordLogs.delay(user=request.user,action='attach_disk',status=1,vm_name=request.POST.get('vm_name'))
+                            recordLogs.delay(user=str(request.user),action='attach_disk',status=1,vm_name=request.POST.get('vm_name'))
                             return  JsonResponse({"code":500,"data":None,"msg":"操作失败。"})
                     else: 
                         LIBMG.close()                       
@@ -178,7 +177,7 @@ def modfInstance(request):
                 elif  request.POST.get('op') == 'detach':
                     status = INSTANCE.delInstanceDisk(instance, volPath=request.POST.get('disk'))    
                     LIBMG.close()
-                    recordLogs.delay(user=request.user,action='detach_disk',status=status,vm_name=request.POST.get('vm_name'))
+                    recordLogs.delay(user=str(request.user),action='detach_disk',status=status,vm_name=request.POST.get('vm_name'))
                     if status==0:return  JsonResponse({"code":200,"data":None,"msg":"操作成功。"})
                     else:
                         LIBMG.close()
@@ -187,19 +186,19 @@ def modfInstance(request):
             elif  request.POST.get('device') == 'netk':
                 if request.POST.get('op') == 'attach': 
                     result = INSTANCE.addInstanceInterface(instance, brName=request.POST.get('netk_name'))
-                    recordLogs.delay(user=request.user,action='attach_netk',status=result,vm_name=request.POST.get('vm_name'))
+                    recordLogs.delay(user=str(request.user),action='attach_netk',status=result,vm_name=request.POST.get('vm_name'))
                     if result == 0:return  JsonResponse({"code":200,"data":None,"msg":"操作成功。"})
                     else:return  JsonResponse({"code":500,"data":status,"msg":"添加失败。"})
                 elif  request.POST.get('op') == 'detach':
                     result = INSTANCE.delInstanceInterface(instance, interName=request.POST.get('netk_name'))
-                    recordLogs.delay(user=request.user,action='detach_netk',status=result,vm_name=request.POST.get('vm_name'))
+                    recordLogs.delay(user=str(request.user),action='detach_netk',status=result,vm_name=request.POST.get('vm_name'))
                     if result == 0:return  JsonResponse({"code":200,"data":None,"msg":"操作成功。"})
                     else:return  JsonResponse({"code":500,"data":status,"msg":"添加失败。"})
             #调整内存大小
             elif  request.POST.get('device') == 'mem':
                 if request.POST.get('op') == 'attach': 
                     result = INSTANCE.setMem(instance, mem=int(request.POST.get('mem')))  
-                    recordLogs.delay(user=request.user,action='attach_mem',status=result,vm_name=request.POST.get('vm_name')) 
+                    recordLogs.delay(user=str(request.user),action='attach_mem',status=result,vm_name=request.POST.get('vm_name')) 
                     if result == 0:return  JsonResponse({"code":200,"data":None,"msg":"操作成功。"}) 
                     else:return  JsonResponse({"code":500,"data":None,"msg":"不能设置虚拟机内存超过宿主机机器的物理内存"})
             #调整cpu个数   
@@ -207,14 +206,13 @@ def modfInstance(request):
                 if request.POST.get('op') == 'attach': 
                     result = INSTANCE.setVcpu(instance, cpu=int(request.POST.get('cpu')))
                     LIBMG.close()
-                    recordLogs.delay(user=request.user,action='attach_cpu',status=result,vm_name=request.POST.get('vm_name'))
+                    recordLogs.delay(user=str(request.user),action='attach_cpu',status=result,vm_name=request.POST.get('vm_name'))
                     if result == 0:return  JsonResponse({"code":200,"data":None,"msg":"操作成功。"}) 
                     else:return  JsonResponse({"code":500,"data":None,"msg":"不能设置虚拟机CPU超过宿主机机器的物理CPU个数"})     
             #调整带宽
             elif  request.POST.get('device') == 'bandwidth':
                 SSH = BRManage(hostname=vMserver.server_ip,port=22)
                 OVS = SSH.genre(model='ovs')
-                BRCTL = SSH.genre(model='brctl')
                 mode = INSTANCE.getInterFace(instance,request.POST.get('netk_name'))
                 if request.POST.get('op') == 'attach': 
                     if mode.get('type') == 'openvswitch':
@@ -279,7 +277,7 @@ def handleInstance(request):
             elif op == 'mount':
                 result = INSTANCE.mountIso(instance, dev=request.POST.get('dev'), image=request.POST.get('iso'))  
             elif op == 'clone':
-                cloneInstace.delay(data=request.POST,user=request.user)
+                cloneInstace.delay(data=request.POST,user=str(request.user))
                 VMS.close()
                 return  JsonResponse({"code":200,"data":None,"msg":"克隆任务提交成功."}) 
             elif op == 'xml':
@@ -288,7 +286,7 @@ def handleInstance(request):
                 except Exception,e:
                     result = e           
             VMS.close()  
-            recordLogs.delay(user=request.user,action=op,status=result,vm_name=insName)   
+            recordLogs.delay(user=str(request.user),action=op,status=result,vm_name=insName)   
             if isinstance(result,int):return  JsonResponse({"code":200,"data":None,"msg":"操作成功。"}) 
             else:return  JsonResponse({"code":500,"data":result,"msg":"操作失败。"})           
         else:
