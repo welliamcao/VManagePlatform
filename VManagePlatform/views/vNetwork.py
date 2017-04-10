@@ -60,7 +60,7 @@ def configNetwork(request):
                     SSH.close()
                     if  status.get('status') == 'success':                          
                         XML = CreateNetwork(name=request.POST.get('name'),
-                                            bridgeName=request.POST.get('bridgeName'),
+                                            bridgeName=request.POST.get('name'),
                                             mode=request.POST.get('mode'))
                         result = NETWORK.createNetwork(XML)
                         VMS.close()
