@@ -163,12 +163,12 @@ def CreateDisk(volume_path,diskSn=None):
 def CreateIntanceConfig(dom_name,maxMem,mem,cpu,disk,iso_path,network):
     if isinstance(mem, int) and isinstance(maxMem, int):
         mem = mem*1024  
-        maxMem = maxMem*1024 
+        maxMem = maxMem*1024
     dom_xml = '''
         <domain type='kvm'>  
                 <name>{dom_name}</name>
-                <memory unit='KiB'>{maxMem}</memory>
-                <maxMemory slots='16' unit='KiB'>{maxMem}</maxMemory>
+                <memory unit='KiB'>{mem}</memory>
+                <maxMemory unit='KiB'>{maxMem}</maxMemory>
                 <currentMemory unit='KiB'>{mem}</currentMemory>
                   <memtune>
                     <hard_limit unit='KiB'>{maxMem}</hard_limit>
