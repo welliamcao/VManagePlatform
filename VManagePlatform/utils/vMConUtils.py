@@ -906,11 +906,11 @@ class VMInstance(VMBase):
 
         
     def delInstanceInterface(self,instance,interName): 
-        '''添加网络设备''' 
+        '''删除网络设备''' 
         interXml = None
         raw_xml = instance.XMLDesc(0)
         domXml = minidom.parseString(raw_xml)
-        for ds in domXml.getElementsByTagName('disk'):
+        for ds in domXml.getElementsByTagName('interface'):
             try:
                 dev = ds.getElementsByTagName('target')[0].getAttribute('dev')
             except:
@@ -924,7 +924,7 @@ class VMInstance(VMBase):
         else:return False  
         
     def delInstanceDisk(self,instance,volPath):
-        '''删除网络设备'''
+        '''删除硬盘'''
         diskXml = None
         raw_xml = instance.XMLDesc(0)
         domXml = minidom.parseString(raw_xml)
@@ -934,7 +934,7 @@ class VMInstance(VMBase):
             except:
                 continue
             if path == volPath:diskXml = ds.toxml()  
-        if  diskXml:
+        if diskXml:
             try:
                 return instance.detachDeviceFlags(diskXml,3)
             except Exception,e:

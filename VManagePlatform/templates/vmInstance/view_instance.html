@@ -1408,7 +1408,7 @@
 						
 					},
 			    	error:function(response){
-			    		window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+			    		window.wxc.xcConfirm("操作失败，请先启动虚拟机.", window.wxc.xcConfirm.typeEnum.error);
 			    	}
 				})	
 			}
@@ -1626,7 +1626,7 @@
 							
 						},
 				    	error:function(response){
-				    		window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+				    		window.wxc.xcConfirm("操作失败，请先启动虚拟机.", window.wxc.xcConfirm.typeEnum.error);
 				    	}
 					})	
 				}	   

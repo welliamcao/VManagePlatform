@@ -187,19 +187,19 @@ def modfInstance(request):
                 if request.POST.get('op') == 'attach': 
                     result = INSTANCE.addInstanceInterface(instance, brName=request.POST.get('netk_name'))
                     recordLogs.delay(user=str(request.user),action='attach_netk',status=result,vm_name=request.POST.get('vm_name'))
-                    if result == 0:return  JsonResponse({"code":200,"data":None,"msg":"操作成功。"})
+                    if isinstance(result,int):return  JsonResponse({"code":200,"data":None,"msg":"操作成功。"})
                     else:return  JsonResponse({"code":500,"data":status,"msg":"添加失败。"})
                 elif  request.POST.get('op') == 'detach':
-                    result = INSTANCE.delInstanceInterface(instance, interName=request.POST.get('netk_name'))
+                    result = INSTANCE.delInstanceInterface(instance, interName=request.POST.get('netk'))
                     recordLogs.delay(user=str(request.user),action='detach_netk',status=result,vm_name=request.POST.get('vm_name'))
-                    if result == 0:return  JsonResponse({"code":200,"data":None,"msg":"操作成功。"})
+                    if isinstance(result,int):return  JsonResponse({"code":200,"data":None,"msg":"操作成功。"})
                     else:return  JsonResponse({"code":500,"data":status,"msg":"添加失败。"})
             #调整内存大小
             elif  request.POST.get('device') == 'mem':
                 if request.POST.get('op') == 'attach': 
                     result = INSTANCE.setMem(instance, mem=int(request.POST.get('mem')))  
                     recordLogs.delay(user=str(request.user),action='attach_mem',status=result,vm_name=request.POST.get('vm_name')) 
-                    if result == 0:return  JsonResponse({"code":200,"data":None,"msg":"操作成功。"}) 
+                    if isinstance(result,int):return  JsonResponse({"code":200,"data":None,"msg":"操作成功。"}) 
                     else:return  JsonResponse({"code":500,"data":None,"msg":"不能设置虚拟机内存超过宿主机机器的物理内存"})
             #调整cpu个数   
             elif  request.POST.get('device') == 'cpu':
@@ -207,7 +207,7 @@ def modfInstance(request):
                     result = INSTANCE.setVcpu(instance, cpu=int(request.POST.get('cpu')))
                     LIBMG.close()
                     recordLogs.delay(user=str(request.user),action='attach_cpu',status=result,vm_name=request.POST.get('vm_name'))
-                    if result == 0:return  JsonResponse({"code":200,"data":None,"msg":"操作成功。"}) 
+                    if isinstance(result,int):return  JsonResponse({"code":200,"data":None,"msg":"操作成功。"}) 
                     else:return  JsonResponse({"code":500,"data":None,"msg":"不能设置虚拟机CPU超过宿主机机器的物理CPU个数"})     
             #调整带宽
             elif  request.POST.get('device') == 'bandwidth':

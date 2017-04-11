@@ -67,7 +67,7 @@ def configNetwork(request):
                     else:
                         VMS.close()
                         return  JsonResponse({"code":500,"msg":"网络创建失败。","data":status.get('stderr')}) 
-                    if result == 0: return  JsonResponse({"code":200,"msg":"网络创建成功。","data":None})   
+                    if isinstance(result,int): return  JsonResponse({"code":200,"msg":"网络创建成功。","data":None})   
                     else:return  JsonResponse({"code":500,"msg":"网络创建失败。","data":None})   
             else:return  JsonResponse({"code":500,"msg":"网络创建失败。","data":None})                                                 
         except Exception,e:
