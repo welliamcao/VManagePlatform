@@ -85,7 +85,7 @@ def groupmanage(request):
                 try:
                     group.name = request.POST.get('name')
                     #如果权限key不存在就单做清除权限
-                    if request.POST.get('perm') is None:group.user_permissions.clear()
+                    if request.POST.get('perm') is None:group.permissions.clear()
                     else:
                         groupPermList = []
                         for perm in group.permissions.values():

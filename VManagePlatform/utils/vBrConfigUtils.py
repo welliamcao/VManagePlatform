@@ -182,28 +182,19 @@ class BrctlConfig(SSHBase):
     def __init__(self,ssh):
         self.ssh = ssh 
         
-    def brctlAddBr(self,brName):
+    def brctlAddBr(self,iface,brName,stp=None):
         '''添加网桥'''
         try:
             data = dict()
-            cmd = 'brctl addbr {brName}'.format(brName=brName)  
+            if stp:cmd = 'virsh iface-bridge {iface} {brName}'.format(iface=iface,brName=brName)
+            else:cmd = 'virsh iface-bridge {iface} {brName} --no-stp'.format(iface=iface,brName=brName)  
             stdin,stdout,stderr = self.ssh.exec_command(cmd)              
             data["stdout"] = ''.join(stdout.readlines()).replace("\n","<br>")
             exit_status = stdout.channel.recv_exit_status() 
-            if exit_status > 0:
-                data["stderr"] =  "%s" % (''.join(stderr.readlines())).replace("\n","<br>")
-                data["status"] = 'faild'
-            else:
-                clean = "sed -i '/{brName}/d' /etc/rc.d/rc.local".format(brName=brName) 
-                stdin,stdout,stderr = self.ssh.exec_command(clean)
-                save = "echo  '{cmd}' >>  /etc/rc.d/rc.local".format(cmd=cmd)
-                stdin,stdout,stderr = self.ssh.exec_command(save)
-                upCmd = "echo 'ifconfig {brName} up' >> /etc/rc.d/rc.local".format(brName=brName)  
-                stdin,stdout,stderr = self.ssh.exec_command(upCmd)
-                data["status"] = 'success'
+            if exit_status > 0:data["status"] = 'faild'
+            else:data["status"] = 'success'
             return  data                   
         except Exception,e:
-             
             data["msg"] = str(e)
             return  data          
         
@@ -249,15 +240,12 @@ class BrctlConfig(SSHBase):
         '''关闭网桥'''
         try:
             data = dict()
-            cmd = 'ifconfig {brName} down'.format(brName=brName)  
+            cmd = 'virsh iface-unbridge {brName}'.format(brName=brName)  
             stdin,stdout,stderr = self.ssh.exec_command(cmd)              
             data["stdout"] = ''.join(stdout.readlines()).replace("\n","<br>")
             exit_status = stdout.channel.recv_exit_status() 
-            if exit_status > 0:
-                data["stderr"] =  "%s" % (''.join(stderr.readlines())).replace("\n","<br>")
-                data["status"] = 'faild'
-            else:
-                data["status"] = 'success'
+            if exit_status > 0:data["status"] = 'faild'
+            else:data["status"] = 'success'
             return  data                   
         except Exception,e:
             data["msg"] = str(e)
