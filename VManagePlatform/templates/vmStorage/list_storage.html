@@ -97,7 +97,9 @@
 																<a class="green" href="/viewStorage/?id={{ vmServer.id }}&pool={{ ds.pool_name }}">
 																	<i class="icon-zoom-in bigger-130"></i>
 																</a>
-
+																<a class="blue" href="javascript:" onclick="onBtnHandleStorage(this,{{ vmServer.id }},'{{ vmServer.server_ip }}','{{ ds.pool_name }}','refresh')">
+																	<i class="icon-refresh bigger-130"></i>
+																</a>
 																<a class="red" href="javascript:" onclick="onBtnHandleStorage(this,{{ vmServer.id }},'{{ vmServer.server_ip }}','{{ ds.pool_name }}','delete')">
 																	<i class="icon-trash bigger-130"></i>
 																</a>
@@ -391,7 +393,10 @@
 			}
 			else if ( op == 'disable'){
 				var txt=  "是否确认禁用？"
-			};				
+			}
+			else if ( op == 'refresh'){
+				var txt=  "是否确认刷新？"
+			}			;				
 			var option = {
 					title: "操作主机("+server_ip+")",
 					btn: parseInt("0011",2),

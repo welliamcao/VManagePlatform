@@ -84,20 +84,22 @@ def handleStorage(request):
         op = request.POST.get('op') 
         server_id = request.POST.get('server_id') 
         pool_name = request.POST.get('pool_name') 
-        if op in ['delete','disable'] and request.user.has_perm('VManagePlatform.change_vmserverinstance'):
+        if op in ['delete','disable','refresh'] and request.user.has_perm('VManagePlatform.change_vmserverinstance'):
             try:
                 vMserver = VMServer.selectOneHost(id=server_id)
                 VMS = LibvirtManage(uri=vMserver.uri) 
             except Exception,e:
                 return  JsonResponse({"code":500,"msg":"服务器连接失败。。","data":e})
-            if op == 'delete':                
-                STORAGE = VMS.genre(model='storage')
-                pool = STORAGE.getStoragePool(pool_name=pool_name)                    
-                if pool:
+            STORAGE = VMS.genre(model='storage')
+            pool = STORAGE.getStoragePool(pool_name=pool_name)  
+            if pool:
+                if op == 'delete':                                   
                     result = STORAGE.deleteStoragePool(pool=pool)
-                    VMS.close()
-                    if result:return  JsonResponse({"code":200,"msg":"存储池删除成功。","data":None})
-                    else:return  JsonResponse({"code":500,"msg":"存储池删除失败。","data":None})
-                else:return JsonResponse({"code":500,"msg":"存储池不存在。","data":e}) 
+                elif op == 'refresh': 
+                    result = STORAGE.refreshStoragePool(pool=pool)
+                VMS.close()
+                if result:return  JsonResponse({"code":200,"msg":"操作成功。","data":None})
+                else:return  JsonResponse({"code":500,"msg":"操作失败。","data":None})                    
+            else:return JsonResponse({"code":500,"msg":"存储池不存在。","data":e}) 
         else:return  JsonResponse({"code":500,"data":None,"msg":"不支持操作或者您没有权限操作此项"})                        
     else:return  JsonResponse({"code":500,"data":None,"msg":"不支持的HTTP操作"})                
