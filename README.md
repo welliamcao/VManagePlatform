@@ -200,7 +200,7 @@ numprocs=1
 ```
 
 
-##部分功能截图:
+## 部分功能截图:
     登录页面
 ![](https://github.com/welliamcao/VManagePlatform/raw/master/demo_images/login.png)</br>
     用户注册需要admin激活才能登陆</br>
