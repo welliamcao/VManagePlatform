@@ -1,13 +1,13 @@
-##VManagePlatform是什么?
+## VManagePlatform是什么?
 一个KVM虚拟化管理平台
 
-##开发语言与框架：
+## 开发语言与框架：
 * 编程语言：Python2.7 + HTML + JScripts
 * 前端Web框架：Bootstrap 
 * 后端Web框架：Django  
 * 后端Task框架：Celery + Redis
 
-##VManagePlatform有哪些功能？
+## VManagePlatform有哪些功能？
 
 * Kvm虚拟机`生产周期`管理功能
     *  资源利用率（如：CPU、MEM、磁盘、网络）
@@ -23,18 +23,18 @@
 * 宿主机
     *  资源利用率，实例控制
 
-##环境要求：
+## 环境要求：
 * 编程语言：Python2.7 
 * 系统：CentOS 6
-* 网络规划：管理网络接口=1，虚拟化数据网络>=1  
+* 网络规划：管理网络接口=1，虚拟化数据网络>=1，如果只有一个网卡使用OpenVswitch时需要手动配置网络以免丢失网络
 * SDN需求：OpenVswitch Or Linux Birdge
 
-##TIPS：
+## TIPS：
 * 控制服务器：执行1-10步骤 
 * 节点服务器：执行2/3/4步骤，在控制服务器上执行5步骤中的ssh-copy-id
 * 为了更好的体验，建议使用Chrome或者Foxfire
 
-##安装环境配置</br>
+## 安装环境配置</br>
 
 一、配置需求模块</br>
 ```
