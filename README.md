@@ -38,6 +38,7 @@
 
 一、配置需求模块</br>
 ```
+# # yum install zlib zlib-devel readline-devel bzip2-devel openssl-devel gdbm-devel libdbi-devel ncurses-libs kernel-devel libxslt-devel libffi-devel python-devel
 # pip install -r requirements.txt
 ```
 二、安装kvm
