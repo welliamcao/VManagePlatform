@@ -1,4 +1,4 @@
-django==1.8.13
+django==1.8.17
 Celery 
 django-celery
 celery-with-redis
