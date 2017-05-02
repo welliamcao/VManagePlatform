@@ -1,6 +1,6 @@
 django==1.8.13
 Celery 
-django-celery==3.1.23 
+django-celery
 celery-with-redis
 djangorestframework
 paramiko
