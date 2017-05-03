@@ -7,3 +7,5 @@ paramiko
 redis
 libvirt-python
 supervisor
+MySQL-python
+DBUtils
