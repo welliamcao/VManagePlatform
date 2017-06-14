@@ -110,7 +110,7 @@
 																	<i class="icon-off bigger-120"></i>
 																</a>
 																 																
-																<a class="black" href="javascript:" onclick="snapshotInstance(this,{{ ds.server_id }},'{{ ds.name }}','snapshot')">
+																<a class="black" href="javascript:" onclick="snapshotInstance(this,{{ ds.server_id }},'{{ ds.name }}','add')">
 																	<i class="icon-camera bigger-120"></i>
 																</a>															
 																<a class="red" href="javascript:" onclick="onBtnHandleIns(this,{{ ds.server_id }},'{{ ds.name }}','delete')">
@@ -270,7 +270,7 @@
 							};
 							$.ajax({
 								  type: 'POST',
-								  url: '/handleInstance/',
+								  url: '/handleSnapshot/',
 								  data: {
 									  "server_id":serverId,
 									  "op":op,

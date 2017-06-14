@@ -225,8 +225,6 @@ def modfInstance(request):
                     LIBMG.close()
                     if result.get('status') == 'success':return  JsonResponse({"code":200,"data":None,"msg":"操作成功。"}) 
                     else:return  JsonResponse({"code":500,"data":None,"msg":"未设置带宽，不需要清除"})    
-                            
-                       
             LIBMG.close()                                 
         else:
             return  JsonResponse({"code":500,"data":None,"msg":"暂时不支持的操作或者您没有权限操作操作此项。"})

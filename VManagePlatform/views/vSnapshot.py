@@ -33,17 +33,17 @@ def handleSnapshot(request):
                     if snap:return JsonResponse({"code":200,"data":snap.replace('<','&lt;').replace('>','&gt;'),"msg":"查询成功."})
                     else:return JsonResponse({"code":500,"data":"查无结果","msg":"查无结果"})
                 elif op == 'resume':
-                    revertSnapShot.delay(request.POST,request.user)
+                    revertSnapShot.delay(request.POST,str(request.user))
                     VMS.close()
                     return JsonResponse({"code":200,"data":None,"msg":"快照恢复任务提交成功。"})
                 elif op == 'add':
-                    snapInstace.delay(request.POST,request.user)
+                    snapInstace.delay(request.POST,str(request.user))
                     VMS.close() 
                     return  JsonResponse({"code":200,"data":None,"msg":"快照任务提交成功."})
                 elif op == 'delete':
                     snap = INSTANCE.snapShotDelete(instance, snapName)  
                     VMS.close() 
-                    recordLogs.delay(user=request.user,action=op+'_snap',status=snap,vm_name=insName)
+                    recordLogs.delay(user=str(request.user),action=op+'_snap',status=snap,vm_name=insName)
                     if snap == 0:return JsonResponse({"code":200,"data":None,"msg":"快照删除成功"})  
                     else:return JsonResponse({"code":500,"data":None,"msg":"快照删除失败"})                                  
             except Exception,e:
