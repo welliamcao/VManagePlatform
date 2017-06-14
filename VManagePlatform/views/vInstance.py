@@ -90,14 +90,14 @@ def addInstance(request):
                             else:
                                 STORAGE.deleteVolume(pool, volume_name)
                                 VMS.close() 
-                                return JsonResponse({"code":500,"data":None,"msg":"虚拟主机添加失败。"}) 
+                                return JsonResponse({"code":500,"data":None,"msg":dom}) 
                 elif op == 'xml':
                     domXml = request.POST.get('xml')
                     dom = SERVER.defineXML(xml=domXml)
                     VMS.close() 
                     recordLogs.delay(user=str(request.user),action=op,status=dom,vm_name=request.POST.get('vm_name'))
-                    if dom:return  JsonResponse({"code":200,"data":None,"msg":"虚拟主机添加成功。"})
-                    else:return JsonResponse({"code":500,"data":None,"msg":"虚拟主机添加失败。"})
+                    if isinstance(dom,int):return  JsonResponse({"code":200,"data":None,"msg":"虚拟主机添加成功。"})
+                    else:return JsonResponse({"code":500,"data":None,"msg":dom})
                 elif op=='template':
                     try:
                         temp = TempInstance.selectVmTemp(id=request.POST.get('temp'))
@@ -126,7 +126,7 @@ def addInstance(request):
                             else:
                                 STORAGE.deleteVolume(pool, volume_name)
                                 VMS.close() 
-                                return JsonResponse({"code":500,"data":None,"msg":"虚拟主机添加失败。"}) 
+                                return JsonResponse({"code":500,"data":None,"msg":dom}) 
                     except:
                         return JsonResponse({"code":500,"data":None,"msg":"虚拟主机添加失败。"})
                     
@@ -288,7 +288,7 @@ def handleInstance(request):
             VMS.close()  
             recordLogs.delay(user=str(request.user),action=op,status=result,vm_name=insName)   
             if isinstance(result,int):return  JsonResponse({"code":200,"data":None,"msg":"操作成功。"}) 
-            else:return  JsonResponse({"code":500,"data":result,"msg":"操作失败。"})           
+            else:return  JsonResponse({"code":500,"data":result,"msg":result})           
         else:
             return  JsonResponse({"code":500,"data":None,"msg":"不支持的操作或者您没有权限操作操作此项。"})            
 

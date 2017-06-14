@@ -48,7 +48,10 @@ class VMBase(object):
         return storages
     
     def getNetwork(self, net):
-        return self.conn.networkLookupByName(net)
+        try:
+            return self.conn.networkLookupByName(net)
+        except libvirt.libvirtError,e:
+            return '失败原因：{result}'.format(result=e.get_error_message())          
     
     def close(self):
         try:
@@ -63,7 +66,10 @@ class VMServer(VMBase):
 
     def defineXML(self, xml):
         '''定义传入的xml'''
-        return self.conn.defineXML(xml)  
+        try:
+            return self.conn.defineXML(xml)  
+        except libvirt.libvirtError,e:
+            return '失败原因：{result}'.format(result=e.get_error_message())  
 
     def getServerInfo(self):
         '''获取宿主机基本信息'''
@@ -90,8 +96,8 @@ class VMServer(VMBase):
         try:
             dom = self.conn.defineXML(dom_xml)
             return dom.create()
-        except Exception:
-            return False
+        except libvirt.libvirtError,e:
+            return '实例创建失败，失败原因：{result}'.format(result=e.get_error_message())  
      
     def getVmStorageInfo(self):
         storage = []
@@ -118,7 +124,7 @@ class VMServer(VMBase):
                 data['pool_active'] = pool.isActive()
                 storage.append(data)
             return storage
-        except Exception:                    
+        except libvirt.libvirtError:                    
             return storage
         
     def getVmIsoList(self):
@@ -144,7 +150,7 @@ class VMServer(VMBase):
                     volData['vol_path'] = stgvol.path()
                     if volData['vol_type'].endswith('.iso') or volData['vol_path'].endswith('.iso'):isoList.append(volData)
             return isoList
-        except Exception:                    
+        except libvirt.libvirtError:                    
             return isoList
         
 
@@ -258,13 +264,16 @@ class VMServer(VMBase):
         vms_inactive = []
         domain_list = self.conn.listDomainsID() + self.conn.listDefinedDomains() 
         vmPoolList = []
-        pools = self.conn.listAllStoragePools(0)
+        pools = self.conn.listAllStoragePools()
         #获取存储池里面的卷
         for pls in pools:
-            for vol in pls.listVolumes():
-                data = {}
-                data[pls.name()] = pls.storageVolLookupByName(vol).path()
-                vmPoolList.append(data)
+            try:
+                for vol in pls.listVolumes():
+                    data = {}
+                    data[pls.name()] = pls.storageVolLookupByName(vol).path()
+                    vmPoolList.append(data)
+            except libvirt.libvirtError:
+                pass
         for dom in domain_list:
             domData = {}
             if isinstance(dom,int): insName = self.conn.lookupByID(dom).name()
@@ -360,29 +369,32 @@ class VMStorage(VMBase):
   
     def defineXML(self, xml):
         '''定义传入的xml'''
-        return self.conn.defineXML(xml)  
+        try:
+            return self.conn.defineXML(xml)  
+        except libvirt.libvirtError,e:
+            return '创建存储池失败，失败原因：{result}'.format(result=e.get_error_message())          
      
     def getStoragePool(self,pool_name):
         '''查询存储池'''
         try:
             pool = self.conn.storagePoolLookupByName(pool_name) 
             return pool
-        except:
-            return False
+        except libvirt.libvirtError,e:
+            return False 
     
     def getPoolXMLDesc(self,pool_name):
         try:
             pool = self.conn.storagePoolLookupByName(pool_name) 
             return pool.XMLDesc(0)
-        except Exception,e:  
-            return False    
+        except libvirt.libvirtError,e: 
+            return '获取存储池信息失败，失败原因：{result}'.format(result=e.get_error_message())    
     
     def getVolumeXMLDesc(self,pool,volume_name):
         try: 
             volume = pool.storageVolLookupByName(volume_name)
             return volume.XMLDesc(0)
-        except Exception,e: 
-            return False 
+        except libvirt.libvirtError,e: 
+            return '获取卷信息失败，失败原因：{result}'.format(result=e.get_error_message())  
 
     
     def getStorageInfo(self,pool_name):
@@ -429,14 +441,14 @@ class VMStorage(VMBase):
                 volList.append(volData)
             data['pool_vols'] = volList
             return data
-        except:                   
+        except libvirt.libvirtError:                   
             return data 
  
     def getStorageVolume(self,pool,volume_name):
         '''查询卷是否存在'''
         try:
             return pool.storageVolLookupByName(volume_name)
-        except:  
+        except libvirt.libvirtError:  
             return False        
         
     def createStoragePool(self,pool_xml):
@@ -449,15 +461,15 @@ class VMStorage(VMBase):
                 pool.setAutostart(1)
                 pool.refresh()#刷新刚刚添加的存储池，加载存储池里面存在的文件
                 return pool
-        except:
-            return False
+        except libvirt.libvirtError,e: 
+            return '创建存储池失败，失败原因：{result}'.format(result=e.get_error_message()) 
     
     def refreshStoragePool(self,pool):
         '''刷新存储池'''
         try:
             pool.refresh()
             return True
-        except:
+        except libvirt.libvirtError:
             return False
     
     def createVolumes(self,pool,volume_name,volume_capacity,drive=None):
@@ -476,7 +488,7 @@ class VMStorage(VMBase):
             volume = pool.createXML(volume_xml, 0)
             if volume:return volume
             else:return False
-        except:
+        except libvirt.libvirtError:
             return False
 
         
@@ -485,8 +497,8 @@ class VMStorage(VMBase):
 #             volume.wipe(0)
         try:
             return volume.delete(0)#volume.delete(0)从存储池里面删除,volume.wipe(0),从磁盘删除
-        except Exception,e:
-            return str(e)
+        except libvirt.libvirtError:
+            return False
 
         
     def autoStart(self,pool):
@@ -503,7 +515,7 @@ class VMStorage(VMBase):
             pool.destroy()
             pool.undefine()
             return True  
-        except:
+        except libvirt.libvirtError:
             return False 
     
 
@@ -556,27 +568,39 @@ class VMInstance(VMBase):
             try:
                 instance = self.conn.lookupByID(id)
                 return instance
-            except:
+            except libvirt.libvirtError:
                 return False
         elif isinstance(name, str):
             try:
                 instance = self.conn.lookupByName(name)
                 return instance
-            except:
+            except libvirt.libvirtError:
                 return False
             
     def defineXML(self, xml):
         '''定义传入的xml'''
-        return self.conn.defineXML(xml)     
+        try:
+            return self.conn.defineXML(xml) 
+        except libvirt.libvirtError,e:
+            return '失败原因：{result}'.format(result=e.get_error_message())             
             
     def getInsXMLDesc(self,instance,flag):
-        return instance.XMLDesc(flag)
+        try:
+            return instance.XMLDesc(flag)
+        except libvirt.libvirtError,e:
+            return '失败原因：{result}'.format(result=e.get_error_message())          
     
     def managedSave(self, instance):
-        return instance.managedSave(0)
+        try:
+            return instance.managedSave(0)
+        except libvirt.libvirtError,e:
+            return '失败原因：{result}'.format(result=e.get_error_message())          
 
     def managedSaveRemove(self, instance):
-        return instance.managedSaveRemove(0)
+        try:
+            return instance.managedSaveRemove(0)
+        except libvirt.libvirtError,e:
+            return '失败原因：{result}'.format(result=e.get_error_message())  
     
     
     def umountIso(self,instance, dev, image):
@@ -664,13 +688,16 @@ class VMInstance(VMBase):
     def getVmInstanceInfo(self,instance,server_ip,vMname):
         '''查询单个实例信息'''
         vmPoolList = []
-        pools = self.conn.listAllStoragePools(0)
+        pools = self.conn.listAllStoragePools()
         #获取存储池里面的卷
         for pls in pools:
-            for vol in pls.listVolumes():
-                data = {}
-                data[pls.name()] = pls.storageVolLookupByName(vol).path()
-                vmPoolList.append(data) 
+            try:
+                for vol in pls.listVolumes():
+                    data = {}
+                    data[pls.name()] = pls.storageVolLookupByName(vol).path()
+                    vmPoolList.append(data)                 
+            except libvirt.libvirtError:
+                pass
         if instance:
             domData = {}
             status = instance.state()
@@ -889,11 +916,10 @@ class VMInstance(VMBase):
             if device == 'disk' and vdisk in diskList:diskSn = diskList[diskList.index(vdisk) + 1]
         diskXml = Const.CreateDisk(volume_path=volPath, diskSn=diskSn)
         try:
-            result = instance.attachDeviceFlags(diskXml,3)#如果是关闭状态则标记flags为3，保证添加的硬盘重启不会丢失 
-        except:
-            return False
-        if result == 0:return True
-        else:return False
+            return instance.attachDeviceFlags(diskXml,3)#如果是关闭状态则标记flags为3，保证添加的硬盘重启不会丢失 
+        except libvirt.libvirtError,e:
+            return '实例添加硬盘失败，失败原因：{result}'.format(result=e.get_error_message()) 
+
     
     
     def addInstanceInterface(self,instance,brName):
@@ -908,8 +934,8 @@ class VMInstance(VMBase):
             interXml = Const.CreateNetcard(nkt_br=brName, ntk_name=brName +'-'+CommTools.radString(length=4), mode=mode)
             try:
                 return instance.attachDeviceFlags(interXml,3)#如果是关闭状态则标记flags为3，保证添加的硬盘重启不会丢失 
-            except Exception,e:
-                return e
+            except libvirt.libvirtError,e:
+                return '实例添加网卡失败，失败原因：{result}'.format(result=e.get_error_message()) 
         else:return False 
 
         
@@ -927,8 +953,8 @@ class VMInstance(VMBase):
         if  interXml:
             try:
                 return instance.detachDeviceFlags(interXml,3)
-            except Exception,e:
-                return e
+            except libvirt.libvirtError,e:
+                return '实例网卡删除失败，失败原因：{result}'.format(result=e.get_error_message()) 
         else:return False  
         
     def delInstanceDisk(self,instance,volPath):
@@ -945,8 +971,8 @@ class VMInstance(VMBase):
         if diskXml:
             try:
                 return instance.detachDeviceFlags(diskXml,3)
-            except Exception,e:
-                return e
+            except libvirt.libvirtError,e:
+                return '实例删除硬盘失败，失败原因：{result}'.format(result=e.get_error_message()) 
         else:return False
     
     def getInterFace(self,instance,inter_name):
@@ -1016,51 +1042,58 @@ class VMInstance(VMBase):
         if isinstance(cpu, int):
             try:
                 return instance.setVcpusFlags(cpu,0)
-            except:
-                return False
+            except libvirt.libvirtError,e:
+                return '实例CPU调整失败，失败原因：{result}'.format(result=e.get_error_message())  
         else:
             return False        
     
     def setMem(self,instance,mem):
         '''调整内存大小'''
-#         if instance.state()[0] == 5:flags = 2
-#         else:flags = 0
         if isinstance(mem, int):
             mem = mem*1024
             try:
                 return instance.setMemoryFlags(mem,flags=0)
-            except:
-                return False
+            except libvirt.libvirtError,e:
+                return '实例内存调整失败，失败原因：{result}'.format(result=e.get_error_message())  
         else:
             return False
     
     def migrate(self,instance,uri,dname,tcp_path):
         '''虚拟机迁移'''
-        return instance.migrate(uri,True,dname,tcp_path,0) 
+        try:
+            return instance.migrate(uri,True,dname,tcp_path,0) 
+        except libvirt.libvirtError,e:
+            return '实例迁移失败，失败原因：{result}'.format(result=e.get_error_message())          
     
     def snapShotCteate(self,instance,snapName):
         '''为实例的所有磁盘创建实例'''
-        snpXML = '''<domainsnapshot>
-                        <name>{snapName}</name> 
-                        <description>Snapshot of {snapName}</description>
-                        <disks>
-                        </disks>
-                    </domainsnapshot>
-        '''
-        snpXML = snpXML.format(snapName=snapName)
+        try:
+            snpXML = '''<domainsnapshot>
+                            <name>{snapName}</name> 
+                            <description>Snapshot of {snapName}</description>
+                            <disks>
+                            </disks>
+                        </domainsnapshot>
+            '''
+            snpXML = snpXML.format(snapName=snapName)
+        except libvirt.libvirtError,e:
+            return '实例硬盘快照创建失败，失败原因：{result}'.format(result=e.get_error_message())              
         return instance.snapshotCreateXML(snpXML,0)
     
     def snapShotDelete(self,instance,snapName):
         '''删除实例快照'''
-        snap = instance.snapshotLookupByName(snapName)   
+        try:
+            snap = instance.snapshotLookupByName(snapName)   
+        except libvirt.libvirtError,e:
+            return '删除实例快照失败，失败原因：{result}'.format(result=e.get_error_message())              
         return snap.delete()
     
     def snapShotView(self,instance,snapName):
         '''查看实例快照'''
         try:
             snap = instance.snapshotLookupByName(snapName) 
-        except:
-            return False  
+        except libvirt.libvirtError,e:
+            return '获取实例快照失败，失败原因：{result}'.format(result=e.get_error_message())   
         return snap.getXMLDesc()    
     
     def snapShotList(self,instance):
@@ -1092,57 +1125,57 @@ class VMInstance(VMBase):
             else:
                 instance.undefineFlags()
                 return instance.destroy() #执行成返回值为0
-        except Exception,e:
-            return e           
+        except libvirt.libvirtError,e:
+            return '实例删除失败，失败原因：{result}'.format(result=e.get_error_message())            
      
     def suspend(self,instance):  
         '''暂停实例'''
         try:
             return instance.suspend()
-        except Exception,e:
-            return e           
+        except libvirt.libvirtError,e:
+            return '实例暂停失败，失败原因：{result}'.format(result=e.get_error_message())           
         
     def resume(self,instance):
         '''恢复实例'''
         try:
             return instance.resume()
-        except Exception,e:
-            return e         
+        except libvirt.libvirtError,e:
+            return '实例恢复失败，失败原因：{result}'.format(result=e.get_error_message())       
         
     def reboot(self,instance):
-        '''恢复实例'''
+        '''重启实例'''
         try:
             return instance.reboot()
-        except Exception,e:
-            return e         
+        except libvirt.libvirtError,e:
+            return '实例重启失败，失败原因：{result}'.format(result=e.get_error_message())        
     
     def shutdown(self,instance):
         '''关闭实例'''
         try:
             return instance.shutdown()
-        except Exception,e:
-            return e         
+        except libvirt.libvirtError,e:
+            return '实例关闭失败，失败原因：{result}'.format(result=e.get_error_message())         
 
     def destroy(self,instance):
         '''强制关闭实例'''
         try:
             return instance.destroy()
-        except Exception,e:
-            return e
+        except libvirt.libvirtError,e:
+            return '实例强制关闭失败，失败原因：{result}'.format(result=e.get_error_message()) 
     
     def state(self,instance):
         '''检查实例的状态'''
         try:
             return instance.state()
-        except Exception,e:
-            return e
+        except libvirt.libvirtError,e:
+            return '获取实例状态失败，失败原因：{result}'.format(result=e.get_error_message())   
             
     def start(self,instance):
         '''启动实例'''
         try:
             return instance.create()
-        except Exception,e:
-            return e     
+        except libvirt.libvirtError,e:
+            return '实例启动失败，失败原因：{result}'.format(result=e.get_error_message())     
         
 
 class VMNetwork(VMBase):
@@ -1151,15 +1184,18 @@ class VMNetwork(VMBase):
      
     def defineXML(self, xml):
         '''定义传入的xml'''
-        return self.conn.defineXML(xml)       
+        try:
+            return self.conn.defineXML(xml)  
+        except libvirt.libvirtError,e:
+            return '网络创建失败，失败原因：{result}'.format(result=e.get_error_message())               
      
     def getNetwork(self,netk_name):
         '''查询网络是否存在'''
         try:
             netk = self.conn.networkLookupByName(netk_name)
             return netk
-        except:
-            return False 
+        except libvirt.libvirtError:
+            return False  
         
     def getNetworkType(self,netk_name):
         '''获取网络类型'''
@@ -1178,7 +1214,7 @@ class VMNetwork(VMBase):
         '''获取网络接口'''
         try:
             return self.conn.interfaceLookupByName(name)
-        except:
+        except libvirt.libvirtError:
             return False
 
     def getInterfaceInfo(self, name):
@@ -1198,11 +1234,13 @@ class VMNetwork(VMBase):
     
     def defineInterface(self, xml, flag=0):
         '''定义网络接口'''
-        self.conn.interfaceDefineXML(xml, flag)
+        try:
+            self.conn.interfaceDefineXML(xml, flag)
+        except libvirt.libvirtError,e:
+            return '创建网络接口失败，失败原因：{result}'.format(result=e.get_error_message())              
 
     def createBridgeInterface(self, netdev,brName,ipv4_addr,mask,stp,mac,delay=0.01):
         '''创建网桥类型接口'''
-        print netdev,brName,ipv4_addr,mask,stp
         xml = """<interface type='bridge' name='{brName}'>
                     <start mode='onboot'/>""".format( brName=brName)
         if ipv4_addr and mask:
@@ -1222,21 +1260,21 @@ class VMNetwork(VMBase):
         try:
             iface.destroy()
             return True
-        except:
+        except libvirt.libvirtError:
             return False
 
     def startInterface(self,iface):
         try:
             iface.create()
             return True
-        except:
+        except libvirt.libvirtError:
             return False
 
     def deleteInterface(self,iface):
         try:
             iface.undefine()
             return True
-        except:
+        except libvirt.libvirtError:
             return False
         
     def createNetwork(self,xml):
@@ -1245,7 +1283,7 @@ class VMNetwork(VMBase):
             netk = self.conn.networkDefineXML(xml)
             if netk.create() == 0:return netk.setAutostart(1)
             else:return False
-        except:
+        except libvirt.libvirtError:
             return False        
         
     def deleteNetwork(self,netk):
@@ -1253,7 +1291,7 @@ class VMNetwork(VMBase):
         try:
             netk.destroy()
             return netk.undefine()
-        except:
+        except libvirt.libvirtError:
             return False  
         
         
@@ -1267,7 +1305,7 @@ class VMNetwork(VMBase):
                 data['alive'] = netk.isActive()
                 data['pers'] = netk.isPersistent()
                 dataList.append(data) 
-        except:
+        except libvirt.libvirtError:
             pass
         return dataList    
     
