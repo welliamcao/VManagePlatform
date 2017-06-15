@@ -54,6 +54,7 @@ urlpatterns = [
     url(r'^viewStorage/$',vStorage.viewStorage),  
     url(r'^handleVolume/$',vVolume.handleVolume),
     url(r'^api/vmserver/$', rest_vMserver.vmServer_list), 
+    url(r'^api/vmserver/(?P<id>[0-9]+)/$', rest_vMserver.vmServer_detail), 
     url(r'^handleSnapshot/',vSnapshot.handleSnapshot),
     url(r'^configNetwork/',vNetwork.configNetwork),
     url(r'^handleNetwork/',vNetwork.handleNetwork),
