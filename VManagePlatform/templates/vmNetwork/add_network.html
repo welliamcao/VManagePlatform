@@ -20,7 +20,7 @@
 													<ul class="list-unstyled spaced2">
 														<li>
 															<i class="icon-circle green"></i>
-															平台创建的网络类型都是<strong>桥接类型</strong>
+															平台创建的网络类型支持<strong>桥接类型</strong>与<strong>Nat类型</strong>
 														</li>
 							
 														<li >
@@ -113,6 +113,8 @@
 																<tr>
 																	<th class="center">序号</th>
 																	<th class="center">网络名称</th>
+																	<th class="center">网络类型</th>
+																	<th class="center">驱动类型</th>
 																	<th class="hidden-xs center">激活</th>
 																	<th class="hidden-480 center">是否持久化</th>
 																	<th class="center">操作</th>
@@ -126,6 +128,16 @@
 																	<td class="center">
 																		<a>{{ ds.name }}</a>
 																	</td>
+																	<td class="center">
+																		{{ ds.type }}
+																	</td>
+																	<td class="center">
+																		{% if ds.mode == 'brctl' %}
+																			Linux Bridge
+																		{% else %}
+																			Open vSwitch
+																		{% endif %}
+																	</td>																																		
 																		<td class="hidden-xs center">
 																			{% if ds.alive == 1 %}
 																				 <span class="label label-success arrowed">Yes</span>
@@ -196,61 +208,99 @@
 																		<input class="input-sm" type="text" name="server_id"   value="{{ vmServer.id }}"/>	
 																	</div>											
 																</div>	
-						
+
 																<div class="form-group">
-																	<label class="control-label col-xs-12 col-sm-3 no-padding-right" for="email"><strong>网络驱动类型:</strong></label>
+																	<label class="control-label col-xs-12 col-sm-3 no-padding-right" for="email"><strong>网络类型:</strong></label>
 						
 																	<div class="col-xs-12 col-sm-9">
 																		<div class="clearfix">
-																			<select id="vNetwork-select" name="mode">
+																			<select id="vNetwork-select" name="network-mode"  onchange="javascript:oBtNetworkType();">
 																				<option value="">选择网络类型:</option>
-																				<option value="openvswitch">Open Vswitch</option>	
-																				<option value="bridge">Linux Brctl</option>																		
+																				<option value="bridge">Bridge</option>	
+																				<option value="nat">Nat</option>																		
 																			</select>
 																		</div>
 																	</div>																							
-																</div>										
-							
-						
-																<div class="form-group">
-																	<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>网络名称</strong></label>
-							
-																	<div class="col-sm-9">
-																		<input class="input-sm" type="text" id="form-field-6" placeholder="" name="name" />																				
-																	</div>
 																</div>
-
-																<div class="form-group">
-																	<label class="control-label col-xs-12 col-sm-3 no-padding-right" for="email"><strong>绑定接口</strong></label>
-						
-																	<div class="col-xs-12 col-sm-9">
-																		<div class="clearfix">
-																			<select id="vInterface-select" name="interface">
-																			<option value="">选择接口</option>
-																			{% for ds in insList %}
-																				
-																				<option value="{{ds.name}}">{{ds.name}}</option>	
-																			{% endfor %}																	
-																			</select>
-																		</div>
-																	</div>																							
-																</div>	
 																
-																<div class="form-group">
-																	<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>STP</strong></label>
+																<div style="display:none;" id="network_type_nat">
+																	<div class="form-group">
+																		<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>网络名称:</strong></label>								
+																		<div class="col-sm-9">
+																			<input class="input-sm" type="text" id="form-field-6" placeholder="分配一个网络名称" name="nat-name" />																				
+																		</div>
+																	</div>			
+																	<div class="form-group">
+																		<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>DHCP地址:</strong></label>								
+																		<div class="col-sm-9">
+																			<input class="input-sm" type="text" id="form-field-6" placeholder="配置DHCP地址" name="dhcpIp" />
+																			<input class="input-sm" type="text" id="form-field-6" placeholder="配置子网掩码" name="dhcpMask" />																					
+																		</div>
+																	</div>	
+																	<div class="form-group">
+																		<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>DHCP地址池:</strong></label>								
+																		<div class="col-sm-9">
+																			<input class="input-sm" type="text" id="form-field-6" placeholder="开始IP地址" name="dhcpStart" />
+																			<input class="input-sm" type="text" id="form-field-6" placeholder="结束IP地址" name="dhcpEnd" />																				
+																		</div>
+																	</div>																																																
+																</div>
+																<div style="display:none;" id="network_type_bridge">
+																	<div class="form-group">
+																		<label class="control-label col-xs-12 col-sm-3 no-padding-right" for="email"><strong>网络驱动类型:</strong></label>
 							
-
-																	<div class="col-xs-3">
-																			<select id="vStp-select" name="stp">
-																			<option value="off">Off</option>
-																			<option value="on">On</option>
-																				
-																				
-																																				
-																			</select>
-
+																		<div class="col-xs-12 col-sm-9">
+																			<div class="clearfix">
+																				<select name="mode">
+																					<option value="">选择网络类型:</option>
+																					<option value="openvswitch">Open Vswitch</option>	
+																					<option value="brctl">Linux Brctl</option>																		
+																				</select>
+																			</div>
+																		</div>																							
+																	</div>										
+								
+							
+																	<div class="form-group">
+																		<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>网络名称</strong></label>
+								
+																		<div class="col-sm-9">
+																			<input class="input-sm" type="text" id="form-field-6" placeholder="分配一个网络名称" name="bridge-name" />																				
+																		</div>
 																	</div>
-																</div>		
+	
+																	<div class="form-group">
+																		<label class="control-label col-xs-12 col-sm-3 no-padding-right" for="email"><strong>绑定接口</strong></label>
+							
+																		<div class="col-xs-12 col-sm-9">
+																			<div class="clearfix">
+																				<select id="vInterface-select" name="interface">
+																				<option value="">选择接口</option>
+																				{% for ds in insList %}
+																					
+																					<option value="{{ds.name}}">{{ds.name}}</option>	
+																				{% endfor %}																	
+																				</select>
+																			</div>
+																		</div>																							
+																	</div>	
+																	
+																	<div class="form-group">
+																		<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>STP</strong></label>
+								
+	
+																		<div class="col-xs-3">
+																				<select id="vStp-select" name="stp">
+																				<option value="off">Off</option>
+																				<option value="on">On</option>
+																					
+																					
+																																					
+																				</select>
+	
+																		</div>
+																	</div>	
+																</div>	
 															</form>									
 								
 								
@@ -318,17 +368,17 @@
 				var btnObj = $(obj);
 				btnObj.attr('disabled',true);
 				var server_data = {};
-				var required = ['bridgeName','name',"server_id","mode",'interface']; /* 必填项列表 */
+// 				var required = ['bridgeName','name',"server_id","mode",'interface']; /* 必填项列表 */
 				var form = document.getElementById('addNetwork');
 				for (var i = 0; i < form.length; ++i) {
 					var name = form[i].name;
 					var value = form[i].value;	
-					idx = $.inArray(name, required);						
-					if (idx >= 0 && value.length == 0){
-						window.wxc.xcConfirm("请注意必填项不能为空~", window.wxc.xcConfirm.typeEnum.error);
-						btnObj.removeAttr('disabled');
-						return false;
-					};	
+// 					idx = $.inArray(name, required);						
+// 					if (idx >= 0 && value.length == 0){
+// 						window.wxc.xcConfirm("请注意必填项不能为空~", window.wxc.xcConfirm.typeEnum.error);
+// 						btnObj.removeAttr('disabled');
+// 						return false;
+// 					};	
 					if (  value.length != 0 && name.length != 0 ){
 						server_data[name] = value;
 					};					
@@ -356,6 +406,19 @@
 				});	
 			}		   
 			
+			function oBtNetworkType() {
+				   var obj = document.getElementById("vNetwork-select"); 
+				   var index = obj.selectedIndex;
+				   var value = obj.options[index].value; 
+				   if (value=="bridge"){
+					   document.getElementById("network_type_bridge").style.display = "";  	   
+					   document.getElementById("network_type_nat").style.display = "none";
+				   }
+				   else {
+					   document.getElementById("network_type_bridge").style.display = "none";	
+					   document.getElementById("network_type_nat").style.display = ""; 
+				   }
+			}			
 	
 	</script>
 {% endblock %}

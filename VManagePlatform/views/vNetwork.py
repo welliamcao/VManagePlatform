@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required
 from VManagePlatform.utils.vMConUtils import LibvirtManage
 from django.template import RequestContext
 from VManagePlatform.data.vMserver import VMServer
-from VManagePlatform.const.Const import CreateNetwork
+from VManagePlatform.const.Const import CreateNetwork,CreateNatNetwork
 from VManagePlatform.utils.vBrConfigUtils import BRManage
 
 @login_required
@@ -34,37 +34,45 @@ def configNetwork(request):
         try:
             VMS = LibvirtManage(uri=vmServer.uri)
             NETWORK = VMS.genre(model='network')
-            SSH = BRManage(hostname=vmServer.server_ip,port=22)
-            OVS = SSH.genre(model='ovs')
-            BRCTL = SSH.genre(model='brctl')
-            if NETWORK and OVS:
-                status = NETWORK.getNetwork(netk_name=request.POST.get('name'))
-                if status:
-                    VMS.close() 
-                    return  JsonResponse({"code":500,"msg":"网络已经存在。","data":None}) 
-                else:
-                    if request.POST.get('mode') == 'openvswitch':
-                        status =  OVS.ovsAddBr(brName=request.POST.get('name'))#利用ovs创建网桥
-                        if status.get('status') == 'success':
-                            status = OVS.ovsAddInterface(brName=request.POST.get('name'), interface=request.POST.get('interface'))#利用ovs创建网桥，并且绑定端口
-                        if status.get('status') == 'success':
-                            if request.POST.get('stp') == 'on':status = OVS.ovsConfStp(brName=request.POST.get('name'))#是否开启stp
-                    elif request.POST.get('mode') == 'bridge':
-                        if request.POST.get('stp') == 'on':status = BRCTL.brctlAddBr(iface=request.POST.get('interface'),brName=request.POST.get('name'),stp='on')
-                        else:status = BRCTL.brctlAddBr(iface=request.POST.get('interface'),brName=request.POST.get('name'),stp=None)
-                    SSH.close()
-                    if  status.get('status') == 'success':                          
-                        XML = CreateNetwork(name=request.POST.get('name'),
-                                            bridgeName=request.POST.get('name'),
-                                            mode=request.POST.get('mode'))
-                        result = NETWORK.createNetwork(XML)
-                        VMS.close()
+            if request.POST.get('network-mode') == 'bridge':
+                SSH = BRManage(hostname=vmServer.server_ip,port=22)
+                OVS = SSH.genre(model='ovs')
+                BRCTL = SSH.genre(model='brctl')
+                if NETWORK and OVS:
+                    status = NETWORK.getNetwork(netk_name=request.POST.get('bridge-name'))
+                    if status:
+                        VMS.close() 
+                        return  JsonResponse({"code":500,"msg":"网络已经存在。","data":None}) 
                     else:
-                        VMS.close()
-                        return  JsonResponse({"code":500,"msg":"网络创建失败。","data":status.get('stderr')}) 
-                    if isinstance(result,int): return  JsonResponse({"code":200,"msg":"网络创建成功。","data":None})   
-                    else:return  JsonResponse({"code":500,"msg":"网络创建失败。","data":None})   
-            else:return  JsonResponse({"code":500,"msg":"网络创建失败。","data":None})                                                 
+                        if request.POST.get('mode') == 'openvswitch':
+                            status =  OVS.ovsAddBr(brName=request.POST.get('bridge-name'))#利用ovs创建网桥
+                            if status.get('status') == 'success':
+                                status = OVS.ovsAddInterface(brName=request.POST.get('bridge-name'), interface=request.POST.get('interface'))#利用ovs创建网桥，并且绑定端口
+                            if status.get('status') == 'success':
+                                if request.POST.get('stp') == 'on':status = OVS.ovsConfStp(brName=request.POST.get('bridge-name'))#是否开启stp
+                        elif request.POST.get('mode') == 'brctl':
+                            if request.POST.get('stp') == 'on':status = BRCTL.brctlAddBr(iface=request.POST.get('interface'),brName=request.POST.get('bridge-name'),stp='on')
+                            else:status = BRCTL.brctlAddBr(iface=request.POST.get('interface'),brName=request.POST.get('bridge-name'),stp=None)
+                        SSH.close()
+                        if  status.get('status') == 'success':                          
+                            XML = CreateNetwork(name=request.POST.get('bridge-name'),
+                                                bridgeName=request.POST.get('bridge-name'),
+                                                data={'mode':request.POST.get('mode'),'type':request.POST.get('network-mode')})
+                            result = NETWORK.createNetwork(XML)
+                            VMS.close()
+                        else:
+                            VMS.close()
+                            return  JsonResponse({"code":500,"msg":"网络创建失败。","data":status.get('stderr')}) 
+                        if isinstance(result,int): return  JsonResponse({"code":200,"msg":"网络创建成功。","data":None})   
+                        else:return  JsonResponse({"code":500,"msg":result,"data":None})   
+                else:return  JsonResponse({"code":500,"msg":"网络创建失败。","data":None})
+            elif request.POST.get('network-mode') == 'nat':
+                XML = CreateNatNetwork(netName=request.POST.get('nat-name'),dhcpIp=request.POST.get('dhcpIp'),
+                                       dhcpMask=request.POST.get('dhcpMask'),dhcpStart=request.POST.get('dhcpStart'),
+                                       dhcpEnd=request.POST.get('dhcpEnd'))
+                result = NETWORK.createNetwork(XML)   
+                if isinstance(result,int): return  JsonResponse({"code":200,"msg":"网络创建成功。","data":None})   
+                else:return  JsonResponse({"code":500,"msg":result,"data":None})                                                                            
         except Exception,e:
             return  JsonResponse({"code":500,"msg":"服务器连接失败。。","data":e})  
     else:return  JsonResponse({"code":500,"data":None,"msg":"不支持的HTTP操作或者您没有权限操作此项"}) 

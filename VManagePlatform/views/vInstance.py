@@ -78,7 +78,7 @@ def addInstance(request):
                             dom_xml = Const.CreateIntanceConfig(dom_name=request.POST.get('vm_name'),maxMem=int(SERVER.getServerInfo().get('mem')),
                                                           mem=int(request.POST.get('mem')),cpu=request.POST.get('cpu'),disk=disk_xml,
                                                           iso_path=request.POST.get('system'),network=networkXml)
-                            dom = SERVER.createInstance(dom_xml)
+                            dom = SERVER.createInstance(dom_xml)                          
                             recordLogs.delay(user=str(request.user),action=op,status=dom,vm_name=request.POST.get('vm_name'))
                             if dom==0:    
                                 VMS.close()
@@ -188,12 +188,12 @@ def modfInstance(request):
                     result = INSTANCE.addInstanceInterface(instance, brName=request.POST.get('netk_name'))
                     recordLogs.delay(user=str(request.user),action='attach_netk',status=result,vm_name=request.POST.get('vm_name'))
                     if isinstance(result,int):return  JsonResponse({"code":200,"data":None,"msg":"操作成功。"})
-                    else:return  JsonResponse({"code":500,"data":status,"msg":"添加失败。"})
+                    else:return  JsonResponse({"code":500,"data":result,"msg":result})
                 elif  request.POST.get('op') == 'detach':
                     result = INSTANCE.delInstanceInterface(instance, interName=request.POST.get('netk'))
                     recordLogs.delay(user=str(request.user),action='detach_netk',status=result,vm_name=request.POST.get('vm_name'))
                     if isinstance(result,int):return  JsonResponse({"code":200,"data":None,"msg":"操作成功。"})
-                    else:return  JsonResponse({"code":500,"data":status,"msg":"添加失败。"})
+                    else:return  JsonResponse({"code":500,"data":None,"msg":result})
             #调整内存大小
             elif  request.POST.get('device') == 'mem':
                 if request.POST.get('op') == 'attach': 

@@ -89,8 +89,9 @@ def StorageTypeXMLConfig(pool_type,pool_name,pool_spath=None,pool_tpath=None,poo
     else:
         return False
     
-def CreateNetwork(name,bridgeName,mode): 
-    if mode == 'openvswitch':
+def CreateNetwork(name,bridgeName,data): 
+    '''创建桥接网络'''
+    if data.get('mode') == 'openvswitch' and data.get('type') == 'bridge' :
         network_xml = '''
             <network>
                   <name>{name}</name>
@@ -99,7 +100,7 @@ def CreateNetwork(name,bridgeName,mode):
                   <virtualport type='openvswitch'/>
             </network>        
         '''
-    elif mode == 'bridge':
+    elif data.get('mode') == 'brctl' and data.get('type') in ['bridge','nat'] :
         network_xml = '''
                 <network>
                   <name>{name}</name>
@@ -110,11 +111,29 @@ def CreateNetwork(name,bridgeName,mode):
     network_xml = network_xml.format(name=name,bridgeName=bridgeName)
     return network_xml 
     
+def CreateNatNetwork(netName,dhcpIp,dhcpMask,dhcpStart,dhcpEnd): 
+    '''创建nat网络'''
+    network_xml = '''
+        <network>
+          <name>{netNam}</name>
+          <bridge name="{netNam}" />
+          <forward mode="nat"/>
+          <ip address="{dhcpIp}" netmask="{dhcpMask}">
+            <dhcp>
+              <range start="{dhcpStart}" end="{dhcpEnd}" />
+            </dhcp>
+          </ip>
+        </network>'''
+    network_xml = network_xml.format(netNam=netName,dhcpIp=dhcpIp,dhcpMask=dhcpMask,
+                                     dhcpStart=dhcpStart,dhcpEnd=dhcpEnd)
+    return network_xml 
+    
         
 def CreateNetcard(nkt_br,ntk_name,mode,nkt_vlan=0):
     if  mode == 'openvswitch':
         ntk_xml = '''
                 <interface type='bridge'>
+                    <start mode='onboot'/>
                     <source bridge='{nkt_br}'/>
                     <model type='virtio'/>
                     <virtualport type='openvswitch' />
@@ -125,14 +144,15 @@ def CreateNetcard(nkt_br,ntk_name,mode,nkt_vlan=0):
                 </interface> 
             '''
         ntk_xml = ntk_xml.format(nkt_br=nkt_br,nkt_vlan=nkt_vlan,ntk_name=ntk_name)  
-    elif mode == 'brct':
+    else:
         ntk_xml = '''
               <interface type='bridge'>
+                <start mode='onboot'/>
                 <source bridge='{nkt_br}'/>
                 <target dev='{ntk_name}'/>
                 <model type='virtio'/>
               </interface>
-            '''
+            '''      
         ntk_xml = ntk_xml.format(nkt_br=nkt_br,nkt_vlan=nkt_vlan,ntk_name=ntk_name)                      
     return ntk_xml
 
