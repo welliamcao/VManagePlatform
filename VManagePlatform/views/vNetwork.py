@@ -104,7 +104,6 @@ def handleNetwork(request):
                         if netkName.startswith('ovs'):OVS.ovsDelBr(brName=netkName)
                         elif netkName.startswith('br'):
                             BRCTL.brctlDownBr(brName=netkName)
-#                             BRCTL.brctlDelBr(brName=netkName)
                         SSH.close()
                     except:
                         pass

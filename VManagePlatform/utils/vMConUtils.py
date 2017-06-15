@@ -924,14 +924,16 @@ class VMInstance(VMBase):
     
     def addInstanceInterface(self,instance,brName):
         netk = self.getNetwork(brName)
-        if netk:
+        if netk:     
             xml = netk.XMLDesc(0)
             tree = ElementTree.fromstring(xml)
             try:
-                mode = tree.find('virtualport').get('type')  
+                mode = tree.find('virtualport').get('type') 
             except:
-                mode = 'brct'         
-            interXml = Const.CreateNetcard(nkt_br=brName, ntk_name=brName +'-'+CommTools.radString(length=4), mode=mode)
+                mode = 'brctl'
+            model = tree.find('forward').get('mode')               
+            interXml = Const.CreateNetcard(nkt_br=brName, ntk_name=brName +'-'+CommTools.radString(length=4), data={'type':model,'mode':mode})
+            print interXml
             try:
                 return instance.attachDeviceFlags(interXml,3)#如果是关闭状态则标记flags为3，保证添加的硬盘重启不会丢失 
             except libvirt.libvirtError,e:
@@ -1206,8 +1208,9 @@ class VMNetwork(VMBase):
             try:
                 mode = tree.find('virtualport').get('type') 
             except:
-                mode = 'brct'
-            return mode
+                mode = 'brctl'
+            model = tree.find('forward').get('mode')
+            return {'mode':mode,'type': model}
         else:return False
         
     def getInterface(self, name):
@@ -1281,10 +1284,10 @@ class VMNetwork(VMBase):
         '''创建网络并且设置自启动'''
         try:
             netk = self.conn.networkDefineXML(xml)
-            if netk.create() == 0:return netk.setAutostart(1)
-            else:return False
-        except libvirt.libvirtError:
-            return False        
+            netk.create()
+            return netk.setAutostart(1)
+        except libvirt.libvirtError,e:
+            return '网络创建失败，失败原因：{result}'.format(result=e.get_error_message())             
         
     def deleteNetwork(self,netk):
         '''删除网络'''
@@ -1299,8 +1302,8 @@ class VMNetwork(VMBase):
         '''列出所有网络'''
         dataList = []
         try:
-            for netk in self.conn.listAllNetworks():
-                data = dict()
+            for netk in self.conn.listAllNetworks():         
+                data = self.getNetworkType(netk.name())
                 data['name'] = netk.name()
                 data['alive'] = netk.isActive()
                 data['pers'] = netk.isPersistent()

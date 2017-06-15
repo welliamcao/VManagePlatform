@@ -100,7 +100,7 @@ def CreateNetwork(name,bridgeName,data):
                   <virtualport type='openvswitch'/>
             </network>        
         '''
-    elif data.get('mode') == 'brctl' and data.get('type') in ['bridge','nat'] :
+    elif data.get('mode') == 'brctl' and data.get('type') == 'bridge':
         network_xml = '''
                 <network>
                   <name>{name}</name>
@@ -129,8 +129,8 @@ def CreateNatNetwork(netName,dhcpIp,dhcpMask,dhcpStart,dhcpEnd):
     return network_xml 
     
         
-def CreateNetcard(nkt_br,ntk_name,mode,nkt_vlan=0):
-    if  mode == 'openvswitch':
+def CreateNetcard(nkt_br,ntk_name,data,nkt_vlan=0):
+    if   data.get('mode') == 'openvswitch' and data.get('type') == 'bridge' :
         ntk_xml = '''
                 <interface type='bridge'>
                     <start mode='onboot'/>
@@ -143,8 +143,8 @@ def CreateNetcard(nkt_br,ntk_name,mode,nkt_vlan=0):
                     <target dev='{ntk_name}'/>                   
                 </interface> 
             '''
-        ntk_xml = ntk_xml.format(nkt_br=nkt_br,nkt_vlan=nkt_vlan,ntk_name=ntk_name)  
-    else:
+        ntk_xml = ntk_xml.format(nkt_br=nkt_br,nkt_vlan=nkt_vlan,ntk_name=ntk_name) 
+    elif  data.get('mode') == 'brctl' and data.get('type') == 'bridge': 
         ntk_xml = '''
               <interface type='bridge'>
                 <start mode='onboot'/>
@@ -153,7 +153,16 @@ def CreateNetcard(nkt_br,ntk_name,mode,nkt_vlan=0):
                 <model type='virtio'/>
               </interface>
             '''      
-        ntk_xml = ntk_xml.format(nkt_br=nkt_br,nkt_vlan=nkt_vlan,ntk_name=ntk_name)                      
+        ntk_xml = ntk_xml.format(nkt_br=nkt_br,nkt_vlan=nkt_vlan,ntk_name=ntk_name)          
+    elif data.get('mode') == 'brctl' and data.get('type') == 'nat':
+        ntk_xml = '''
+            <interface type='network'>
+               <source network='{nkt_br}'/>
+               <model type='virtio'/>
+               <target dev='{ntk_name}'/>
+            </interface>              
+            '''      
+        ntk_xml = ntk_xml.format(nkt_br=nkt_br,ntk_name=ntk_name)                      
     return ntk_xml
 
 

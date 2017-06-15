@@ -62,7 +62,7 @@ def addInstance(request):
                             radStr = CommTools.radString(4)
                             for nt in netks:
                                 netkType = NETWORK.getNetworkType(nt)
-                                netXml = Const.CreateNetcard(nkt_br=nt,ntk_name=nt+'-'+radStr,mode=netkType)                             
+                                netXml = Const.CreateNetcard(nkt_br=nt,ntk_name=nt+'-'+radStr,data=netkType)                             
                                 networkXml = netXml +  networkXml
                             pool = STORAGE.getStoragePool(pool_name=request.POST.get('storage')) 
                             volume_name = request.POST.get('vm_name')+'.img'
