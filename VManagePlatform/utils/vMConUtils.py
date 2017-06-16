@@ -119,7 +119,10 @@ class VMServer(VMBase):
                 data['pool_name'] = pool.name()
                 data['pool_size'] = pool.info()[1] / 1024/ 1024/ 1024
                 data['pool_available'] = pool.info()[3] / 1024/ 1024/ 1024
-                data['pool_per'] = round((float(data['pool_size'] - data['pool_available']) / data['pool_size'])*100,2)
+                try:
+                    data['pool_per'] = round((float(data['pool_size'] - data['pool_available']) / data['pool_size'])*100,2)
+                except:
+                    data['pool_per'] = 0
                 data['pool_volumes'] = pool.numOfVolumes()
                 data['pool_active'] = pool.isActive()
                 storage.append(data)
@@ -379,7 +382,7 @@ class VMStorage(VMBase):
         try:
             pool = self.conn.storagePoolLookupByName(pool_name) 
             return pool
-        except libvirt.libvirtError,e:
+        except libvirt.libvirtError:
             return False 
     
     def getPoolXMLDesc(self,pool_name):
@@ -454,7 +457,7 @@ class VMStorage(VMBase):
     def createStoragePool(self,pool_xml):
         '''创建存储池'''
         try:
-            pool = self.conn.storagePoolDefineXML(pool_xml, 0)
+            pool = self.conn.storagePoolDefineXML(pool_xml)
             if pool:
                 pool.build(0)
                 pool.create(0)    
@@ -485,11 +488,9 @@ class VMStorage(VMBase):
         """        
         volume_xml = volume_xml.format(volume_name=volume_name,volume_capacity=volume_capacity,drive=drive)
         try:
-            volume = pool.createXML(volume_xml, 0)
-            if volume:return volume
-            else:return False
-        except libvirt.libvirtError:
-            return False
+            return pool.createXML(volume_xml, 0)
+        except libvirt.libvirtError,e:
+            return '创建存储池失败，失败原因：{result}'.format(result=e.get_error_message()) 
 
         
     def deleteVolume(self,pool,volume_name):

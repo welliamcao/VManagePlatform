@@ -26,11 +26,11 @@ def handleVolume(request):
                     if op == 'add':
                         if volume:return JsonResponse({"code":500,"data":None,"msg":"卷已经存在"})
                         else:
-                            status = STORAGE.createVolumes(pool=pool, volume_name=request.POST.get('vol_name'),flags=0,
+                            status = STORAGE.createVolumes(pool=pool, volume_name=request.POST.get('vol_name'),
                                                 volume_capacity=int(request.POST.get('vol_size')),drive=request.POST.get('vol_drive'))
                             VMS.close()
-                            if status:return  JsonResponse({"code":200,"data":None,"msg":"卷创建成功。"})
-                            else:return  JsonResponse({"code":500,"data":None,"msg":"卷创建失败。"})
+                            if isinstance(status,str) :return  JsonResponse({"code":500,"data":None,"msg":status})
+                            else:return  JsonResponse({"code":200,"data":None,"msg":"卷创建成功。"})
                     elif op == 'delete':
                         if volume:
                             status = STORAGE.deleteVolume(pool=pool, volume_name=request.POST.get('vol_name'))
