@@ -1199,6 +1199,7 @@ class VMNetwork(VMBase):
             return netk
         except libvirt.libvirtError:
             return False  
+           
         
     def getNetworkType(self,netk_name):
         '''获取网络类型'''
@@ -1243,23 +1244,27 @@ class VMNetwork(VMBase):
         except libvirt.libvirtError,e:
             return '创建网络接口失败，失败原因：{result}'.format(result=e.get_error_message())              
 
-    def createBridgeInterface(self, netdev,brName,ipv4_addr,mask,stp,mac,delay=0.01):
+    def createBridgeInterface(self, iface,brName,ipaddr,mask,gateway,stp='on',delay=0):
         '''创建网桥类型接口'''
         xml = """<interface type='bridge' name='{brName}'>
                     <start mode='onboot'/>""".format( brName=brName)
-        if ipv4_addr and mask:
+        if ipaddr and mask and gateway:
             xml += """ <protocol family='ipv4'>
-                            <ip address='{ipv4_addr}' prefix='{mask}'/>
-                        </protocol>""".format(ipv4_addr=ipv4_addr,mask=mask)
-        xml += """<bridge stp='{stp}' delay='{delay}'>
-                        <interface name='{netdev}' type='ethernet'/>
-                        <mac address='{mac}'/>
-                      </bridge>""".format(stp=stp, delay=delay,mac=mac ,netdev=netdev)
+                            <ip address='{ipaddr}' prefix='{mask}'/>
+                            <route gateway="{gateway}"/>
+                        </protocol>""".format(ipaddr=ipaddr,mask=mask,gateway=gateway)
+        if stp:
+            xml += """<bridge stp='{stp}' delay='{delay}'>
+                            <interface name='{iface}' type='ethernet'/>
+                          </bridge>""".format(stp=stp, delay=delay,iface=iface)
         xml += """</interface>"""
-        self.defineInterface(xml)
-        iface = self.getInterface(brName)
-        iface.create()    
-
+        try:
+            self.defineInterface(xml)
+            iface = self.getInterface(brName)
+            return iface.create()    
+        except libvirt.libvirtError,e:
+            return '桥接网卡创建失败，失败原因：{result}'.format(result=e.get_error_message())
+        
     def stopInterface(self,iface):
         try:
             iface.destroy()
@@ -1276,8 +1281,8 @@ class VMNetwork(VMBase):
 
     def deleteInterface(self,iface):
         try:
-            iface.undefine()
-            return True
+            iface.destroy()
+            return iface.undefine()
         except libvirt.libvirtError:
             return False
         

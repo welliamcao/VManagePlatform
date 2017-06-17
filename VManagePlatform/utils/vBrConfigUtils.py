@@ -84,8 +84,7 @@ class OvsConfig(SSHBase):
         try:
             data = dict()
             cmd = 'ovs-vsctl add-port {brName} {interface}'.format(brName=brName,interface=interface)   
-            stdin,stdout,stderr = self.ssh.exec_command(cmd) 
-            print    stdin,stdout,stderr        
+            stdin,stdout,stderr = self.ssh.exec_command(cmd)      
             data["stdout"] = ''.join(stdout.readlines()).replace("\n","<br>")
             exit_status = stdout.channel.recv_exit_status() 
             if exit_status > 0:
@@ -311,28 +310,6 @@ class BrctlConfig(SSHBase):
             data["msg"] = str(e)
             return  data 
      
-#     def brctlSave(self,brName,interface):
-#         '''保存配置设置开启启动'''
-#         try:
-#             brCmd = 'brctl addbr {brName}'.format(brName=brName)
-#             brIfcmd = 'brctl addif {brName} {interface} '.format(brName=brName,interface=interface)
-#             for cmd in brCmd,brIfcmd:
-#                 data = dict()
-#                 clean = "sed -i '/{str}/d' /etc/rc.d/rc.local".format(str=cmd)
-#                 stdin,stdout,stderr = self.ssh.exec_command(clean)     
-#                 save = "echo  '{str}' >>  /etc/rc.d/rc.local".format(str=cmd)
-#                 stdin,stdout,stderr = self.ssh.exec_command(save)
-#             data["stdout"] = ''.join(stdout.readlines()).replace("\n","<br>")
-#             exit_status = stdout.channel.recv_exit_status() 
-#             if exit_status > 0:
-#                 data["stderr"] =  "%s" % (''.join(stderr.readlines())).replace("\n","<br>")
-#                 data["status"] = 'faild'
-#             else:
-#                 data["status"] = 'success'
-#             return  data                   
-#         except Exception,e:      
-#             data["msg"] = str(e)
-#             return  data   
             
 class BRManage(object):
     def __init__(self,hostname,port=None):

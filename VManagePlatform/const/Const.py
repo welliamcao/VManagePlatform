@@ -1,4 +1,5 @@
-# -*- coding=utf-8 -*-
+#!/usr/bin/env python  
+# _#_ coding:utf-8 _*_  
 def StorageTypeXMLConfig(pool_type,pool_name,pool_spath=None,pool_tpath=None,pool_host=None):
     storage_pool_xml = {
                     'dir':'''
@@ -89,26 +90,16 @@ def StorageTypeXMLConfig(pool_type,pool_name,pool_spath=None,pool_tpath=None,poo
     else:
         return False
     
-def CreateNetwork(name,bridgeName,data): 
+def CreateBridgeNetwork(name,bridgeName,mode): 
     '''´´½¨ÇÅ½ÓÍøÂç'''
-    if data.get('mode') == 'openvswitch' and data.get('type') == 'bridge' :
-        network_xml = '''
+    network_xml = '''
             <network>
                   <name>{name}</name>
                   <forward mode='bridge'/>
                   <bridge name='{bridgeName}'/>
-                  <virtualport type='openvswitch'/>
-            </network>        
-        '''
-    elif data.get('mode') == 'brctl' and data.get('type') == 'bridge':
-        network_xml = '''
-                <network>
-                  <name>{name}</name>
-                  <forward mode="bridge"/>
-                  <bridge name="{bridgeName}"/>
-                </network>   
-            '''
-    network_xml = network_xml.format(name=name,bridgeName=bridgeName)
+    '''.format(name=name,bridgeName=bridgeName)             
+    if mode == 'openvswitch':network_xml += '''<virtualport type='openvswitch'/>'''
+    network_xml += '''</network>'''
     return network_xml 
     
 def CreateNatNetwork(netName,dhcpIp,dhcpMask,dhcpStart,dhcpEnd): 
@@ -165,8 +156,6 @@ def CreateNetcard(nkt_br,ntk_name,data,nkt_vlan=0):
         ntk_xml = ntk_xml.format(nkt_br=nkt_br,ntk_name=ntk_name)                      
     return ntk_xml
 
-
-    
 def CreateDisk(volume_path,diskSn=None):    
     if diskSn:
         disk_xml = '''

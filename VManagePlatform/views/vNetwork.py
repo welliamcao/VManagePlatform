@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required
 from VManagePlatform.utils.vMConUtils import LibvirtManage
 from django.template import RequestContext
 from VManagePlatform.data.vMserver import VMServer
-from VManagePlatform.const.Const import CreateNetwork,CreateNatNetwork
+from VManagePlatform.const.Const import CreateBridgeNetwork,CreateNatNetwork
 from VManagePlatform.utils.vBrConfigUtils import BRManage
 
 @login_required
@@ -55,14 +55,14 @@ def configNetwork(request):
                             else:status = BRCTL.brctlAddBr(iface=request.POST.get('interface'),brName=request.POST.get('bridge-name'),stp=None)
                         SSH.close()
                         if  status.get('status') == 'success':                          
-                            XML = CreateNetwork(name=request.POST.get('bridge-name'),
+                            XML = CreateBridgeNetwork(name=request.POST.get('bridge-name'),
                                                 bridgeName=request.POST.get('bridge-name'),
-                                                data={'mode':request.POST.get('mode'),'type':request.POST.get('network-mode')})
+                                                mode=request.POST.get('mode'))
                             result = NETWORK.createNetwork(XML)
                             VMS.close()
                         else:
                             VMS.close()
-                            return  JsonResponse({"code":500,"msg":"网络创建失败。","data":status.get('stderr')}) 
+                            return  JsonResponse({"code":500,"msg":status.get('stderr'),"data":None}) 
                         if isinstance(result,int): return  JsonResponse({"code":200,"msg":"网络创建成功。","data":None})   
                         else:return  JsonResponse({"code":500,"msg":result,"data":None})   
                 else:return  JsonResponse({"code":500,"msg":"网络创建失败。","data":None})
@@ -90,19 +90,21 @@ def handleNetwork(request):
             except:
                 return JsonResponse({"code":500,"data":None,"msg":"主机不存在。"})  
             try:
-                VMS = LibvirtManage(uri=vmServer.uri)
-                SSH = BRManage(hostname=vmServer.server_ip,port=22)
-                OVS = SSH.genre(model='ovs')
-                BRCTL = SSH.genre(model='brctl')                
+                VMS = LibvirtManage(uri=vmServer.uri)              
             except Exception,e:
                 return  JsonResponse({"code":500,"msg":"服务器连接失败。。","data":e})             
             try:
                 NETWORK = VMS.genre(model='network')
                 netk = NETWORK.getNetwork(netk_name=netkName)
+                mode = NETWORK.getNetworkType(netk_name=netkName).get('mode')
                 if op == 'delete':
                     try:
-                        if netkName.startswith('ovs'):OVS.ovsDelBr(brName=netkName)
-                        elif netkName.startswith('br'):
+                        SSH = BRManage(hostname=vmServer.server_ip,port=22)
+                        if mode == 'openvswitch':
+                            OVS = SSH.genre(model='ovs') 
+                            OVS.ovsDelBr(brName=netkName)
+                        elif mode == 'brctl':
+                            BRCTL = SSH.genre(model='brctl') 
                             BRCTL.brctlDownBr(brName=netkName)
                         SSH.close()
                     except:
