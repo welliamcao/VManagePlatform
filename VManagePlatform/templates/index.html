@@ -86,55 +86,8 @@
 
 				<div class="navbar-header pull-right" role="navigation">
 					<ul class="nav ace-nav">
-						{% if  msgTotal  %}
-						<li class="purple">
-							<a data-toggle="dropdown" class="dropdown-toggle" href="#">
-								<i class="icon-bell-alt icon-animated-bell"></i>
-								<span class="badge badge-important">{{ msgTotal }}</span>
-							</a>
-
-							<ul class="pull-right dropdown-navbar navbar-pink dropdown-menu dropdown-caret dropdown-close">
-								<li class="dropdown-header">
-									<i class="icon-warning-sign"></i>
-									{{ msgTotal }}条通知
-								</li>
-
-								<li>
-									<a href="#">
-										<div class="clearfix">
-											<span class="pull-left">
-												<i class="btn btn-xs no-hover btn-pink icon-desktop"></i>
-												宿主机丢失
-											</span>
-											<span class="pull-right badge badge-info">{{ totalInfo.serStop }}</span>
-										</div>
-									</a>
-								</li>
-
-								<li>
-									<a href="#">
-										<div class="clearfix">
-											<span class="pull-left">
-												<i class="btn btn-xs no-hover btn-pink  icon-laptop"></i>
-												虚拟机关闭
-											</span>
-											{% if  totalInfo.vmStop  %}
-											<span class="pull-right badge badge-info">{{ totalInfo.vmStop }}</span>
-											{% endif %}
-										</div>
-									</a>
-								</li>
-
-
-								<li>
-									<a href="/profile/#messages">
-										查看所有消息
-										<i class="icon-arrow-right"></i>
-									</a>
-								</li>
-							</ul>
+						<li class="green" id="logMsgs">
 						</li>
-						{% endif %}
 						<li class="light-blue">
 							<a data-toggle="dropdown" href="#" class="dropdown-toggle">
 								<img class="nav-user-photo" src="/static/avatars/user.jpg" alt="Jason's Photo" />
@@ -309,13 +262,13 @@
 
 							<ul class="submenu">						
 									<li>
-										<a href="/usermanage/?op=list">
+										<a href="/user/">
 												<i class="icon-leaf"></i>
 												用户
 										</a>
 									</li>						
 									<li>
-										<a href="/groupmanage/?op=list">
+										<a href="/group/">
 											<i class="icon-leaf"></i>
 												用户组
 										</a>
@@ -681,12 +634,12 @@
 													          <div class="timeline-badge"><i class="icon-check"></i></div>
 													          <div class="timeline-panel">
 													            <div class="timeline-heading">
-													              <h4 class="timeline-title"><i class="icon-calendar">&nbsp;</i>{{ ds.createTime|date:"Y/m/d H:i:s" }}</h4>
-													              <p><small class="text-muted"><i class="icon-time"></i> {{ ds.createTime }} </small></p>
+													              <h4 class="timeline-title"><i class="icon-calendar">&nbsp;</i>{{ ds.create_time|date:"Y/m/d H:i:s" }}</h4>
+													              <p><small class="text-muted"><i class="icon-time"></i> {{ ds.create_time }} </small></p>
 													            </div>
 													            <div class="timeline-body">
-													              <p>内容：<strong>{{ ds.desc }}</strong></p>
-													              <p>操作对象：<a href="#">{{ ds.object }}</a></p>
+													              <p>内容：<strong>{{ ds.content }}</strong></p>
+													              <p>操作对象：<a href="/viewInstance/{{ds.server_id}}/{{ds.vm_name}}/">{{ ds.vm_name }}</a></p>
 													              <p>操作人：{{ ds.user }}</p>
 													              {% if ds.status == 0 %}
 													              		<p>结果：<span class="label label-success arrowed">Success</span></p>
@@ -701,12 +654,12 @@
 													          <div class="timeline-badge warning"><i class="icon-credit-card"></i></div>
 													          <div class="timeline-panel">
 													            <div class="timeline-heading">
-													              <h4 class="timeline-title"><i class="icon-calendar">&nbsp;</i>{{ ds.createTime|date:"Y/m/d H:i:s" }}</h4>
-													              <p><small class="text-muted"><i class="icon-time"></i> {{ ds.createTime }} </small></p>
+													              <h4 class="timeline-title"><i class="icon-calendar">&nbsp;</i>{{ ds.create_time|date:"Y/m/d H:i:s" }}</h4>
+													              <p><small class="text-muted"><i class="icon-time"></i> {{ ds.create_time }} </small></p>
 													            </div>
 													             <div class="timeline-body">
-													              <p>内容：<strong>{{ ds.desc }}</strong></p>
-													              <p>操作对象：<a href="#">{{ ds.object }}</a></p>
+													              <p>内容：<strong>{{ ds.content }}</strong></p>
+													              <p>操作对象：<a href="/viewInstance/{{ds.server_id}}/{{ds.vm_name}}/">{{ ds.vm_name }}</a></p>
 													              <p>操作人：{{ ds.user }}</p>													              
 													              {% if ds.status == 0 %}
 													              		<p>结果：<span class="label label-success arrowed">Success</span></p>
@@ -802,13 +755,61 @@
 			window.jQuery || document.write("<script src='/static/js/jquery-2.0.3.min.js'>"+"<"+"/script>");
 		</script>
 
-		<!-- <![endif]-->
-
-		<!--[if IE]>
-<script type="text/javascript">
- window.jQuery || document.write("<script src='/static/js/jquery-1.10.2.min.js'>"+"<"+"/script>");
-</script>
-<![endif]-->
+		<script type="text/javascript"> 
+			function getLogsMsg () {
+					$.ajax({
+						url:'/api/log/{{user}}/', //请求地址
+						type:"GET",  //提交类似
+						success:function(response){
+							if (response.length > 0 ){						
+									var newStr = '<a data-toggle="dropdown" class="dropdown-toggle" href="#">' +
+												 '<i class="icon-bell-alt icon-animated-bell"></i>' +
+											     '<span class="badge badge-important">'+ response.length +'</span>' +
+											     '</a>' +
+												 '<ul class="pull-right dropdown-navbar navbar-pink dropdown-menu dropdown-caret dropdown-close">' +
+													'<li class="dropdown-header">' +
+														'<i class="icon-warning-sign"></i>' + response.length + '条通知' +												
+													'</li>'
+									for (var i=0;i< response.length;i++)
+										{
+											if ( response[i]['status'] == 0 ){
+												status = '<span class="pull-right badge badge-success">成功</span></div></a></li>'
+											}
+											else{
+												status = '<span class="pull-right badge badge-danger">失败</span></div></a></li>'
+											}
+											newStr += '<li><a href="javascript:" onclick="readLogsMsg(this,'+  response[i]['id'] + ')"><div class="clearfix">' +
+															'<span class="pull-left">' +
+															'<i class="btn btn-xs no-hover btn-pink icon-desktop"></i>' + response[i]['content'] +
+															'</span>' + status
+									};
+									newStr +=  '<li> ' +
+												 '<a href="/profile/#messages">查看所有消息' +
+												   '<i class="icon-arrow-right"></i>' +
+												 '</a>' +
+											   '</li>' +
+											  '</ul>'
+									$('#logMsgs').html(newStr);	
+								}
+						}
+					});	
+				};
+				getLogsMsg ();
+				function readLogsMsg(obj,id) {
+					$.ajax({
+						dataType: "JSON",
+						url:'/api/logs/'+ id +'/', //请求地址
+						type:"PUT",  //提交类似
+						data:{
+							'isRead':1,
+						}, //提交参数
+						success:function(response){
+							getLogsMsg ();
+						}
+					})					
+				}
+		
+		</script>
 
 		<script type="text/javascript">
 			if("ontouchend" in document) document.write("<script src='/static/js/jquery.mobile.custom.min.js'>"+"<"+"/script>");

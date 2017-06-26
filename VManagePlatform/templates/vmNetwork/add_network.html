@@ -331,7 +331,7 @@
 						onOk: function(){
 							$.ajax({
 								  type: 'POST',
-								  url: '/handleNetwork/',
+								  url: '/handleNetwork/{{vmServer.id}}/',
 								  data:{
 										"server_id":server_id,
 										"op":op,							
@@ -383,7 +383,7 @@
 				
 				$.ajax({
 					dataType: "JSON",
-					url:'/configNetwork/', //请求地址
+					url:'/configNetwork/{{vmServer.id}}/', //请求地址
 					type:"POST",  //提交类似
 					data:server_data,  //提交参数
 					success:function(response){

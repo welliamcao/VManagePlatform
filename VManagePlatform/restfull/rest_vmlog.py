@@ -1,50 +1,42 @@
 #!/usr/bin/env python  
 # _#_ coding:utf-8 _*_
-from rest_framework import viewsets,permissions
-from VManagePlatform.serializers import VmServerSerializer
+from VManagePlatform.serializers import VmLogsSerializer
 from rest_framework import status
 from django.http import Http404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from VManagePlatform.models import VmServer,VmLogs
-
-
+from VManagePlatform.models import VmLogs
+from rest_framework import generics
+from django.db.models import Q 
 
 @api_view(['GET', 'POST' ])
-def vmServer_list(request,format=None):
+def vmlog_list(request,format=None):
     """
     List all order, or create a server assets order.
     """
     if request.method == 'GET':      
-        snippets = VmServer.objects.all()
-        serializer = VmServerSerializer(snippets, many=True)
-        return Response(serializer.data)     
-    elif request.method == 'POST':
-        serializer = VmServerSerializer(data=request.data)
-        
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)    
-
+        snippets = VmLogs.objects.all()
+        serializer = VmLogsSerializer(snippets, many=True)
+        return Response(serializer.data)  
+       
     
 @api_view(['GET', 'PUT', 'DELETE'])
-def vmServer_detail(request, id,format=None):
+def vmlog_detail(request, id,format=None):
     """
     Retrieve, update or delete a server assets instance.
     """
     try:
-        snippet = VmServer.objects.get(id=id)
-    except VmServer.DoesNotExist:
+        snippet = VmLogs.objects.get(id=id)
+    except VmLogs.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
  
     if request.method == 'GET':
-        serializer = VmServerSerializer(snippet)
+        serializer = VmLogsSerializer(snippet)
         return Response(serializer.data)
  
     elif request.method == 'PUT':
-        serializer = VmServerSerializer(snippet, data=request.data)
+        serializer = VmLogsSerializer(snippet, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
@@ -55,3 +47,12 @@ def vmServer_detail(request, id,format=None):
             return Response(status=status.HTTP_403_FORBIDDEN)
         snippet.delete()
         return Response(status=status.HTTP_204_NO_CONTENT) 
+    
+class LogsList(generics.ListAPIView):
+    serializer_class = VmLogsSerializer 
+    def get_queryset(self):
+        user = self.request.user
+        username = self.kwargs['username']
+        if str(user) == str(username):
+            return VmLogs.objects.filter(user=user,isRead=0).order_by("id")
+        else:return []

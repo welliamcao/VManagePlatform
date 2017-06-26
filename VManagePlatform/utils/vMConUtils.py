@@ -1,6 +1,6 @@
 #!/usr/bin/env python  
 # _#_ coding:utf-8 _*_  
-import libvirt,time,os
+import libvirt,time,os,threading,socket
 from datetime import datetime
 from xml.dom import minidom
 from xml.etree import ElementTree
@@ -8,26 +8,369 @@ from VManagePlatform.apps.Base import BaseLogging
 from VManagePlatform.const import Const
 from VManagePlatform.utils.vConnUtils import CommTools,TokenUntils
 from VManagePlatform.utils import vMUtil
+from libvirt import libvirtError
+from VManagePlatform.utils.rwlock import ReadWriteLock
+from django.conf import settings
 
-class LibvirtErrorMsg():
-    CTX = '**[Error]** '
+CONN_SOCKET = 4
+CONN_TLS = 3
+CONN_SSH = 2
+CONN_TCP = 1
+TLS_PORT = 16514
+SSH_PORT = 22
+TCP_PORT = 16509
 
-class LibvirtError():
-    """Subclass virError to get the last error information."""
-    def __init__(self, ctx,err):
-        msg = ctx + err[2]
-        BaseLogging.Logger(msg, level='error')
 
-libvirt.registerErrorHandler(LibvirtError,LibvirtErrorMsg.CTX)
+class soloConnection(object):
+
+    def __init__(self, host, login=None, passwd=None, conn=1):
+        self.connection = None
+        self.last_error = None
+        self.host = host
+        self.login = login
+        self.passwd = passwd
+        self.type = conn
+        
+    def connect(self):
+        if self.type == CONN_TCP:
+            self.connection = self.__connect_tcp()
+        elif self.type == CONN_SSH:
+            self.connection = self.__connect_ssh()
+        elif self.type == CONN_TLS:
+            self.connection = self.__connect_tls()
+        elif self.type == CONN_SOCKET:
+            self.connection = self.__connect_socket()
+        else:
+            raise ValueError('"{type}" is not a valid connection type'.format(type=self.type))
+        return self.connection
+
+    def __libvirt_auth_credentials_callback(self, credentials, user_data):
+        for credential in credentials:
+            if credential[0] == libvirt.VIR_CRED_AUTHNAME:
+                credential[4] = self.login
+                if len(credential[4]) == 0:
+                    credential[4] = credential[3]
+            elif credential[0] == libvirt.VIR_CRED_PASSPHRASE:
+                credential[4] = self.passwd
+            else:
+                return -1
+        return 0
+
+
+
+    def __connect_tcp(self):
+        flags = [libvirt.VIR_CRED_AUTHNAME, libvirt.VIR_CRED_PASSPHRASE]
+        auth = [flags, self.__libvirt_auth_credentials_callback, None]
+        uri = 'qemu+tcp://%s/system' % self.host
+
+        try:
+            return libvirt.openAuth(uri, auth, 0)
+        except libvirtError as e:
+            self.last_error = 'Connection Failed: ' + str(e)
+            self.connection = None
+
+    def __connect_ssh(self):
+        uri = 'qemu+ssh://%s@%s/system' % (self.login, self.host)
+
+        try:
+            return libvirt.open(uri)
+        except libvirtError as e:
+            self.last_error = 'Connection Failed: ' + str(e) + ' --- ' + repr(libvirt.virGetLastError())
+            self.connection = None
+
+    def __connect_tls(self):
+        flags = [libvirt.VIR_CRED_AUTHNAME, libvirt.VIR_CRED_PASSPHRASE]
+        auth = [flags, self.__libvirt_auth_credentials_callback, None]
+        uri = 'qemu+tls://%s@%s/system' % (self.login, self.host)
+
+        try:
+            return libvirt.openAuth(uri, auth, 0)
+        except libvirtError as e:
+            self.last_error = 'Connection Failed: ' + str(e)
+            self.connection = None
+
+    def __connect_socket(self):
+        uri = 'qemu:///system'
+
+        try:
+            return libvirt.open(uri)
+        except libvirtError as e:
+            self.last_error = 'Connection Failed: ' + str(e)
+            self.connection = None
+
+    def close(self):
+        try:
+            self.connection.close()
+        except libvirtError:
+            pass
+
+
+class wvmEventLoop(threading.Thread):
+    def __init__(self, group=None, target=None, name=None, args=(), kwargs={}):
+        libvirt.virEventRegisterDefaultImpl()
+
+        if name is None:
+            name = 'libvirt event loop'
+
+        super(wvmEventLoop, self).__init__(group, target, name, args, kwargs)
+        self.daemon = True
+
+    def run(self):
+        while True:
+            libvirt.virEventRunDefaultImpl()
+
+
+class wvmConnection(object):
+
+    def __init__(self, host, login, passwd, conn):
+        self.connection_state_lock = threading.Lock()
+        self.connection = None
+        self.last_error = None
+        self.host = host
+        self.login = login
+        self.passwd = passwd
+        self.type = conn
+        self.connect()
+
+    def connect(self):
+        self.connection_state_lock.acquire()
+        try:
+            if not self.connected:
+                if self.type == CONN_TCP:
+                    self.__connect_tcp()
+                elif self.type == CONN_SSH:
+                    self.__connect_ssh()
+                elif self.type == CONN_TLS:
+                    self.__connect_tls()
+                elif self.type == CONN_SOCKET:
+                    self.__connect_socket()
+                else:
+                    raise ValueError('"{type}" is not a valid connection type'.format(type=self.type))
+
+                if self.connected:
+                    try:
+                        self.connection.setKeepAlive(connection_manager.keepalive_interval, connection_manager.keepalive_count)
+                        try:
+                            self.connection.registerCloseCallback(self.__connection_close_callback, None)
+                        except:
+                            pass
+                    except libvirtError as e:
+                        self.last_error = str(e)
+        finally:
+            self.connection_state_lock.release()
+
+    @property
+    def connected(self):
+        try:
+            return self.connection is not None and self.connection.isAlive()
+        except libvirtError:
+            return False
+
+    def __libvirt_auth_credentials_callback(self, credentials, user_data):
+        for credential in credentials:
+            if credential[0] == libvirt.VIR_CRED_AUTHNAME:
+                credential[4] = self.login
+                if len(credential[4]) == 0:
+                    credential[4] = credential[3]
+            elif credential[0] == libvirt.VIR_CRED_PASSPHRASE:
+                credential[4] = self.passwd
+            else:
+                return -1
+        return 0
+
+    def __connection_close_callback(self, connection, reason, opaque=None):
+        self.connection_state_lock.acquire()
+        try:
+            if libvirt is not None:
+                if (reason == libvirt.VIR_CONNECT_CLOSE_REASON_ERROR):
+                    self.last_error = 'connection closed: Misc I/O error'
+                elif (reason == libvirt.VIR_CONNECT_CLOSE_REASON_EOF):
+                    self.last_error = 'connection closed: End-of-file from server'
+                elif (reason == libvirt.VIR_CONNECT_CLOSE_REASON_KEEPALIVE):
+                    self.last_error = 'connection closed: Keepalive timer triggered'
+                elif (reason == libvirt.VIR_CONNECT_CLOSE_REASON_CLIENT):
+                    self.last_error = 'connection closed: Client requested it'
+                else:
+                    self.last_error = 'connection closed: Unknown error'
+            self.connection = None
+        finally:
+            self.connection_state_lock.release()
+
+    def __connect_tcp(self):
+        flags = [libvirt.VIR_CRED_AUTHNAME, libvirt.VIR_CRED_PASSPHRASE]
+        auth = [flags, self.__libvirt_auth_credentials_callback, None]
+        uri = 'qemu+tcp://%s/system' % self.host
+
+        try:
+            self.connection = libvirt.openAuth(uri, auth, 0)
+            self.last_error = None
+
+        except libvirtError as e:
+            self.last_error = 'Connection Failed: ' + str(e)
+            self.connection = None
+
+    def __connect_ssh(self):
+        uri = 'qemu+ssh://%s@%s/system' % (self.login, self.host)
+
+        try:
+            self.connection = libvirt.open(uri)
+            self.last_error = None
+
+        except libvirtError as e:
+            self.last_error = 'Connection Failed: ' + str(e) + ' --- ' + repr(libvirt.virGetLastError())
+            self.connection = None
+
+    def __connect_tls(self):
+        flags = [libvirt.VIR_CRED_AUTHNAME, libvirt.VIR_CRED_PASSPHRASE]
+        auth = [flags, self.__libvirt_auth_credentials_callback, None]
+        uri = 'qemu+tls://%s@%s/system' % (self.login, self.host)
+
+        try:
+            self.connection = libvirt.openAuth(uri, auth, 0)
+            self.last_error = None
+
+        except libvirtError as e:
+            self.last_error = 'Connection Failed: ' + str(e)
+            self.connection = None
+
+    def __connect_socket(self):
+        uri = 'qemu:///system'
+
+        try:
+            self.connection = libvirt.open(uri)
+            self.last_error = None
+
+        except libvirtError as e:
+            self.last_error = 'Connection Failed: ' + str(e)
+            self.connection = None
+
+    def close(self):
+        self.connection_state_lock.acquire()
+        try:
+            if self.connected:
+                try:
+                    # to-do: handle errors?
+                    self.connection.close()
+                except libvirtError:
+                    pass
+
+            self.connection = None
+            self.last_error = None
+        finally:
+            self.connection_state_lock.release()
+
+    def __del__(self):
+        if self.connection is not None:
+            try:
+                self.connection.unregisterCloseCallback()
+            except:
+                pass
+
+    def __unicode__(self):
+        if self.type == CONN_TCP:
+            type_str = u'tcp'
+        elif self.type == CONN_SSH:
+            type_str = u'ssh'
+        elif self.type == CONN_TLS:
+            type_str = u'tls'
+        else:
+            type_str = u'invalid_type'
+
+        return u'qemu+{type}://{user}@{host}/system'.format(type=type_str, user=self.login, host=self.host)
+
+    def __repr__(self):
+        return '<wvmConnection {connection_str}>'.format(connection_str=unicode(self))
+
+
+class wvmConnectionManager(object):
+    def __init__(self, keepalive_interval=5, keepalive_count=5):
+        self.keepalive_interval = keepalive_interval
+        self.keepalive_count = keepalive_count
+        self._connections = dict()
+        self._connections_lock = ReadWriteLock()
+        self._event_loop = wvmEventLoop()
+        self._event_loop.start()
+
+    def _search_connection(self, host, login, passwd, conn):
+        self._connections_lock.acquireRead()
+        try:
+            if (host in self._connections):
+                connections = self._connections[host]
+
+                for connection in connections:
+                    if (connection.login == login and connection.passwd == passwd and connection.type == conn):
+                        return connection
+        finally:
+            self._connections_lock.release()
+
+        return None
+
+    def get_connection(self, host, login, passwd, conn):
+        host = unicode(host)
+        login = unicode(login)
+        passwd = unicode(passwd) if passwd is not None else None
+        connection = self._search_connection(host, login, passwd, conn)
+        if (connection is None):
+            self._connections_lock.acquireWrite()
+            try:
+                connection = self._search_connection(host, login, passwd, conn)
+                if (connection is None):
+                    connection = wvmConnection(host, login, passwd, conn)
+                    if host in self._connections:
+                        self._connections[host].append(connection)
+                    else:
+                        self._connections[host] = [connection]
+            finally:
+                self._connections_lock.release()
+
+        elif not connection.connected:
+            connection.connect()
+
+        if connection.connected:
+            return connection.connection
+        else:
+            raise libvirtError(connection.last_error)
+
+    def host_is_up(self, conn_type, hostname):
+        try:
+            socket_host = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            socket_host.settimeout(1)
+            if conn_type == CONN_SSH:
+                if ':' in hostname:
+                    LIBVIRT_HOST, PORT = (hostname).split(":")
+                    PORT = int(PORT)
+                else:
+                    PORT = SSH_PORT
+                    LIBVIRT_HOST = hostname
+                socket_host.connect((LIBVIRT_HOST, PORT))
+            if conn_type == CONN_TCP:
+                socket_host.connect((hostname, TCP_PORT))
+            if conn_type == CONN_TLS:
+                socket_host.connect((hostname, TLS_PORT))
+            socket_host.close()
+            return True
+        except Exception as err:
+            return err
+
+connection_manager = wvmConnectionManager(
+    settings.LIBVIRT_KEEPALIVE_INTERVAL if hasattr(settings, 'LIBVIRT_KEEPALIVE_INTERVAL') else 5,
+    settings.LIBVIRT_KEEPALIVE_COUNT if hasattr(settings, 'LIBVIRT_KEEPALIVE_COUNT') else 5
+)
+
+
+# class LibvirtErrorMsg():
+#     CTX = '**[Error]** '
+# 
+# class LibvirtError():
+#     """Subclass virError to get the last error information."""
+#     def __init__(self, ctx,err):
+#         msg = ctx + err[2]
+#         BaseLogging.Logger(msg, level='error')
+# 
+# libvirt.registerErrorHandler(LibvirtError,LibvirtErrorMsg.CTX)
 
 class VMBase(object):
-    def connect(self,uri):
-        try:
-            self.conn = libvirt.open(uri)
-        except libvirt.libvirtError:
-            self.conn = False
-        return self.conn        
-    
+         
     def getVolumeByPath(self,path):
         return self.conn.storageVolLookupByPath(path)
     
@@ -253,7 +596,7 @@ class VMServer(VMBase):
             data["server_id"] = server_id
             data["mem"] = mem
             data["vnc"] = vnc_port
-            data['token'] = TokenUntils.makeToken(str=server_ip+data["name"])
+            data['token'] = ins.UUIDString()
             data['netk'] = ntkList
             dataList.append(data)
         return dataList
@@ -577,6 +920,9 @@ class VMInstance(VMBase):
                 return instance
             except libvirt.libvirtError:
                 return False
+            
+    def getInsUUID(self,instance):
+        return instance.UUIDString()            
             
     def defineXML(self, xml):
         '''定义传入的xml'''
@@ -1332,31 +1678,40 @@ class VMNetwork(VMBase):
         return dataList                 
 
 class LibvirtManage(object):
-    def __init__(self,uri):
-        self.vMconn = VMBase()
-        self.conn = self.vMconn.connect(uri)
+    def __init__(self, host, login=None, passwd=None, type=1,pool=True):
+        self.login = login
+        self.host = host
+        self.passwd = passwd
+        self.pool = pool
+        self.type = type
+        if self.pool:self.conn = connection_manager.get_connection(self.host, self.login, self.passwd, self.type)
+        else:
+            try:
+                connect = soloConnection(self.host, self.login, self.passwd, self.type)
+                self.conn = connect.connect()
+            except libvirt.libvirtError:
+                self.conn = False
         
     def genre(self,model):
-        if self.conn:
-            if model == 'storage':
-                return VMStorage(conn=self.conn)
-            elif model == 'instance':
-                return VMInstance(conn=self.conn)
-            elif model == 'server':
-                return VMServer(conn=self.conn)
-            elif model == 'network':
-                return VMNetwork(conn=self.conn)            
-            else:
-                return False
+        if model == 'storage':
+            return VMStorage(conn=self.conn)
+        elif model == 'instance':
+            return VMInstance(conn=self.conn)
+        elif model == 'server':
+            return VMServer(conn=self.conn)
+        elif model == 'network':
+            return VMNetwork(conn=self.conn)            
         else:
             return False
+
         
     def close(self):
-        return self.vMconn.close()
+        if self.pool is False:self.conn.close()
+        else:pass
         
         
 if __name__ == '__main__':
-    LIB = LibvirtManage(uri='qemu+tcp://192.168.1.233/system')
+    LIB = LibvirtManage('192.168.1.234', login=None, passwd=None, type=1,thread=False)
     server = LIB.genre(model='server')
     print server.getVmServerisAlive()
     print LIB.close()

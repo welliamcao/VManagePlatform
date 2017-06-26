@@ -52,7 +52,7 @@
 															<label>
 																<input type="checkbox" class="ace" />
 																<span class="lbl"></span>
-																<a href="/usermanage/?op=view&id={{ds.id}}">
+																<a href="/user/auth/{{ds.id}}/">
 																	{{ ds.username }}
 																</a>
 															</label>														
@@ -128,7 +128,7 @@
 																		<li class="#"></li>
 					
 																		<li>
-																			<a href="/usermanage/?op=view&id={{ds.id}}">配置</a>
+																			<a href="/user/auth/{{ds.id}}/">配置</a>
 																		</li>
 																	</ul>
 																</div>												
@@ -316,7 +316,7 @@
 						onOk: function(){
 							$.ajax({
 								  type: 'POST',
-								  url: '/usermanage/',
+								  url: '/user/auth/'+id,
 								  data:{
 										"id":id,
 										"op":op,

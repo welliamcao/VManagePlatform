@@ -7,7 +7,7 @@
 
 								<div class="row">
 									<div class="col-xs-12">
-										<a href="/addServer/?id={{vmServer.id}}">
+										<a href="/addServer/">
 											<botton class="btn btn-primary  pull-right">
 											<i class="icon-arrow-right icon-plus"></i>
 													新增宿主机
@@ -55,7 +55,7 @@
 															<label>
 																<input type="checkbox" class="ace" />
 																<span class="lbl"></span>
-																<a href="/viewServer/?op=view&id={{ds.id}}">
+																<a href="/viewServer/{{ds.id}}/">
 																	{{ ds.hostname }}
 																</a>
 															</label>														
@@ -102,15 +102,15 @@
 																															
 																							
 																		<li>
-																			<a href="/addInstance?id={{ ds.id }}">添加主机</a>
+																			<a href="/addInstance/">添加主机</a>
 																		</li>
 																		<li>
-																			<a href="/configNetwork?id={{ ds.id }}">管理网络</a>
+																			<a href="/configNetwork/{{ ds.id }}/">管理网络</a>
 																		</li>			
 																		<li class="divider"></li>
 																		
 																		<li>
-																			<a href="/viewServer?op=view&id={{ds.id}}">资源分配</a>
+																			<a href="/viewServer/{{ds.id}}/">资源分配</a>
 																		</li>
 	
 																		<li>

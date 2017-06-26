@@ -58,10 +58,10 @@
 														</td>
 
 														<td>
-															<a href="/viewServer/?op=view&id={{ds.server_id}}">{{ ds.server_ip }}</a>
+															<a href="/viewServer/{{ds.server_id}}/">{{ ds.server_ip }}</a>
 														</td>
 														<td>
-															<a href="/viewInstance/?id={{ds.server_id}}&vm_name={{ ds.name }}">
+															<a href="/viewInstance/{{ds.server_id}}/{{ ds.name }}/">
 															{{ ds.name }}
 															</a>
 														</td>
@@ -81,10 +81,15 @@
 														<td class="center col-sm-3">
 															<div class="visible-md visible-lg hidden-sm hidden-xs action-buttons">
 																
-																
-																<a class="blue" href="/vnc?vs={{ ds.server_id }}&vm={{ ds.name }}&vnc={{ ds.vnc }}&token={{ ds.token }}" target="_black">
-																	<i class="icon-desktop bigger-120"></i>																	
-																</a>
+																{% if ds.vnc != '-1'  %}
+																	<a class="blue" href="/vnc/{{ ds.server_id }}/{{ ds.vnc }}/{{ ds.token }}/" target="_black">
+																		<i class="icon-desktop bigger-120"></i>																	
+																	</a>
+																{% else %}
+																	<a class="blue" href="#" target="_black">
+																		<i class="icon-desktop bigger-120"></i>																	
+																	</a>
+																{% endif %}
 																
 																<a class="blue" href="javascript:" onclick="onBtnHandleIns(this,{{ ds.server_id }},'{{ ds.name }}','start')">
 																<i class="icon-play bigger-120 green"></i>																
@@ -116,7 +121,7 @@
 																<a class="red" href="javascript:" onclick="onBtnHandleIns(this,{{ ds.server_id }},'{{ ds.name }}','delete')">
 																	<i class="icon-trash  bigger-120"></i>
 																</a>
-																<a class="black" href="/viewInstance/?id={{ds.server_id}}&vm_name={{ ds.name }}">
+																<a class="black" href="/viewInstance/{{ds.server_id}}/{{ ds.name }}/">
 																	<i class="icon-zoom-in  bigger-120"></i>
 																</a>
 																<a class="black"  data-toggle="modal" data-target="#myModal">
@@ -370,7 +375,7 @@
 					onOk: function(){
 						$.ajax({
 							  type: 'POST',
-							  url: '/handleInstance/',
+							  url: '/handleInstance/'+server_id+'/',
 							  data:{
 									"server_id":server_id,
 									"op":op,

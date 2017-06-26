@@ -162,7 +162,9 @@
 							<li >
 								<a data-toggle="tab" href="#xml">XML</a>
 							</li>
-								
+<!-- 							<li > -->
+<!-- 								<a data-toggle="tab" href="#perform">性能</a> -->
+<!-- 							</li>								 -->
 							<li >
 								<a data-toggle="tab" href="#console">Web Console</a>
 							</li>												
@@ -795,16 +797,33 @@
 									<br>	
 									<br>															
 								</div>
+		
+<!-- 								<div id="perform" class="tab-pane"> -->
+<!-- 									<div class="hr hr32 hr-dotted"></div>	 -->
+<!-- 										<div class='center'> -->
+<!-- 											<div id="memView" style="height:400px"> -->
+<!-- 											</div> -->
+<!-- 										</div>													 -->
+<!-- 								</div>		 -->
 								
 								<div id="console" class="tab-pane">
 									<div class="hr hr32 hr-dotted"></div>	
 										<div class='center'>
-											<a href="/vnc/?vs={{ vmServer.id }}&vm={{ inStance.name }}&vnc={{ inStance.vnc }}&token={{ inStance.token }}" target="_black">														
-												<button type="button" class="btn btn-success btn-lg">
-												<i class="icon-laptop bigger-130"></i>
-													链接
-												</button>
-											</a>	
+										   {% if inStance.vnc != '-1'  %}
+												<a href="/vnc/{{ vmServer.id }}/{{ inStance.vnc }}/{{ inStance.token }}/" target="_black">														
+													<button type="button" class="btn btn-success btn-lg">
+													<i class="icon-laptop bigger-130"></i>
+														链接
+													</button>
+												</a>	
+											{% else %}
+												<a href="#" target="_black">														
+													<button type="button" class="btn btn-danger btn-lg">
+													<i class="icon-laptop bigger-130"></i>
+														链接
+													</button>
+												</a>												
+											{% endif %}
 										</div>													
 								</div>
 
@@ -980,6 +999,7 @@
 
 		<script type="text/javascript">
 	
+		
 		function snapshotInstance(obj,serverId,vmName,op){
 		 	var required = ['snap_name']
 			var server_data = {};
@@ -1002,7 +1022,7 @@
 			server_data['vm_name'] = vmName;
 			$.ajax({
 				dataType: "JSON",
-				url:'/handleSnapshot/', //请求地址
+				url:'/handleSnapshot/{{vmServer.id}}/', //请求地址
 				type:"POST",  //提交类似
 				data:server_data,  //提交参数
 				success:function(response){
@@ -1023,7 +1043,7 @@
 		
 		function viewSnapshot(obj, server_id,vm_name,snap,op){
 				$.ajax({
-					url:'/handleSnapshot/', //请求地址
+					url:'/handleSnapshot/{{vmServer.id}}/', //请求地址
 					type:"POST",  //提交类似
 					data:{
 						"server_id":server_id,
@@ -1061,7 +1081,7 @@
 					onOk: function(){
 						$.ajax({
 							  type: 'POST',
-							  url: '/handleSnapshot/',
+							  url: '/handleSnapshot/{{vmServer.id}}/',
 							  data:{
 									"server_id":server_id,
 									"op":op,
@@ -1111,7 +1131,7 @@
 			server_data['vm_name'] = vmName;
 			$.ajax({
 				dataType: "JSON",
-				url:'/handleInstance/', //请求地址
+				url:'/handleInstance/{{vmServer.id}}/', //请求地址
 				type:"POST",  //提交类似
 				data:server_data,  //提交参数
 				success:function(response){
@@ -1176,7 +1196,7 @@
 			server_data['vm_name'] = vm_name;
 			$.ajax({
 				dataType: "JSON",
-				url:'/handleInstance/', //请求地址
+				url:'/handleInstance/{{vmServer.id}}/', //请求地址
 				type:"POST",  //提交类似
 				data:server_data,  //提交参数
 				success:function(response){
@@ -1215,7 +1235,7 @@
 			server_data['vm_name'] = vm_sname;
 			$.ajax({
 				dataType: "JSON",
-				url:'/handleInstance/', //请求地址
+				url:'/handleInstance/{{vmServer.id}}/', //请求地址
 				type:"POST",  //提交类似
 				data:server_data,  //提交参数
 				success:function(response){
@@ -1255,7 +1275,7 @@
 				server_data['op'] = op
 				$.ajax({
 					dataType: "JSON",
-					url:'/handleInstance/', //请求地址
+					url:'/handleInstance/{{vmServer.id}}/', //请求地址
 					type:"POST",  //提交类似
 					data:server_data,  //提交参数
 					success:function(response){
@@ -1300,7 +1320,7 @@
 				server_data['op'] = op
 				$.ajax({
 					dataType: "JSON",
-					url:'/handleInstance/', //请求地址
+					url:'/handleInstance/{{vmServer.id}}/', //请求地址
 					type:"POST",  //提交类似
 					data:server_data,  //提交参数
 					success:function(response){
@@ -1340,7 +1360,7 @@
 				
 				$.ajax({
 					dataType: "JSON",
-					url:'/modfInstance/', //请求地址
+					url:'/modfInstance/{{vmServer.id}}/', //请求地址
 					type:"POST",  //提交类似
 					data:server_data,  //提交参数
 					success:function(response){
@@ -1395,7 +1415,7 @@
 				
 				$.ajax({
 					dataType: "JSON",
-					url:'/modfInstance/', //请求地址
+					url:'/modfInstance/{{vmServer.id}}/', //请求地址
 					type:"POST",  //提交类似
 					data:server_data,  //提交参数
 					success:function(response){
@@ -1562,7 +1582,7 @@
 							onOk: function(){
 								$.ajax({
 									  type: 'POST',
-									  url: '/handleInstance/',
+									  url: '/handleInstance/{{vmServer.id}}/',
 									  data:{
 											"server_id":server_id,
 											"op":op,
@@ -1613,7 +1633,7 @@
 
 					$.ajax({
 						dataType: "JSON",
-						url:'/modfInstance/', //请求地址
+						url:'/modfInstance/{{vmServer.id}}/', //请求地址
 						type:"POST",  //提交类似
 						data:server_data,  //提交参数
 						success:function(response){
@@ -1631,6 +1651,11 @@
 					})	
 				}	   
 			   
+			   
+			   
+			   
 		</script>										
+
+
 
 {% endblock %}

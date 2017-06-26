@@ -3,7 +3,7 @@
 from django.http import JsonResponse
 from django.shortcuts import render_to_response
 from VManagePlatform.utils.vMConUtils import LibvirtManage
-from VManagePlatform.data.vMserver import VMServer
+from VManagePlatform.models import VmServer
 from django.contrib.auth.decorators import login_required
 from django.template import RequestContext
 from VManagePlatform.const.Const import StorageTypeXMLConfig
@@ -11,18 +11,18 @@ from VManagePlatform.const.Const import StorageTypeXMLConfig
 
 
 @login_required
-def addStorage(request):
+def addStorage(request,id):
+    try:
+        vServer = VmServer.objects.get(id=id)
+    except Exception,e:
+        return JsonResponse({"code":500,"msg":"找不到主机资源","data":e})
     if request.method == "POST" and request.user.has_perm('VManagePlatform.add_vmserverinstance'):
         pool_xml = StorageTypeXMLConfig(pool_type=request.POST.get('pool_type'),pool_name=request.POST.get('pool_name'),
                                         pool_spath=request.POST.get('pool_spath'),pool_tpath=request.POST.get('pool_tpath'),
                                         pool_host=request.POST.get('pool_host'))
-        if pool_xml:
+        if pool_xml:           
             try:
-                vMserver = VMServer.selectOneHost(id=request.POST.get('pool_server'))
-                try:
-                    VMS = LibvirtManage(uri=vMserver.uri) 
-                except:
-                    return  JsonResponse({"code":500,"msg":"连接虚拟服务器失败。","data":None})
+                VMS = LibvirtManage(vServer.server_ip,vServer.username, vServer.passwd, vServer.vm_type)
                 STORAGE = VMS.genre(model='storage')
                 pool = STORAGE.getStoragePool(pool_name=request.POST.get('pool_name'))
                 if pool is False:
@@ -39,12 +39,14 @@ def addStorage(request):
             return JsonResponse({"code":500,"msg":"不支持的存储类型或者您没有权限操作此项","data":None})
         
 @login_required
-def listStorage(request):        
+def listStorage(request,id):        
     if request.method == "GET":
-        vMserverId = request.GET.get('id')
-        vmServer = VMServer.selectOneHost(id=vMserverId)
         try:
-            VMS = LibvirtManage(uri=vmServer.uri) 
+            vServer = VmServer.objects.get(id=id)
+        except Exception,e:
+            return render_to_response('404.html',context_instance=RequestContext(request))
+        try:
+            VMS = LibvirtManage(vServer.server_ip,vServer.username, vServer.passwd, vServer.vm_type)
             SERVER = VMS.genre(model='server')
             if SERVER:
                 storageList = SERVER.getVmStorageInfo()
@@ -54,42 +56,42 @@ def listStorage(request):
             return render_to_response('404.html',context_instance=RequestContext(request))        
         return render_to_response('vmStorage/list_storage.html',
                                   {"user":request.user,"localtion":[{"name":"首页","url":'/'},{"name":"虚拟机实例","url":'#'},
-                                                                    {"name":"存储池管理","url":"/listStorage/?id=%d" % vmServer.id}],
-                                    "vmServer":vmServer,"storageList":storageList}, context_instance=RequestContext(request))
+                                                                    {"name":"存储池管理","url":"/listStorage/%d/" % vServer.id}],
+                                    "vmServer":vServer,"storageList":storageList}, context_instance=RequestContext(request))
 
 @login_required
-def viewStorage(request): 
+def viewStorage(request,id,name): 
     if request.method == "GET":
-        vMserverId = request.GET.get('id')
-        pool_name = request.GET.get('pool')
-        vmServer = VMServer.selectOneHost(id=vMserverId)
         try:
-            VMS = LibvirtManage(uri=vmServer.uri) 
+            vServer = VmServer.objects.get(id=id)
+        except:
+            return render_to_response('404.html',context_instance=RequestContext(request))        
+        try:
+            VMS = LibvirtManage(vServer.server_ip,vServer.username, vServer.passwd, vServer.vm_type)
             STORAGE = VMS.genre(model='storage')
             if STORAGE:
-                storage = STORAGE.getStorageInfo(pool_name)
+                storage = STORAGE.getStorageInfo(name)
                 VMS.close()
             else:return render_to_response('404.html',context_instance=RequestContext(request))
         except Exception,e:
             return render_to_response('404.html',context_instance=RequestContext(request))    
         return render_to_response('vmStorage/view_storage.html',
                                   {"user":request.user,"localtion":[{"name":"首页","url":'/'},{"name":"虚拟机实例","url":'#'},
-                                                                    {"name":"存储池管理","url":"/listStorage/?id=%d" % vmServer.id},
-                                                                    {"name":"存储池详情","url":"/viewStorage/?id=%d&pool={{ ds.pool_name }}" % vmServer.id}],
-                                    "vmServer":vmServer,"storage":storage}, context_instance=RequestContext(request))
+                                                                    {"name":"存储池管理","url":"/listStorage/%d/" % vServer.id},
+                                                                    {"name":"存储池详情","url":"/viewStorage/%d/%s/" % (vServer.id,name)}],
+                                    "vmServer":vServer,"storage":storage}, context_instance=RequestContext(request))
         
 @login_required
-def handleStorage(request):
+def handleStorage(request,id):
     if request.method == "POST":
+        try:
+            vServer = VmServer.objects.get(id=id)
+        except Exception,e:
+            return JsonResponse({"code":500,"msg":"找不到主机资源","data":e})      
         op = request.POST.get('op') 
-        server_id = request.POST.get('server_id') 
         pool_name = request.POST.get('pool_name') 
         if op in ['delete','disable','refresh'] and request.user.has_perm('VManagePlatform.change_vmserverinstance'):
-            try:
-                vMserver = VMServer.selectOneHost(id=server_id)
-                VMS = LibvirtManage(uri=vMserver.uri) 
-            except Exception,e:
-                return  JsonResponse({"code":500,"msg":"服务器连接失败。。","data":e})
+            VMS = LibvirtManage(vServer.server_ip,vServer.username, vServer.passwd, vServer.vm_type)
             STORAGE = VMS.genre(model='storage')
             pool = STORAGE.getStoragePool(pool_name=pool_name)  
             if pool:

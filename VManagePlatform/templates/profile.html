@@ -160,59 +160,27 @@
 																		<div class="profile-activity clearfix">
 																			<div>
 																				{% if ds.status == 0 %}
-																					{% if ds.action == 'delete' %}
-																						<i class="pull-left thumbicon icon-trash btn-success no-hover"></i>
-																					{% elif ds.action == 'suspend' %}
-																						<i class="pull-left thumbicon icon-pause btn-success no-hover"></i>
-																					{% elif ds.action == 'resume' %}
-																						<i class="pull-left thumbicon icon-play btn-success no-hover"></i>
-																					{% elif ds.action == 'halt' %}
-																						<i class="pull-left thumbicon icon-off btn-success no-hover"></i>																					
-																					{% elif ds.action == 'add_snap' or ds.action == 'revert_snap' %}
-																						<i class="pull-left thumbicon icon-camera btn-success no-hover"></i>
-																					{% elif ds.action == 'attach_disk' or ds.action == 'detach_disk' %}
-																						<i class="pull-left thumbicon  icon-hdd btn-success no-hover"></i>
-																					{% else %}
-																						<i class="pull-left thumbicon icon-ok btn-success no-hover"></i>
-																					{% endif %}																					
+																					<i class="pull-left thumbicon icon-ok btn-success no-hover"></i>																				
 																				{% else %}
-																					{% if ds.action == 'delete' %}
-																						<i class="pull-left thumbicon icon-trash btn-pink no-hover"></i>
-																					{% elif ds.action == 'suspend' %}
-																						<i class="pull-left thumbicon icon-pause btn-pink no-hover"></i>
-																					{% elif ds.action == 'resume' %}
-																						<i class="pull-left thumbicon icon-play btn-pink no-hover"></i>
-																					{% elif ds.action == 'halt' %}
-																						<i class="pull-left thumbicon icon-off btn-pink no-hover"></i>																					
-																					{% elif ds.action == 'add_snap' or ds.action == 'revert_snap' %}
-																						<i class="pull-left thumbicon icon-camera btn-pink no-hover"></i>
-																					{% elif ds.action == 'attach_disk' or ds.action == 'detach_disk' %}
-																						<i class="pull-left thumbicon  icon-hdd btn-pink no-hover"></i>
-																					{% else %}
-																						<i class="pull-left thumbicon icon-remove btn-pink no-hover"></i>
-																					{% endif %}
+
+																					<i class="pull-left thumbicon icon-remove btn-pink no-hover"></i>
 																				{% endif %}
-																				<a class="user" href="#"> {{ ds.user }} </a>
-																				{{ ds.desc }}&nbsp;<a href="#">{{ ds.object }}</a>
+																				<a class="user" href="/viewInstance/{{ ds.server_id }}/{{ ds.vm_name }}/"> {{ ds.user }} </a>
+																				{{ ds.content }}&nbsp;
 																				<div class="time">
 																					<i class="icon-time bigger-110"></i>
-																					{{ ds.createTime|date:"Y/m/d H:i:s" }}
+																					{{ ds.create_time|date:"Y/m/d H:i:s" }}
 																				</div>
 																			</div>
 			
 																			<div class="tools action-buttons">
-																				<a href="#" class="blue">
-																					<i class="icon-pencil bigger-125"></i>
-																				</a>
-			
-																				<a href="{{ds.id}}" class="red">
+																				<a href="javascript:" onclick="deleteLogsMsg(this,{{ds.id}})" class="red">
 																					<i class="icon-remove bigger-125"></i>
 																				</a>
 																			</div>
 																		</div>														
 																	</div><!-- /span -->
-																	
-																
+
 															{% endfor %}
 															<div id="viewlog">
 															</div>
@@ -427,95 +395,33 @@
 					success:function(response){
 						btnObj.removeAttr('disabled');
 						if (response["code"] == 200){
-							var news = response['data'];
 							var newsLogs = '';
-							for (var i=0;i<news.length;i++)
+							for (var i=0;i<response['data'].length;i++)
 								{
-									if (news[i]["status"] == 0){
-										switch (news[i]["action"])
-										{
-										case 'delete':
-											var iTag =  '<i class="pull-left thumbicon icon-trash btn-success no-hover"></i>';
-										  	break;
-										case 'suspend':
-											var iTag =  '<i class="pull-left thumbicon icon-pause btn-success no-hover"></i>';
-										  	break;
-										case 'resume':
-											var iTag =  '<i class="pull-left thumbicon icon-play btn-success no-hover"></i>';
-										  	break;
-										case 'halt':
-											var iTag =  '<i class="pull-left thumbicon icon-off btn-success no-hover"></i>';
-										  	break;
-										case 'add_snap':
-											var iTag =  '<i class="pull-left thumbicon icon-camera btn-success no-hover"></i>';
-									  		break;
-										case 'revert_snap':
-											var iTag =  '<i class="pull-left thumbicon icon-camera btn-success no-hover"></i>';
-									  		break;
-										case 'attach_disk':
-											var iTag =  '<i class="pull-left thumbicon  icon-hdd btn-success no-hover"></i>';
-									  		break;
-										case 'detach_disk':
-											var iTag =  '<i class="pull-left thumbicon  icon-hdd btn-success no-hover"></i>';
-									  		break;
-										default:
-											var iTag =  '<i class="pull-left thumbicon icon-ok btn-success no-hover"></i>';
-									  		break;
-										}
-										
-										
+									if (response['data'][i]["status"] == 0){
+										status = '<i class="pull-left thumbicon icon-ok btn-success no-hover"></i>' 
 									}
 									else{
-										switch (news[i]["action"])
-										{
-										case 'delete':
-											var iTag =  '<i class="pull-left thumbicon icon-trash btn-pink no-hover"></i>';
-										  	break;
-										case 'suspend':
-											var iTag =  '<i class="pull-left thumbicon icon-pause btn-pink no-hover"></i>';
-										  	break;
-										case 'resume':
-											var iTag =  '<i class="pull-left thumbicon icon-play btn-pink no-hover"></i>';
-										  	break;
-										case 'halt':
-											var iTag =  '<i class="pull-left thumbicon icon-off btn-pink no-hover"></i>';
-										  	break;
-										case 'add_snap':
-											var iTag =  '<i class="pull-left thumbicon icon-camera btn-pink no-hover"></i>';
-									  		break;
-										case 'revert_snap':
-											var iTag =  '<i class="pull-left thumbicon icon-camera btn-pink no-hover"></i>';
-									  		break;
-										case 'attach_disk':
-											var iTag =  '<i class="pull-left thumbicon  icon-hdd btn-pink no-hover"></i>';
-									  		break;
-										case 'detach_disk':
-											var iTag =  '<i class="pull-left thumbicon  icon-hdd btn-pink no-hover"></i>';
-									  		break;
-										default:
-											var iTag =  '<i class="pull-left thumbicon icon-ok btn-pink no-hover"></i>';
-									  		break;
-										}
+										status = '<i class="pull-left thumbicon icon-remove btn-success no-hover"></i>' 
 									};
-									iTag += '<a class="user" href="#">' + news[i]["user"] + '</a>' + news[i]["desc"] + '&nbsp;<a href="#">' +  news[i]["object"] + '</a>' +
-											'<div class="time"><i class="icon-time bigger-110"></i>' + news[i]["createTime"] + '</div>'
-									newsLogs +=  '<div class="span6">'  +
+									newsLogs += '<div class="span6">' +														
 													'<div class="profile-activity clearfix">' +
-														'<div>' +
-															iTag +																																												
-														'</div>' +
-														'<div class="tools action-buttons">' + 
-															'<a href="#" class="blue">' +
-																'<i class="icon-pencil bigger-125"></i>' +
-															'</a>' +
-															'<a href="' + news[i]["id"] + '"class="red">' +
+														'<div>' + status +
+															'<a class="user" href="/viewInstance/'+  response['data'][i]["id"] + '/'+ response['data'][i]["vm_name"] +'/">' + 
+															   response['data'][i]["user"] + '</a>' + response['data'][i]["content"] +
+															'<div class="time">' +
+																'<i class="icon-time bigger-110"></i>' +response['data'][i]["create_time"].replace("T",' ').replace(/-/g,'/').slice(0,19) +
+															'</div>' +
+														'</div>' +				
+														'<div class="tools action-buttons">' +
+															'<a href="javascript:" onclick="deleteLogsMsg(this,{{ds.id}})" class="red">' +
 																'<i class="icon-remove bigger-125"></i>' +
 															'</a>' +
 														'</div>' +
-													'</div>' +										
-												'</div>' 
+													'</div>	' +													
+												'</div>'									
 												
-							};
+							}
 							document.getElementById('viewlog').innerHTML = newsLogs;
 						}
 						else {
@@ -529,6 +435,15 @@
 			    	}
 				})	
 			}
+			
+			
+			function deleteLogsMsg(obj,id) {
+				$.ajax({
+					dataType: "JSON",
+					url:'/api/logs/'+ id +'/', //请求地址
+					type:"DELETE",  //提交类似
+				})					
+			}			
 			
 	</script>
 

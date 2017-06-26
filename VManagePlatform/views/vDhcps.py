@@ -4,7 +4,7 @@ from django.http import JsonResponse
 from django.shortcuts import render_to_response
 from django.contrib.auth.decorators import login_required
 from django.template import RequestContext
-from VManagePlatform.data.vMdhcp import VMDhcp
+from VManagePlatform.models import VmDHCP
 from VManagePlatform.utils.vDHCPConfigUtils import DHCPConfig
 from django.contrib.auth.decorators import permission_required
 
@@ -13,12 +13,12 @@ from django.contrib.auth.decorators import permission_required
 @permission_required('VManagePlatform.read_vmserver',login_url='/noperm/')
 def configDhcp(request):
     if request.method == "GET":
-        dataList = VMDhcp.listVmDhcp()
+        dataList = VmDHCP.objects.all()
         return render_to_response('vmDhcp/dhcp_network.html',
                                   {"user":request.user,"localtion":[{"name":"首页","url":'/'},{"name":"网络管理","url":'/addNetwork'}],
                                    "dataList":dataList},context_instance=RequestContext(request))
     elif  request.method == "POST":
-        dhcp = VMDhcp.selectOneMode(mode=request.POST.get('mode'))
+        dhcp =  VmDHCP.objects.get(mode=request.POST.get('mode'))
         if dhcp:return JsonResponse({"code":500,"msg":"DHCP已经存在","data":None})
         else:
             data = dict()
@@ -33,7 +33,7 @@ def configDhcp(request):
             data['gateway'] = request.POST.get('gateway')
             data['brName'] = request.POST.get('brName')
             data['dns'] = request.POST.get('dns')
-            dhcp = VMDhcp.insertVmDhcp(data)  
+            dhcp = VmDHCP.objects.create(**data)
             if dhcp:return JsonResponse({"code":200,"msg":"DHCP添加成功","data":None}) 
             else:return  JsonResponse({"code":500,"msg":"DHCP添加失败","data":None})
 
@@ -45,7 +45,7 @@ def handleDhcp(request):
         dhcp_id = request.POST.get('id')
         if op in ['delete','enable','disable','start','stop']:
             try:
-                vMdhcp = VMDhcp.selectOneId(id=dhcp_id)
+                vMdhcp = VmDHCP.objects.get(id=dhcp_id)
             except:
                 return JsonResponse({"code":500,"data":None,"msg":"DHCP配置不存在。"})
             DHCP = DHCPConfig()  
@@ -55,7 +55,7 @@ def handleDhcp(request):
                                              port=vMdhcp.dhcp_port, ip=vMdhcp.server_ip, 
                                              drive=vMdhcp.drive)
                     if status[0] == 0:
-                        VMDhcp.updateisAlive(id=dhcp_id, isAlive=0)
+                        VmDHCP.objects.filter(id=vMdhcp.id).update(isAlive=0)
                         return JsonResponse({"code":200,"msg":"激活成功。","data":None})
                     else:
                         return JsonResponse({"code":500,"msg":"激活失败。","data":status[1]})
@@ -65,7 +65,7 @@ def handleDhcp(request):
                     status = DHCP.disableNets(netnsName=vMdhcp.mode, brName=vMdhcp.brName, 
                                              port=vMdhcp.dhcp_port,drive=vMdhcp.drive)
                     if status[0] == 0:
-                        VMDhcp.updateisAlive(id=dhcp_id, isAlive=1)
+                        VmDHCP.objects.filter(id=vMdhcp.id).update(isAlive=1)
                         return JsonResponse({"code":200,"msg":"禁用成功。","data":None})
                     else:
                         return JsonResponse({"code":500,"msg":"禁用失败。","data":status[1]})
@@ -82,7 +82,7 @@ def handleDhcp(request):
                                             drive=vMdhcp.drive,port=vMdhcp.dhcp_port, 
                                             mode='int',brName=vMdhcp.brName)
                     if status[0] == 0:
-                        VMDhcp.updateStatus(id=dhcp_id, status=0)
+                        VmDHCP.objects.filter(id=vMdhcp.id).update(status=0)
                         return JsonResponse({"code":200,"msg":"DHCP服务启动成功。","data":None})
                     else:
                         return JsonResponse({"code":500,"msg":"DHCP服务启动失败。","data":status[1]}) 
@@ -95,7 +95,7 @@ def handleDhcp(request):
                     elif vMdhcp.mode == 'dhcp-int':
                         status = DHCP.stop(mode='int')
                     if status[0] == 0:
-                        VMDhcp.updateStatus(id=dhcp_id, status=1)
+                        VmDHCP.objects.filter(id=vMdhcp.id).update(status=1)
                         return JsonResponse({"code":200,"msg":"DHCP服关闭成功。","data":None})
                     else:
                         return JsonResponse({"code":500,"msg":"DHCP服务关闭失败。","data":status[1]}) 
@@ -112,18 +112,16 @@ def handleDhcp(request):
                         status = DHCP.disableNets(netnsName=vMdhcp.mode, brName=vMdhcp.brName, 
                                                   port=vMdhcp.dhcp_port, drive=vMdhcp.drive)
                     if status[0] == 0:
-                        result =  VMDhcp.deleteStatus(id=vMdhcp.id)
+                        result = VmDHCP.objects.filter(id=vMdhcp.id).delete()
                 elif vMdhcp.isAlive == 0 and vMdhcp.status == 1:
                     status = DHCP.disableNets(netnsName=vMdhcp.mode, brName=vMdhcp.brName, 
                                                   port=vMdhcp.dhcp_port, drive=vMdhcp.drive) 
 #                     if status[0] == 0:
-                    result = VMDhcp.deleteStatus(id=vMdhcp.id)
+                    result = VmDHCP.objects.filter(id=vMdhcp.id).delete()
                 else:
-                    result = VMDhcp.deleteStatus(id=vMdhcp.id)
+                    result = VmDHCP.objects.filter(id=vMdhcp.id).delete()
                 if result: return JsonResponse({"code":500,"msg":"DHCP服务删除失败。","data":None})
-                else: return JsonResponse({"code":200,"msg":"DHCP服务删除成功。","data":None})            
-                        
-                    
+                else: return JsonResponse({"code":200,"msg":"DHCP服务删除成功。","data":None})                   
         else:
             return JsonResponse({"code":500,"msg":"不支持的操作。","data":None})      
                 

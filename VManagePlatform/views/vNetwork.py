@@ -5,17 +5,19 @@ from django.shortcuts import render_to_response
 from django.contrib.auth.decorators import login_required
 from VManagePlatform.utils.vMConUtils import LibvirtManage
 from django.template import RequestContext
-from VManagePlatform.data.vMserver import VMServer
+from VManagePlatform.models import VmServer
 from VManagePlatform.const.Const import CreateBridgeNetwork,CreateNatNetwork
 from VManagePlatform.utils.vBrConfigUtils import BRManage
 
 @login_required
-def configNetwork(request):
+def configNetwork(request,id):
+    try:
+        vServer = VmServer.objects.get(id=id)
+    except Exception,e:
+        return render_to_response('404.html',context_instance=RequestContext(request))
     if request.method == "GET":
-        vmServerId = request.GET.get('id')
-        vmServer = VMServer.selectOneHost(id=vmServerId)
         try:
-            VMS = LibvirtManage(uri=vmServer.uri)
+            VMS = LibvirtManage(vServer.server_ip,vServer.username, vServer.passwd, vServer.vm_type)
             NETWORK = VMS.genre(model='network')
             if NETWORK:
                 netList = NETWORK.listNetwork()
@@ -25,17 +27,13 @@ def configNetwork(request):
             netList = None
         return render_to_response('vmNetwork/add_network.html',
                                   {"user":request.user,"localtion":[{"name":"首页","url":'/'},{"name":"网络管理","url":'/addNetwork'}],
-                                   "vmServer":vmServer,"netList":netList,"insList":insList},context_instance=RequestContext(request))    
+                                   "vmServer":vServer,"netList":netList,"insList":insList},context_instance=RequestContext(request))    
     elif request.method == "POST" and request.user.has_perm('VManagePlatform.change_vmserverinstance'):
         try:
-            vmServer = VMServer.selectOneHost(id=request.POST.get('server_id'))
-        except:
-            return JsonResponse({"code":500,"data":None,"msg":"主机不存在。"})  
-        try:
-            VMS = LibvirtManage(uri=vmServer.uri)
+            VMS = LibvirtManage(vServer.server_ip,vServer.username, vServer.passwd, vServer.vm_type)
             NETWORK = VMS.genre(model='network')
             if request.POST.get('network-mode') == 'bridge':
-                SSH = BRManage(hostname=vmServer.server_ip,port=22)
+                SSH = BRManage(hostname=vServer.server_ip,port=22)
                 OVS = SSH.genre(model='ovs')
                 BRCTL = SSH.genre(model='brctl')
                 if NETWORK and OVS:
@@ -79,18 +77,17 @@ def configNetwork(request):
     
             
 @login_required
-def handleNetwork(request):
+def handleNetwork(request,id):
+    try:
+        vServer = VmServer.objects.get(id=id)
+    except Exception,e:
+        return JsonResponse({"code":500,"msg":"找不到主机资源","data":e})
     if request.method == "POST":
         op = request.POST.get('op')
-        server_id = request.POST.get('server_id')
         netkName = request.POST.get('netkName')
         if op in ['delete'] and request.user.has_perm('VManagePlatform.change_vmserverinstance'):
             try:
-                vmServer = VMServer.selectOneHost(id=server_id)
-            except:
-                return JsonResponse({"code":500,"data":None,"msg":"主机不存在。"})  
-            try:
-                VMS = LibvirtManage(uri=vmServer.uri)              
+                VMS = LibvirtManage(vServer.server_ip,vServer.username, vServer.passwd, vServer.vm_type)       
             except Exception,e:
                 return  JsonResponse({"code":500,"msg":"服务器连接失败。。","data":e})             
             try:
@@ -99,7 +96,7 @@ def handleNetwork(request):
                 mode = NETWORK.getNetworkType(netk_name=netkName).get('mode')
                 if op == 'delete':
                     try:
-                        SSH = BRManage(hostname=vmServer.server_ip,port=22)
+                        SSH = BRManage(hostname=vServer.server_ip,port=22)
                         if mode == 'openvswitch':
                             OVS = SSH.genre(model='ovs') 
                             OVS.ovsDelBr(brName=netkName)

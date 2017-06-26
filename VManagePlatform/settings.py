@@ -38,7 +38,8 @@ VNC_PROXY_PORT = 6080
 VNC_TOKEN_PATH = os.path.join(os.getcwd(), 'vnc', 'utils', 'vnc_tokens')
 
 
-
+LIBVIRT_KEEPALIVE_INTERVAL = 5
+LIBVIRT_KEEPALIVE_COUNT    = 5
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/

@@ -652,7 +652,7 @@
 				server_data['op'] = op;
 				$.ajax({
 					dataType: "JSON",
-					url:'/addInstance/', //请求地址
+					url:'/addInstance/{{ vmServer.id }}/', //请求地址
 					type:"POST",  //提交类似
 					data:server_data,  //提交参数
 					success:function(response){

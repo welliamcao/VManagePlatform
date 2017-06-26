@@ -78,7 +78,7 @@ def configTask(request):
                                                       )
                     return  JsonResponse({"code":200,"data":None,"msg":"添加成功"})
                 except Exception,e:
-                    return  JsonResponse({"code":500,"data":e,"msg":"添加失败"})    
+                    return  JsonResponse({"code":500,"data":str(e),"msg":"添加失败"})    
             elif op == 'delTask':
                 try:
                     PeriodicTask.objects.get(id=request.POST.get('id')).delete()
@@ -99,7 +99,7 @@ def configTask(request):
                     task.save()
                     return  JsonResponse({"code":200,"data":None,"msg":"修改成功"})
                 except Exception,e:
-                    return  JsonResponse({"code":500,"data":e,"msg":"修改失败"})
+                    return  JsonResponse({"code":500,"data":str(e),"msg":"修改失败"})
                              
         else:return  JsonResponse({"code":500,"data":None,"msg":"不支持的操作或者您没有权限操作操作此项。"})            
     else:return  JsonResponse({"code":500,"data":None,"msg":"不支持的HTTP操作"})   

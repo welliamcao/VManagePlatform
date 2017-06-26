@@ -81,6 +81,8 @@
 				<div class="navbar-header pull-right" role="navigation">
 					<ul class="nav ace-nav">
 						
+						<li class="green" id="logMsgs">
+						</li>
 
 						<li class="light-blue">
 							<a data-toggle="dropdown" href="#" class="dropdown-toggle">
@@ -188,7 +190,7 @@
 							
 								<li>
 										<li>
-											<a href="/viewServer/?op=view&id={{vmServer.id}}">
+											<a href="/viewServer/{{vmServer.id}}/">
 												<i class="icon-leaf"></i>
 												{{ vmServer.server_ip }}
 											</a>
@@ -219,13 +221,13 @@
 							<ul class="submenu">
 							
 								<li>
-									<a href="/listInstance/?id={{vmServer.id}}">
+									<a href="/listInstance/{{vmServer.id}}/">
 										<i class="icon-double-angle-right"></i>
 										管理实例
 									</a>
 								</li>															
 								<li>
-									<a href="/addInstance/?id={{vmServer.id}}">
+									<a href="/addInstance/{{vmServer.id}}/">
 										<i class="icon-double-angle-right"></i>
 										创建实例
 									</a>
@@ -236,7 +238,7 @@
 
 
 						<li>
-							<a href="/listStorage/?id={{vmServer.id}}" class="dropdown-toggle">
+							<a href="/listStorage/{{vmServer.id}}/" class="dropdown-toggle">
 								<i class="icon-hdd"></i>
 								<span class="menu-text"> 存储池管理</span>
 
@@ -245,7 +247,7 @@
 						</li>
 
 						<li>
-							<a href="/configNetwork/?id={{vmServer.id}}" class="dropdown-toggle">
+							<a href="/configNetwork/{{vmServer.id}}/" class="dropdown-toggle">
 								<i class="icon-globe"></i>
 								<span class="menu-text"> 网络管理</span>
 
@@ -540,7 +542,7 @@
 							                	<td class="center col-sm-2">
 														
 													<div class="visible-md visible-lg hidden-sm hidden-xs action-buttons">															
-														<a class="black" href="/viewStorage/?id={{ vmServer.id }}&pool={{ ds.pool_name }}">
+														<a class="black" href="/viewStorage/{{ vmServer.id }}/{{ ds.pool_name }}/">
 															<i class="icon-zoom-in  bigger-120"></i>
 														</a>														
 														<a class="red" href="javascript:" onclick="onBtnHandleStorage(this,{{ vmServer.id }},'{{ vmServer.server_ip }}','{{ ds.pool_name }}','delete')">
@@ -600,7 +602,7 @@
 						           		{% for ds in vmInstance %}				        
 							                <tr>
 							                	<td class="center">
-							                	<a href="/viewInstance/?id={{vmServer.id}}&vm_name={{ ds.name }}">
+							                	<a href="/viewInstance/{{vmServer.id}}/{{ ds.name }}/">
 								                  {{ ds.name }}
 								                  </a>
 							                	</td>
@@ -977,7 +979,7 @@
 					onOk: function(){
 						$.ajax({
 							  type: 'POST',
-							  url: '/handleInstance/',
+							  url: '/handleInstance/'+server_id+'/',
 							  data:{
 									"server_id":server_id,
 									"op":op,
@@ -1588,13 +1590,61 @@
 			}			
 		</script>
 
-		<!-- <![endif]-->
-
-		<!--[if IE]>
-<script type="text/javascript">
- window.jQuery || document.write("<script src='/static/js/jquery-1.10.2.min.js'>"+"<"+"/script>");
-</script>
-<![endif]-->
+		<script type="text/javascript"> 
+			function getLogsMsg () {
+				$.ajax({
+					url:'/api/log/{{user}}/', //请求地址
+					type:"GET",  //提交类似
+					success:function(response){
+						if (response.length > 0 ){						
+								var newStr = '<a data-toggle="dropdown" class="dropdown-toggle" href="#">' +
+											 '<i class="icon-bell-alt icon-animated-bell"></i>' +
+										     '<span class="badge badge-important">'+ response.length +'</span>' +
+										     '</a>' +
+											 '<ul class="pull-right dropdown-navbar navbar-pink dropdown-menu dropdown-caret dropdown-close">' +
+												'<li class="dropdown-header">' +
+													'<i class="icon-warning-sign"></i>' + response.length + '条通知' +												
+												'</li>'
+								for (var i=0;i< response.length;i++)
+									{
+										if ( response[i]['status'] == 0 ){
+											status = '<span class="pull-right badge badge-success">成功</span></div></a></li>'
+										}
+										else{
+											status = '<span class="pull-right badge badge-danger">失败</span></div></a></li>'
+										}
+										newStr += '<li><a href="javascript:" onclick="readLogsMsg(this,'+  response[i]['id'] + ')"><div class="clearfix">' +
+														'<span class="pull-left">' +
+														'<i class="btn btn-xs no-hover btn-pink icon-desktop"></i>' + response[i]['content'] +
+														'</span>' + status
+								};
+								newStr +=  '<li> ' +
+											 '<a href="/profile/#messages">查看所有消息' +
+											   '<i class="icon-arrow-right"></i>' +
+											 '</a>' +
+										   '</li>' +
+										  '</ul>'
+								$('#logMsgs').html(newStr);	
+							}
+					}
+				});	
+			};
+			setInterval(getLogsMsg,10000);
+			function readLogsMsg(obj,id) {
+				$.ajax({
+					dataType: "JSON",
+					url:'/api/logs/'+ id +'/', //请求地址
+					type:"PUT",  //提交类似
+					data:{
+						'isRead':1,
+					}, //提交参数
+					success:function(response){
+						getLogsMsg ();
+					}
+				})					
+			}
+		
+		</script>
 
 		<script type="text/javascript">
 			if("ontouchend" in document) document.write("<script src='/static/js/jquery.mobile.custom.min.js'>"+"<"+"/script>");

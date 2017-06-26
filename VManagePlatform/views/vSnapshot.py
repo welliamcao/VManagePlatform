@@ -3,25 +3,24 @@
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from VManagePlatform.utils.vMConUtils import LibvirtManage
-from VManagePlatform.data.vMserver import VMServer
+from VManagePlatform.models import VmServer
 from VManagePlatform.tasks import revertSnapShot
 from VManagePlatform.tasks import snapInstace      
 from VManagePlatform.tasks import recordLogs
         
 @login_required
-def handleSnapshot(request):
+def handleSnapshot(request,id):
+    try:
+        vServer = VmServer.objects.get(id=id)
+    except Exception,e:
+        return JsonResponse({"code":500,"msg":"找不到主机资源","data":e})
     if request.method == "POST":
         op = request.POST.get('op')
-        server_id = request.POST.get('server_id')
         insName = request.POST.get('vm_name')
         snapName = request.POST.get('snap_name')
         if op in ['view','resume','delete','add'] and request.user.has_perm('VManagePlatform.change_vmserverinstance'):
             try:
-                vMserver = VMServer.selectOneHost(id=server_id)
-            except:
-                return JsonResponse({"code":500,"data":None,"msg":"主机不存在。"})  
-            try:
-                VMS = LibvirtManage(uri=vMserver.uri)
+                VMS = LibvirtManage(vServer.server_ip,vServer.username, vServer.passwd, vServer.vm_type)
             except Exception,e:
                 return  JsonResponse({"code":500,"msg":"服务器连接失败。。","data":e})
             try:

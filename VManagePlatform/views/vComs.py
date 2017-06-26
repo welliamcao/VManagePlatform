@@ -7,8 +7,7 @@ from django.shortcuts import render_to_response,render
 from django.contrib import auth
 from django.template import RequestContext
 from django.contrib.auth.decorators import login_required
-from VManagePlatform.data.vMserver import VMServer
-from VManagePlatform.data.vMinstance import VmInstance
+from VManagePlatform.models import VmServer,VmServerInstance
 from VManagePlatform.utils.vConnUtils import TokenUntils
 from VManagePlatform.models import VmLogs
 
@@ -21,8 +20,8 @@ def index(request):
     serStop = 0
     try:
         logList = VmLogs.objects.all().order_by("-id")[0:20]
-        vmList = VmInstance.countInstnace()
-        serList = VMServer.countServer()
+        vmList = VmServer.objects.all().order_by("-id")
+        serList = VmServerInstance.objects.all().order_by("-id")
         for vm in vmList:
             if vm.status == 1:vmRun = vmRun + 1
             else:vmStop = vmStop + 1
@@ -66,21 +65,15 @@ def permission(request,args=None):
 
         
 @login_required
-def run_vnc(request):
+def run_vnc(request,id,vnc,uuid):
     '''
         Call the VNC proxy for remote control
     '''
-    token = request.GET.get('token', 'false')
-    server_id = request.GET.get('vs', 'false')
-    vm_name = request.GET.get('vm', 'false')
-    vnc = request.GET.get('vnc', 'false')
-    if server_id:
-        vMserver = VMServer.selectOneHost(id=server_id)
-        token_file = vMserver.server_ip + '.' + str(vm_name)
-        tokenStr = token + ': ' + vMserver.server_ip + ':' + str(vnc)
-        TokenUntils.writeVncToken(filename=token_file,token=tokenStr)   
-        return render(request, 'vnc/vnc_auto.html',{"vnc_port":settings.VNC_PROXY_PORT,
-                                                    "vnc_token":token,
+    vServer = VmServer.objects.get(id=id)
+    tokenStr = uuid + ': ' + vServer.server_ip + ':' + str(vnc)
+    TokenUntils.writeVncToken(filename=uuid,token=tokenStr) 
+    return render(request, 'vnc/vnc_auto.html',{"vnc_port":settings.VNC_PROXY_PORT,
+                                                    "vnc_token":uuid,
                                                     })
 
 

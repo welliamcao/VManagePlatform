@@ -1,7 +1,7 @@
 #!/usr/bin/env python  
 # _#_ coding:utf-8 _*_ 
 from django.http import JsonResponse
-from VManagePlatform.data.vMserver import VMServer
+from VManagePlatform.models import VmServer
 from django.contrib.auth.decorators import login_required
 from VManagePlatform.utils.vMConUtils import LibvirtManage
 
@@ -14,10 +14,10 @@ def handleVolume(request):
         pool_name = request.POST.get('pool_name') 
         if op in ['delete','add'] and request.user.has_perm('VManagePlatform.change_vmserverinstance'):
             try:
-                vmServer = VMServer.selectOneHost(id=server_id)
+                vServer = VmServer.objects.get(id=server_id)
             except:
                 return JsonResponse({"code":500,"data":None,"msg":"主机不存在。"})                 
-            VMS = LibvirtManage(uri=vmServer.uri) 
+            VMS = LibvirtManage(vServer.server_ip,vServer.username, vServer.passwd, vServer.vm_type)
             STORAGE = VMS.genre(model='storage')
             if STORAGE:
                 pool = STORAGE.getStoragePool(pool_name=pool_name)
