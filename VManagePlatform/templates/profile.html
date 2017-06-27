@@ -156,17 +156,20 @@
 															
 															{% for ds in logList %}
 																
-																	<div class="span6">														
+																	<div class="span6" id="logMsg-{{ds.id}}">														
 																		<div class="profile-activity clearfix">
 																			<div>
 																				{% if ds.status == 0 %}
 																					<i class="pull-left thumbicon icon-ok btn-success no-hover"></i>																				
 																				{% else %}
-
 																					<i class="pull-left thumbicon icon-remove btn-pink no-hover"></i>
 																				{% endif %}
 																				<a class="user" href="/viewInstance/{{ ds.server_id }}/{{ ds.vm_name }}/"> {{ ds.user }} </a>
-																				{{ ds.content }}&nbsp;
+																				{% if ds.result %}
+																					{{ ds.content }}&nbsp;{{ ds.result }}
+																				{% else %}
+																					{{ ds.content }}
+																				{% endif %}
 																				<div class="time">
 																					<i class="icon-time bigger-110"></i>
 																					{{ ds.create_time|date:"Y/m/d H:i:s" }}
@@ -400,21 +403,23 @@
 								{
 									if (response['data'][i]["status"] == 0){
 										status = '<i class="pull-left thumbicon icon-ok btn-success no-hover"></i>' 
+										content = response['data'][i]["content"]
 									}
 									else{
 										status = '<i class="pull-left thumbicon icon-remove btn-success no-hover"></i>' 
+										content = response['data'][i]["content"] + ' ' +response['data'][i]["result"]
 									};
-									newsLogs += '<div class="span6">' +														
+									newsLogs += '<div class="span6" id="logMsg-'+ response['data'][i]['id'] + '">' +														
 													'<div class="profile-activity clearfix">' +
 														'<div>' + status +
 															'<a class="user" href="/viewInstance/'+  response['data'][i]["id"] + '/'+ response['data'][i]["vm_name"] +'/">' + 
-															   response['data'][i]["user"] + '</a>' + response['data'][i]["content"] +
+															   response['data'][i]["user"] + '</a>' + content + 
 															'<div class="time">' +
 																'<i class="icon-time bigger-110"></i>' +response['data'][i]["create_time"].replace("T",' ').replace(/-/g,'/').slice(0,19) +
 															'</div>' +
 														'</div>' +				
 														'<div class="tools action-buttons">' +
-															'<a href="javascript:" onclick="deleteLogsMsg(this,{{ds.id}})" class="red">' +
+															'<a href="javascript:" onclick="deleteLogsMsg(this,'+ response['data'][i]["id"] +')" class="red">' +
 																'<i class="icon-remove bigger-125"></i>' +
 															'</a>' +
 														'</div>' +
@@ -442,6 +447,11 @@
 					dataType: "JSON",
 					url:'/api/logs/'+ id +'/', //请求地址
 					type:"DELETE",  //提交类似
+					success:function(response){
+						var str= 'logMsg-' + id
+						document.getElementById(str).innerHTML = ''; 
+						getLogsMsg ();
+					}					
 				})					
 			}			
 			

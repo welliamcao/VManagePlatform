@@ -15,4 +15,4 @@ class VmLogsSerializer(serializers.ModelSerializer):
     class Meta:
         model = VmLogs
         fields = ('id', 'server_id', 'vm_name', 'content','user',
-                  'status','isRead','create_time')
+                  'status','isRead','create_time','result')

@@ -212,14 +212,16 @@ def snapInstace(data,user):
         INSTANCE = VMS.genre(model='instance')
         instance = INSTANCE.queryInstance(name=str(data.get('vm_name')))
         status = INSTANCE.snapShotCteate(instance, data.get('snap_name'))  
-        if status:status = 0
-        else:status = 1
-        result = VmLogs.objects.create(server_id=data.get('server_id'),vm_name=data.get('vm_name'),
-                                       content="创建快照：{snap}".format(snap=data.get('snap_name')),
-                                       user=user,status=status,isRead=0) 
-        if result:return True
-        else:return False 
         VMS.close()
+        if isinstance(status, int):
+            return VmLogs.objects.create(server_id=data.get('server_id'),vm_name=data.get('vm_name'),
+                                       content="虚拟机{name}创建快照{snap}".format(name=data.get('vm_name'),snap=data.get('snap_name')),
+                                       user=user,status=0,isRead=0) 
+        else:
+            return VmLogs.objects.create(server_id=data.get('server_id'),vm_name=data.get('vm_name'),
+                                       content="虚拟机{name}创建快照{snap}".format(name=data.get('vm_name'),snap=data.get('snap_name')),
+                                       user=user,status=1,isRead=0,result=status)             
+        
     except Exception,e:
         return e 
         
@@ -232,21 +234,22 @@ def revertSnapShot(data,user):
         instance = INSTANCE.queryInstance(name=str(data.get('vm_name')))
         status = INSTANCE.revertSnapShot(instance, data.get('snap_name'))
         VMS.close()
-        if status==0:status = status
-        else:status = 1
-        result = VmLogs.objects.create(server_id=data.get('server_id'),vm_name=data.get('vm_name'),
-                                       content="恢复快照：{snap}".format(snap=data.get('snap_name')),
-                                       user=user,status=status,isRead=0) 
-        if result:return True
-        else:return False  
+        if isinstance(status, int):
+            return VmLogs.objects.create(server_id=data.get('server_id'),vm_name=data.get('vm_name'),
+                                       content="虚拟机{name}恢复快照{snap}".format(name=data.get('vm_name'),snap=data.get('snap_name')),
+                                       user=user,status=0,isRead=0) 
+        else:
+            return VmLogs.objects.create(server_id=data.get('server_id'),vm_name=data.get('vm_name'),
+                                       content="虚拟机{name}恢复快照{snap}".format(name=data.get('vm_name'),snap=data.get('snap_name')),
+                                       user=user,status=1,isRead=0,result=status)            
     except Exception,e:
         return e       
         
 @task 
-def recordLogs(server_id,vm_name,content,user,status):
+def recordLogs(server_id,vm_name,content,user,status,result=None):
     try:
-        result = VmLogs.objects.create(server_id=server_id,vm_name=vm_name,content=content,user=user,status=status,isRead=0) 
-        if result:return True
-        else:return False
+        return VmLogs.objects.create(server_id=server_id,vm_name=vm_name,
+                                       content=content,user=user,status=status,
+                                       isRead=0,result=result) 
     except Exception,e:
         return e

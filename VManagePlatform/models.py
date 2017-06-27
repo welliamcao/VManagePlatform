@@ -84,6 +84,7 @@ class VmLogs(models.Model):
     user =  models.CharField(blank=True,null=True,max_length=20,verbose_name='用户')
     status = models.SmallIntegerField(verbose_name='执行结果',blank=True,null=True) 
     isRead = models.SmallIntegerField(verbose_name='是否已读取',blank=True,null=True) 
+    result = models.TextField(verbose_name='失败原因',blank=True,null=True) 
     create_time = models.DateTimeField(auto_now_add=True,blank=True,null=True,verbose_name='执行时间')
     class Meta:
         permissions = (

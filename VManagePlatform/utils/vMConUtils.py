@@ -896,11 +896,17 @@ class VMStorage(VMBase):
                         <format type='%s'/>
                     </target>
                 </volume>""" % (clone, format)
-            return self.createXMLFrom(xml, vol, 0)
-            
+            try:
+                return self.createXMLFrom(xml, vol, 0)
+            except libvirt.libvirtError,e:
+                return '克隆虚拟机失败，失败原因：{result}'.format(result=e.get_error_message())   
+                     
     def createXMLFrom(self,pool,xml, vol, flags):
-        return pool.createXMLFrom(xml, vol, flags)        
-        
+        try:
+            return pool.createXMLFrom(xml, vol, flags)        
+        except libvirt.libvirtError,e:
+            return '创建失败，失败原因：{result}'.format(result=e.get_error_message())      
+           
 class VMInstance(VMBase):
     def __init__(self,conn):
         self.conn = conn         
@@ -1425,25 +1431,25 @@ class VMInstance(VMBase):
                         </domainsnapshot>
             '''
             snpXML = snpXML.format(snapName=snapName)
-        except libvirt.libvirtError,e:
-            return '实例硬盘快照创建失败，失败原因：{result}'.format(result=e.get_error_message())              
-        return instance.snapshotCreateXML(snpXML,0)
+            return instance.snapshotCreateXML(snpXML,0)
+        except libvirt.libvirtError,e:    
+            return '实例硬盘快照创建失败，失败原因：{result}'.format(result=e.get_error_message())          
     
     def snapShotDelete(self,instance,snapName):
         '''删除实例快照'''
         try:
-            snap = instance.snapshotLookupByName(snapName)   
+            snap = instance.snapshotLookupByName(snapName)            
+            return snap.delete()
         except libvirt.libvirtError,e:
-            return '删除实例快照失败，失败原因：{result}'.format(result=e.get_error_message())              
-        return snap.delete()
+            return '删除实例快照失败，失败原因：{result}'.format(result=e.get_error_message())    
     
     def snapShotView(self,instance,snapName):
         '''查看实例快照'''
         try:
-            snap = instance.snapshotLookupByName(snapName) 
+            snap = instance.snapshotLookupByName(snapName)  
+            return snap.getXMLDesc()    
         except libvirt.libvirtError,e:
-            return '获取实例快照失败，失败原因：{result}'.format(result=e.get_error_message())   
-        return snap.getXMLDesc()    
+            return '获取实例快照失败，失败原因：{result}'.format(result=e.get_error_message())  
     
     def snapShotList(self,instance):
         '''列出实例快照'''
@@ -1464,8 +1470,11 @@ class VMInstance(VMBase):
     def revertSnapShot(self,instance,snapName):
         '''快照恢复'''
         snap = instance.snapshotLookupByName(snapName)
-        return instance.revertToSnapshot(snap,0)
-    
+        try:
+            return instance.revertToSnapshot(snap,0)
+        except libvirt.libvirtError,e:
+            return '实例快照恢复失败，失败原因：{result}'.format(result=e.get_error_message())       
+        
     def delete(self,instance):
         '''删除实例'''
         try:

@@ -56,9 +56,10 @@ def profile(request):
                         data['vm_name'] = ds.vm_name
                         data['status'] = ds.status
                         data['create_time'] = ds.create_time
+                        data['result'] = ds.result
                         dataList.append(data)
                     if len(dataList) > 0:return JsonResponse({'msg':"数据加载成功。","code":200,'data':dataList})
                     else:return JsonResponse({'msg':'没有更多的消息',"code":500,'data':None})
                 except Exception,e:
-                    return JsonResponse({'msg':str(e),"code":500,'data':None})
+                    return JsonResponse({'msg':str(e),"code":500,'data':None})             
         else:return JsonResponse({"code":500,"data":None,"msg":"不支持的操作。"})

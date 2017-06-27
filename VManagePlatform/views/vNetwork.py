@@ -8,6 +8,7 @@ from django.template import RequestContext
 from VManagePlatform.models import VmServer
 from VManagePlatform.const.Const import CreateBridgeNetwork,CreateNatNetwork
 from VManagePlatform.utils.vBrConfigUtils import BRManage
+from VManagePlatform.tasks import recordLogs
 
 @login_required
 def configNetwork(request,id):
@@ -69,7 +70,7 @@ def configNetwork(request,id):
                                        dhcpMask=request.POST.get('dhcpMask'),dhcpStart=request.POST.get('dhcpStart'),
                                        dhcpEnd=request.POST.get('dhcpEnd'))
                 result = NETWORK.createNetwork(XML)   
-                if isinstance(result,int): return  JsonResponse({"code":200,"msg":"网络创建成功。","data":None})   
+                if isinstance(result,int):return  JsonResponse({"code":200,"msg":"网络创建成功。","data":None})   
                 else:return  JsonResponse({"code":500,"msg":result,"data":None})                                                                            
         except Exception,e:
             return  JsonResponse({"code":500,"msg":"服务器连接失败。。","data":e})  

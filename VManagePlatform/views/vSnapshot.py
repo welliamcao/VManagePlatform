@@ -42,9 +42,18 @@ def handleSnapshot(request,id):
                 elif op == 'delete':
                     snap = INSTANCE.snapShotDelete(instance, snapName)  
                     VMS.close() 
-                    recordLogs.delay(user=str(request.user),action=op+'_snap',status=snap,vm_name=insName)
-                    if snap == 0:return JsonResponse({"code":200,"data":None,"msg":"快照删除成功"})  
-                    else:return JsonResponse({"code":500,"data":None,"msg":"快照删除失败"})                                  
+                    if isinstance(snap, int):
+                        recordLogs.delay(server_id=vServer.id,vm_name=request.POST.get('vm_name'),
+                                         content="删除虚拟机{name}快照{snapName}".format(name=request.POST.get('vm_name'),
+                                                                                       snapName=snapName),
+                                         user=str(request.user),status=0)                         
+                        return JsonResponse({"code":200,"data":None,"msg":"快照删除成功"})  
+                    else:
+                        recordLogs.delay(server_id=vServer.id,vm_name=request.POST.get('vm_name'),
+                                         content="删除虚拟机{name}快照{snapName}".format(name=request.POST.get('vm_name'),
+                                                                                       snapName=snapName),
+                                         user=str(request.user),status=0,result=snap)                         
+                        return JsonResponse({"code":500,"data":None,"msg":"快照删除失败"})                                  
             except Exception,e:
                 return JsonResponse({"code":500,"msg":"虚拟机快照操作失败。。","data":e}) 
         else:
