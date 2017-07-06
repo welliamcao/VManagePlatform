@@ -195,13 +195,10 @@
 						$.ajax({
 							  type: 'DELETE',
 							  url: '/api/vmserver/'+ id +'/',
-							  data:{
-									"server_id":id,
-									"op":op,
-								},
 						      success:function(response){	
 						    	  	btnObj.removeAttr('disabled');
-					                window.wxc.xcConfirm('删除成功', window.wxc.xcConfirm.typeEnum.success);					                
+					                window.wxc.xcConfirm('删除成功', window.wxc.xcConfirm.typeEnum.success);
+					                window.location.reload();
 							},
 				            error:function(response){
 				            	btnObj.removeAttr('disabled');
