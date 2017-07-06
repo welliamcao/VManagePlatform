@@ -331,7 +331,7 @@
 				};
 				$.ajax({
 					dataType: "JSON",
-					url:'/addStorage/', //请求地址
+					url:'/addStorage/{{vmServer.id}}/', //请求地址
 					type:"POST",  //提交类似
 					data:server_data,  //提交参数
 					success:function(response){
