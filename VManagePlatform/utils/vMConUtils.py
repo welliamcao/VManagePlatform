@@ -805,18 +805,16 @@ class VMStorage(VMBase):
                 pool.build(0)
                 pool.create(0)    
                 pool.setAutostart(1)
-                pool.refresh()#刷新刚刚添加的存储池，加载存储池里面存在的文件
-                return pool
+                return pool.refresh()#刷新刚刚添加的存储池，加载存储池里面存在的文件
         except libvirt.libvirtError,e: 
             return '创建存储池失败，失败原因：{result}'.format(result=e.get_error_message()) 
     
     def refreshStoragePool(self,pool):
         '''刷新存储池'''
         try:
-            pool.refresh()
-            return True
-        except libvirt.libvirtError:
-            return False
+            return pool.refresh()
+        except libvirt.libvirtError,e:
+            return '创建存储池失败，失败原因：{result}'.format(result=e.get_error_message()) 
     
     def createVolumes(self,pool,volume_name,volume_capacity,drive=None):
         if drive is None:drive = 'qcow2'
@@ -857,10 +855,9 @@ class VMStorage(VMBase):
         '''删除存储池'''
         try:
             pool.destroy()
-            pool.undefine()
-            return True  
-        except libvirt.libvirtError:
-            return False 
+            return pool.undefine()
+        except libvirt.libvirtError,e:
+            return '删除失败，失败原因：{result}'.format(result=e.get_error_message())
     
 
     

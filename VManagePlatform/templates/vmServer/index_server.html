@@ -699,7 +699,7 @@
 		
 														<ul class="dropdown-menu dropdown-info pull-right">
 															<li>
-																<a href="/vnc?vs={{ vmServer.id }}&vm={{ ds.name }}&vnc={{ ds.vnc }}&token={{ ds.token }}" target="_black">
+																<a href="/vnc/{{ vmServer.id }}/{{ ds.vnc }}/{{ ds.token }}/" target="_black">
 																<i class="icon-desktop bigger-120"></i>
 																控制台
 																</a>
@@ -743,33 +743,13 @@
 																	<i class="icon-off bigger-120"></i>
 																	强制关闭
 																</a>
-															</li>													
+															</li>																										
 															<li class="divider"></li>
 															<li>
-																<a  href="/modfInstance?op=attach&id={{ vmServer.id }}&vm={{ ds.name }}" >
-																<i class="icon-ok bigger-120"></i>
-																添加设备
-																</a>
-															</li>
-															<li>
-																<a href="/modfInstance?op=detach&id={{ vmServer.id }}&vm={{ ds.name }}">
-																<i class="icon-remove bigger-120"></i>
-																删除设备
-																</a>
-															</li>													
-															<li class="divider"></li>
-															<li>
-																<a class="black" href="javascript:" onclick="snapshotInstance(this,{{ vmServer.id }},'{{ ds.name }}','snapshot')">
+																<a class="black" href="javascript:" onclick="snapshotInstance(this,{{ vmServer.id }},'{{ ds.name }}','add')">
 																	<i class="icon-camera bigger-120"></i>
 																	创建快照
 																</a>		
-															</li>
-
-															<li>
-																<a  href="/listSnapshot?id={{ vmServer.id }}&vm_name={{ ds.name }}">		
-																<i class="icon-camera-retro bigger-120"></i>												
-																快照管理
-																</a>
 															</li>															
 															
 															<li class="divider"></li>
@@ -988,7 +968,7 @@
 						      success:function(response){			            
 					                if (response["code"]=="200"){ 
 					                	window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
-
+					                	location.reload();
 					                }
 						        	else{
 						        		window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
@@ -1016,7 +996,7 @@
 					};
 					$.ajax({
 						  type: 'POST',
-						  url: '/handleInstance/',
+						  url: '/handleSnapshot/{{vmServer.id}}/',
 						  data: {
 							  "server_id":serverId,
 							  "op":op,
@@ -1055,7 +1035,7 @@
 					onOk: function(){
 						$.ajax({
 							  type: 'POST',
-							  url: '/handleStorage/',
+							  url: '/handleStorage/{{vmServer.id}}/',
 							  data:{
 									"server_id":server_id,		
 									"op":op,
