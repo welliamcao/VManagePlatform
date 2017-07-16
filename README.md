@@ -51,7 +51,7 @@
 
 一、配置需求模块</br>
 ```
-# yum install zlib zlib-devel readline-devel bzip2-devel openssl-devel gdbm-devel libdbi-devel ncurses-libs kernel-devel libxslt-devel libffi-devel python-devel
+# yum install zlib zlib-devel readline-devel bzip2-devel openssl-devel gdbm-devel libdbi-devel ncurses-libs kernel-devel libxslt-devel libffi-devel python-devel libvirt libvirt-devel
 # pip install -r requirements.txt
 ```
 二、安装kvm
@@ -62,7 +62,7 @@
 # chkconfig NetworkManager off
 
 2、安装kvm虚拟机
-# yum install kvm libvirt libvirt-devel python-virtinst python-virtinst qemu-kvm virt-viewer bridge-utils virt-top libguestfs-tools ca-certificates libxml2-python audit-libs-python device-mapper-libs 
+# yum install kvm  python-virtinst  qemu-kvm virt-viewer bridge-utils virt-top libguestfs-tools ca-certificates libxml2-python audit-libs-python device-mapper-libs 
 # 启动服务
 # /etc/init.d/libvirtd start
 注：下载virtio-win-1.5.2-1.el6.noarch.rpm，如果不安装window虚拟机或者使用带virtio驱动的镜像可以不用安装
