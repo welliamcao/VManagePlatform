@@ -64,7 +64,7 @@ def usermanage(request,id):
         op = request.POST.get('op')
         if op in ['active','superuser','delete','modify']:
             try:
-                user = User.objects.get(id=request.POST.get('id'))
+                user = User.objects.get(id=id)
             except:
                 return JsonResponse({"code":500,"data":None,"msg":"操作失败用户不存在"})
             if op == 'active':
@@ -105,11 +105,11 @@ def usermanage(request,id):
                         #添加新增的权限
                         for permId in addPermList:
                             perm = Permission.objects.get(id=permId)
-                            User.objects.get(id=request.POST.get('id')).user_permissions.add(perm)
+                            User.objects.get(id=id).user_permissions.add(perm)
                         #删除去掉的权限
                         for permId in delPermList:
                             perm = Permission.objects.get(id=permId)
-                            User.objects.get(id=request.POST.get('id')).user_permissions.remove(perm) 
+                            User.objects.get(id=id).user_permissions.remove(perm) 
                     #如果用户组key不存在就单做清除用户组  
                     if request.POST.get('group') is None:user.groups.clear()
                     else:
@@ -188,7 +188,7 @@ def group(request):
                 return  JsonResponse({"code":500,"data":None,"msg":"用户组添加失败"}) 
         if op in ['delete','modify'] and request.user.has_perm('VManagePlatform.change_group'):
             try:
-                group = Group.objects.get(id=id)
+                group = Group.objects.get(id=request.POST.get('id'))
             except:
                 return JsonResponse({"code":500,"data":None,"msg":"操作失败用户组不存在"})
             if op == 'delete':
@@ -212,11 +212,11 @@ def group(request):
                         #添加新增的权限
                         for permId in addPermList:
                             perm = Permission.objects.get(id=permId)
-                            Group.objects.get(id=id).permissions.add(perm)
+                            Group.objects.get(id=request.POST.get('id')).permissions.add(perm)
                         #删除去掉的权限
                         for permId in delPermList:
                             perm = Permission.objects.get(id=permId)
-                            Group.objects.get(id=id).permissions.remove(perm) 
+                            Group.objects.get(id=request.POST.get('id')).permissions.remove(perm) 
                     group.save()
                     return  JsonResponse({"code":200,"data":None,"msg":"操作成功"})
                 except Exception,e:

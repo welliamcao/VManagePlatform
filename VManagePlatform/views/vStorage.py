@@ -28,7 +28,7 @@ def addStorage(request,id):
                 if pool is False:
                     storage = STORAGE.createStoragePool(pool_xml)
                     VMS.close()
-                    if storage:return JsonResponse({"code":200,"msg":"存储池添加成功","data":None})  
+                    if isinstance(storage,int):return JsonResponse({"code":200,"msg":"存储池添加成功","data":None})  
                     else:return  JsonResponse({"code":500,"msg":"创建存储池失败。","data":None}) 
                 else:
                     VMS.close()
@@ -100,8 +100,8 @@ def handleStorage(request,id):
                 elif op == 'refresh': 
                     result = STORAGE.refreshStoragePool(pool=pool)
                 VMS.close()
-                if result:return  JsonResponse({"code":200,"msg":"操作成功。","data":None})
-                else:return  JsonResponse({"code":500,"msg":"操作失败。","data":None})                    
+                if isinstance(result,int):return  JsonResponse({"code":200,"msg":"操作成功。","data":None})
+                else:return  JsonResponse({"code":500,"msg":result})                    
             else:return JsonResponse({"code":500,"msg":"存储池不存在。","data":e}) 
         else:return  JsonResponse({"code":500,"data":None,"msg":"不支持操作或者您没有权限操作此项"})                        
     else:return  JsonResponse({"code":500,"data":None,"msg":"不支持的HTTP操作"})                

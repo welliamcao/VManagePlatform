@@ -373,7 +373,7 @@
 						onOk: function(){
 							$.ajax({
 								  type: 'POST',
-								  url: '/groupmanage/',
+								  url: '/group/',
 								  data:{
 										"id":id,
 										"op":op,
@@ -431,7 +431,7 @@
 				};
 				$.ajax({
 					dataType: "JSON",
-					url:'/groupmanage/', //请求地址
+					url:'/group/', //请求地址
 					type:"POST",  //提交类似
 					data:server_data,  //提交参数
 					success:function(response){
