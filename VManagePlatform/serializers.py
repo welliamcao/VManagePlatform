@@ -6,9 +6,8 @@ from VManagePlatform.models import VmServer,VmLogs
 class VmServerSerializer(serializers.ModelSerializer):
     class Meta:
         model = VmServer
-        fields = ('id', 'server_ip', 'hostname', 'uri','instance',
-                  'max_vcpu','mem','cpu_mhz','cpu_models','status',
-                  'cpu_arch','cpu_total','vm_type','vm_version')
+        fields = ('id', 'server_ip', 'hostname', 'username','instance',
+                  'passwd','mem','status','cpu_total','vm_type','createTime')
         
         
 class VmLogsSerializer(serializers.ModelSerializer):

@@ -11,6 +11,7 @@ from VManagePlatform.models import VmServer,VmLogs
 
 
 
+
 @api_view(['GET', 'POST' ])
 def vmServer_list(request,format=None):
     """
