@@ -168,7 +168,9 @@
 							<li >
 								<a data-toggle="tab" href="#console">Web Console</a>
 							</li>												
-
+							<li >
+								<a data-toggle="tab" href="#status">性能</a>
+							</li>
 						</ul>
 
 							<div class="tab-content">
@@ -826,6 +828,18 @@
 											{% endif %}
 										</div>													
 								</div>
+								
+								<div id="status" class="tab-pane">
+						            <div class="tab-pane tab-inst active" id="statistics">
+						                <div id="cpu-usage" style="width: 800px;height:300px;"></div>
+						            </div>		
+						            <div class="tab-pane tab-inst active" id="statistics">
+						                <div id="netdev-usage" style="width: 800px;height:300px;"></div>
+						            </div>	
+						            <div class="tab-pane tab-inst active" id="statistics">
+						                <div id="disk-usage" style="width: 800px;height:300px;"></div>
+						            </div>							            					            						
+								</div>
 
 							</div>
 					</div>
@@ -996,6 +1010,345 @@
 			</div>
 			
 		</div>
+		<script src="/static/js/highcharts.js"></script>
+		<script type="text/javascript"> 
+		
+		/* cpu利用率 */
+		Highcharts.setOptions({
+		    global: {
+		        useUTC: false
+		    },
+			credits: {
+			     enabled: false
+			}
+		});
+		function activeLastPointToolip(chart) {
+		    var points = chart.series[0].points;
+		    chart.tooltip.refresh(points[points.length -1]);
+		}
+		$('#cpu-usage').highcharts({
+		    chart: {
+		        type: 'areaspline',
+		        animation: Highcharts.svg, // don't animate in old IE
+		        marginRight: 10,
+		        events: {
+		            load: function () {
+		                // set up the updating of the chart each second
+		                var series = this.series[0],
+		                    chart = this;
+		                setInterval(function () {
+		        	        $.ajax({  
+		        	            url : '/status/cpu/{{vmServer.id}}/{{inStance.name}}/',  
+		        	            type : 'post', 
+		        	            success : function(result){
+				                    var x = (new Date()).getTime(), // current time
+			                        	y = result['data']['per'];
+			                    	series.addPoint([x, y], true, true);
+			                    	activeLastPointToolip(chart)
+		        	        }});	
+
+		                }, 5000);
+		            }
+		        }
+		    },
+		    title: {
+		        text: '{{inStance.name}} - CPU Usage'
+		    },
+		    xAxis: {
+		        type: 'datetime',
+		        tickPixelInterval: 150
+		    },
+		    yAxis: {
+		        title: {
+		            text: 'per'
+		        },
+		        tickPositions: [0, 25, 50, 75, 100]
+/* 		        plotLines: [{
+		            value: 0,
+		            width: 1,
+		            color: '#808080'
+		        }] */
+		    },
+		    tooltip: {
+		        formatter: function () {
+		            return '<b>' + this.series.name + '</b><br/>' +
+		                Highcharts.dateFormat('%Y/%m/%d %H:%M:%S', this.x) + '<br/>' +
+		                Highcharts.numberFormat(this.y, 2);
+		        }
+		    },
+		    legend: {
+		        enabled: false
+		    },
+		    exporting: {
+		        enabled: false
+		    },
+		    series: [{
+		        name: 'cpu利用率',
+		        data: (function () {
+		            // generate an array of random data
+		            var data = [],
+		                time = (new Date()).getTime(),
+		                i;
+		            for (i = -19; i <= 0; i += 1) {
+		                data.push({
+		                    x: time + i * 5000,
+		                    y: 0
+		                });
+		            }
+		            return data;
+		        }())
+		    }]
+		}, function(c) {
+		    activeLastPointToolip(c)
+		});
+ 		/* 网络流量图 */
+		$(function () {
+		    $(document).ready(function() {
+		        Highcharts.setOptions({
+		            global: {
+		                useUTC: false
+		            }
+		        });
+		    
+		        var chart;
+		        $('#netdev-usage').highcharts({
+		            chart: {
+		                type: 'areaspline',
+		                animation: Highcharts.svg, // don't animate in old IE
+		                marginRight: 10,
+		                events: {
+		                    load: function() {
+		    
+		                        // set up the updating of the chart each second
+		                        var series = this.series[0];
+		                        var series1 = this.series[1];
+		                        setInterval(function() {
+	    		        	        $.ajax({  
+	    		        	            url : '/status/net/{{vmServer.id}}/{{inStance.name}}/',  
+	    		        	            type : 'post', 
+	    		        	            success : function(result){
+	    				                    var x = (new Date()).getTime(), // current time
+	    			                        	net_in = result['data']['net']['in'];
+	    				                    	net_out = result['data']['net']['out'];
+	    				                    var shift = series.data.length > 60;
+	    		                            series.addPoint([x, net_in], true, shift);
+	    		                            series1.addPoint([x, net_out], true, shift);
+	    		        	        }})			                        	
+		                        }, 5000);
+		                    }
+		                }
+		            },	            
+		            title: {
+		                text: '{{inStance.name}} - Traffic Flow'
+		            },
+		            xAxis: {
+		                type: 'datetime',
+		                tickPixelInterval: 150,
+		                labels: {
+							formatter: function() {
+								return Highcharts.dateFormat('%H:%M:%S', this.value); // clean, unformatted number for year
+							}
+						} 
+		            },
+		            yAxis: {
+		                title: {
+		                    text: ''
+		                },
+		                labels: {
+							formatter: function() {
+								return  this.value + ' Mbps';
+							}
+		                },
+		                min: 0,
+		                plotLines: [{
+		                    value: 0,
+		                    width: 1,
+		                    color: '#00FF7F'
+		                }]
+		            },
+		            plotOptions: {
+		                areaspline: {
+		                    fillOpacity: 0.5
+		                }
+		            },
+		            tooltip: {
+		                formatter: function() {
+		                        return '<b><span style="color:'+this.series.color+'">'+ this.series.name +'</span></b><br/>'+
+		                        Highcharts.dateFormat('%Y/%m/%d %H:%M:%S', this.x) +'<br/>'+
+		                        Highcharts.numberFormat(this.y, 2) + ' Mbps';
+		                }
+		            },
+		            credits: {
+						text: ''
+					},
+		            legend: {
+		                enabled: false
+		            },
+		            exporting: {
+		                enabled: false
+		            },
+		            series: [{
+		                name: 'Out',
+		                data: (function() {
+		                    // generate an array of random data
+		                    var data = [],
+		                        time = (new Date()).getTime(),
+		                        i;
+		    
+		                    for (i = -60; i <= 0; i++) {
+		                        data.push({
+		                            x: time + i * 5000,
+		                            y: 0
+		                        });
+		                    }
+		                    return data;
+		                })()
+		            },{
+		                name: 'In',
+		                data: (function() {
+		                    // generate an array of random data
+		                    var data = [],
+		                        time = (new Date()).getTime(),
+		                        i;
+		    
+		                    for (i = -60; i <= 0; i++) {
+		                        data.push({
+		                            x: time + i * 5000,
+		                            y: 0
+		                        });
+		                    }
+		                    return data;
+		                })()
+		            }]
+		        });
+		    });
+		    
+		});	
+ 		/* 磁盘I/O */
+ 		$(function () {
+		    $(document).ready(function() {
+		        Highcharts.setOptions({
+		            global: {
+		                useUTC: false
+		            }
+		        });
+		    
+		        var chart;
+		        $('#disk-usage').highcharts({
+		            chart: {
+		                type: 'areaspline',
+		                animation: Highcharts.svg, // don't animate in old IE
+		                marginRight: 10,
+		                events: {
+		                    load: function() {
+		    
+		                        // set up the updating of the chart each second
+		                        var series = this.series[0];
+		                        var series1 = this.series[1];
+		                        setInterval(function() {
+	    		        	        $.ajax({  
+	    		        	            url : '/status/disk/{{vmServer.id}}/{{inStance.name}}/',  
+	    		        	            type : 'post', 
+	    		        	            success : function(result){
+	    				                    var x = (new Date()).getTime(), // current time
+	    			                        	disk_rd = result['data']['disk']['rd'];
+	    				                    	disk_wr = result['data']['disk']['wr'];
+	    				                    var shift = series.data.length > 60;
+	    		                            series.addPoint([x, disk_rd], true, shift);
+	    		                            series1.addPoint([x, disk_wr], true, shift);
+	    		        	        }})			                        	
+		                        }, 5000);
+		                    }
+		                }
+		            },
+		            title: {
+		                text: '{{inStance.name}} - Disk i/o'
+		            },
+		            xAxis: {
+		                type: 'datetime',
+		                tickPixelInterval: 150,
+		                labels: {
+							formatter: function() {
+								return Highcharts.dateFormat('%H:%M:%S', this.value); // clean, unformatted number for year
+							}
+						} 
+		            },
+		            yAxis: {
+		                title: {
+		                    text: ''
+		                },
+		                labels: {
+							formatter: function() {
+								return  this.value + ' Mbps';
+							}
+		                },
+		                min: 0,
+		                plotLines: [{
+		                    value: 0,
+		                    width: 1,
+		                    color: '#00FF7F'
+		                }]
+		            },
+		            plotOptions: {
+		                areaspline: {
+		                    fillOpacity: 0.5
+		                }
+		            },
+		            tooltip: {
+		                formatter: function() {
+		                        return '<b><span style="color:'+this.series.color+'">'+ this.series.name +'</span></b><br/>'+
+		                        Highcharts.dateFormat('%Y/%m/%d %H:%M:%S', this.x) +'<br/>'+
+		                        Highcharts.numberFormat(this.y, 2) + ' Mbps';
+		                }
+		            },
+		            credits: {
+						text: ''
+					},
+		            legend: {
+		                enabled: false
+		            },
+		            exporting: {
+		                enabled: false
+		            },
+		            series: [{
+		                name: 'Read',
+		                data: (function() {
+		                    // generate an array of random data
+		                    var data = [],
+		                        time = (new Date()).getTime(),
+		                        i;
+		    
+		                    for (i = -60; i <= 0; i++) {
+		                        data.push({
+		                            x: time + i * 5000,
+		                            y: 0
+		                        });
+		                    }
+		                    return data;
+		                })()
+		            },{
+		                name: 'Write',
+		                data: (function() {
+		                    // generate an array of random data
+		                    var data = [],
+		                        time = (new Date()).getTime(),
+		                        i;
+		    
+		                    for (i = -60; i <= 0; i++) {
+		                        data.push({
+		                            x: time + i * 5000,
+		                            y: 0
+		                        });
+		                    }
+		                    return data;
+		                })()
+		            }]
+		        });
+		    });
+		    
+		});	
+ 		
+		</script>  
 
 		<script type="text/javascript">
 	

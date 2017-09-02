@@ -1,5 +1,6 @@
 #!/usr/bin/env python  
 # _#_ coding:utf-8 _*_ 
+import time
 from django.http import JsonResponse
 from django.shortcuts import render_to_response
 from VManagePlatform.utils.vMConUtils import LibvirtManage
@@ -11,7 +12,6 @@ from VManagePlatform.utils.vConnUtils import CommTools
 from VManagePlatform.tasks import migrateInstace,cloneInstace,recordLogs
 from VManagePlatform.utils.vBrConfigUtils import BRManage
 from django.contrib.auth.models import User
-
 
 @login_required
 def addInstance(request,id):
@@ -445,3 +445,68 @@ def tempInstance(request):
                 if isinstance(result, str):return JsonResponse({"code":500,"data":result,"msg":"添加失败。"})                   
                 else:return JsonResponse({"code":200,"data":None,"msg":"添加成功。"})
         else:return JsonResponse({"code":500,"data":None,"msg":"不支持的操作或者您没有权限操作操作此项。"})
+        
+@login_required
+def instanceCpuStatus(request,id,vm):
+    """
+    Return instance cpu usage
+    """
+    vmServer = VmServer.objects.get(id=id)
+    try:
+        VMS = LibvirtManage(vmServer.server_ip,vmServer.username, vmServer.passwd, vmServer.vm_type)  
+        INSTANCE = VMS.genre(model='instance')  
+        instance = INSTANCE.queryInstance(name=str(vm)) 
+        data = dict()
+        data['ctime'] = time.strftime('%Y-%m-%d %H:%M:%S' ,time.localtime())
+        data['per'] = INSTANCE.getCpuUsage(instance)#random.randint(50,100)
+        return JsonResponse({"code":200,"data":data,"msg":None}) #
+    except Exception,e:
+        return JsonResponse({"code":200,"data":{'ctime':time.strftime('%Y-%m-%d %H:%M:%S' ,time.localtime()),"per":0},"msg":None})    
+
+
+@login_required
+def instanceNetStatus(request,id,vm):
+    """
+    Return instance network flow usage
+    """
+    vmServer = VmServer.objects.get(id=id)
+    try:
+        VMS = LibvirtManage(vmServer.server_ip,vmServer.username, vmServer.passwd, vmServer.vm_type)  
+        INSTANCE = VMS.genre(model='instance')  
+        instance = INSTANCE.queryInstance(name=str(vm)) 
+        netFlow = INSTANCE.getNetUsage(instance)
+        rx = 0
+        tx = 0
+        for dev in netFlow:
+            rx += dev.get('rx')
+            tx += dev.get('tx')
+        data = dict()
+        data['ctime'] = time.strftime('%Y-%m-%d %H:%M:%S' ,time.localtime())
+        data['net'] = {'in':int(tx/1024)/1024,'out':int(rx/1024)/1024}#{'in':random.randint(50,100),'out':random.randint(50,100)}
+        return JsonResponse({"code":200,"data":data,"msg":None}) #
+    except Exception,e:
+        return JsonResponse({"code":200,"data":{'ctime':time.strftime('%Y-%m-%d %H:%M:%S' ,time.localtime()),"net":{"rt":0,"tx":0}},"msg":str(e)}) 
+    
+    
+@login_required
+def instanceDiskStatus(request,id,vm):
+    """
+    Return instance disk usage
+    """
+    vmServer = VmServer.objects.get(id=id)
+    try:
+        VMS = LibvirtManage(vmServer.server_ip,vmServer.username, vmServer.passwd, vmServer.vm_type)  
+        INSTANCE = VMS.genre(model='instance')  
+        instance = INSTANCE.queryInstance(name=str(vm)) 
+        diskUsage = INSTANCE.getDiskUsage(instance)
+        rd = 0
+        wr = 0
+        for dev in diskUsage:
+            rd += dev.get('rd')
+            wr += dev.get('wr')
+        data = dict()
+        data['ctime'] = time.strftime('%Y-%m-%d %H:%M:%S' ,time.localtime())
+        data['disk'] = {'rd':int(rd/1024)/1024,'wr':int(wr/1024)/1024}#{'in':random.randint(50,100),'out':random.randint(50,100)}
+        return JsonResponse({"code":200,"data":data,"msg":None}) #
+    except Exception,e:
+        return JsonResponse({"code":200,"data":{'ctime':time.strftime('%Y-%m-%d %H:%M:%S' ,time.localtime()),"disk":{"rd":0,"wr":0}},"msg":str(e)}) 

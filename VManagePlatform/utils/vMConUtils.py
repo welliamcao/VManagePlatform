@@ -1245,7 +1245,8 @@ class VMInstance(VMBase):
     
     def getCpuUsage(self,instance):       
         if instance.state()[0] == 1:
-            nbcore = self.conn.getInfo()[2]
+#             nbcore = self.conn.getInfo()[2] #节点的cpu个数
+            nbcore = instance.info()[3] #虚拟机cpu个数，存疑
             cpu_use_ago = instance.info()[4]
             time.sleep(1)
             cpu_use_now = instance.info()[4]
@@ -1254,6 +1255,67 @@ class VMInstance(VMBase):
         else:
             cpu_per = 0
         return cpu_per
+
+    def getNetUsage(self,instance):
+        devices = []
+        dev_usage = []
+        tree = ElementTree.fromstring(self.getInsXMLDesc(instance, flag=1))
+        if instance.state()[0] == 1:
+            tree = ElementTree.fromstring(self.getInsXMLDesc(instance, flag=1))
+            for target in tree.findall("devices/interface/target"):
+                devices.append(target.get("dev"))
+            for i, dev in enumerate(devices):
+                rx_use_ago = instance.interfaceStats(dev)[0]
+                tx_use_ago = instance.interfaceStats(dev)[4]
+                time.sleep(1)
+                rx_use_now = instance.interfaceStats(dev)[0]
+                tx_use_now = instance.interfaceStats(dev)[4]
+                rx_diff_usage = (rx_use_now - rx_use_ago) * 8
+                tx_diff_usage = (tx_use_now - tx_use_ago) * 8
+                dev_usage.append({'dev': i, 'rx': rx_diff_usage, 'tx': tx_diff_usage})
+        else:
+            for i, dev in enumerate(self.get_net_device(instance)):
+                dev_usage.append({'dev': i, 'rx': 0, 'tx': 0})
+        return dev_usage
+
+    def getDiskUsage(self,instance):
+        devices = []
+        dev_usage = []
+        tree = ElementTree.fromstring(self.getInsXMLDesc(instance, flag=1))
+        for disk in tree.findall('devices/disk'):
+            if disk.get('device') == 'disk':
+                dev_file = None
+                dev_bus = None
+                network_disk = True
+                for elm in disk:
+                    if elm.tag == 'source':
+                        if elm.get('protocol'):
+                            dev_file = elm.get('protocol')
+                            network_disk = True
+                        if elm.get('file'):
+                            dev_file = elm.get('file')
+                        if elm.get('dev'):
+                            dev_file = elm.get('dev')
+                    if elm.tag == 'target':
+                        dev_bus = elm.get('dev')
+                if (dev_file and dev_bus) is not None:
+                    if network_disk:
+                        dev_file = dev_bus
+                    devices.append([dev_file, dev_bus])
+        for dev in devices:
+            if instance.state()[0] == 1:
+                rd_use_ago = instance.blockStats(dev[0])[1]
+                wr_use_ago = instance.blockStats(dev[0])[3]
+                time.sleep(2)
+                rd_use_now = instance.blockStats(dev[0])[1]
+                wr_use_now = instance.blockStats(dev[0])[3]
+                rd_diff_usage = rd_use_now - rd_use_ago
+                wr_diff_usage = wr_use_now - wr_use_ago
+            else:
+                rd_diff_usage = 0
+                wr_diff_usage = 0
+            dev_usage.append({'dev': dev[1], 'rd': rd_diff_usage, 'wr': wr_diff_usage})
+        return dev_usage
     
     def addInstanceDisk(self,instance,volPath):
         diskSn = 'vda'
@@ -1342,6 +1404,33 @@ class VMInstance(VMBase):
                     result['type'] = mode  
             return result
         return vMUtil.get_xml_path(instance.XMLDesc(0) , func=interface)        
+
+    def get_net_device(self,instance):
+        def get_mac_ipaddr(net, mac_host):
+            def fixed(ctx):
+                for net in ctx.xpathEval('/network/ip/dhcp/host'):
+                    mac = net.xpathEval('@mac')[0].content
+                    host = net.xpathEval('@ip')[0].content
+                    if mac == mac_host:
+                        return host
+                return None
+            print vMUtil.get_xml_path(net.XMLDesc(0), func=fixed)
+            return vMUtil.get_xml_path(net.XMLDesc(0), func=fixed)
+
+        def networks(ctx):
+            result = []
+            for net in ctx.xpathEval('/domain/devices/interface'):
+                mac_host = net.xpathEval('mac/@address')[0].content
+                nic_host = net.xpathEval('source/@network|source/@bridge|source/@dev')[0].content
+                try:
+                    net = self.getNetwork(nic_host)
+                    ip = get_mac_ipaddr(net, mac_host)
+                except:
+                    ip = None
+                result.append({'mac': mac_host, 'nic': nic_host, 'ip': ip})
+            return result
+
+        return vMUtil.get_xml_path(instance.XMLDesc(0), func=networks)
             
     def setInterfaceBandwidth(self,instance,port,bandwidth):
         '''限制流量'''
