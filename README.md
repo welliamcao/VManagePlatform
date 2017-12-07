@@ -51,7 +51,10 @@
 
 一、配置需求模块</br>
 ```
-# yum install zlib zlib-devel readline-devel bzip2-devel openssl-devel gdbm-devel libdbi-devel ncurses-libs kernel-devel libxslt-devel libffi-devel python-devel libvirt libvirt-devel
+# yum install zlib zlib-devel readline-devel bzip2-devel openssl-devel gdbm-devel libdbi-devel ncurses-libs kernel-devel libxslt-devel libffi-devel python-devel libvirt libvirt-devel gcc git mysql-devel -y
+# mkdir -p /opt/apps/ && cd /opt/apps/
+# git clone https://github.com/welliamcao/VManagePlatform.git
+# cd VManagePlatform
 # pip install -r requirements.txt
 ```
 二、安装kvm
@@ -62,7 +65,7 @@
 # chkconfig NetworkManager off
 
 2、安装kvm虚拟机
-# yum install kvm  python-virtinst  qemu-kvm virt-viewer bridge-utils virt-top libguestfs-tools ca-certificates libxml2-python audit-libs-python device-mapper-libs 
+# yum install python-virtinst qemu-kvm virt-viewer bridge-utils virt-top libguestfs-tools ca-certificates libxml2-python audit-libs-python device-mapper-libs 
 # 启动服务
 # /etc/init.d/libvirtd start
 注：下载virtio-win-1.5.2-1.el6.noarch.rpm，如果不安装window虚拟机或者使用带virtio驱动的镜像可以不用安装
@@ -106,6 +109,7 @@ listen_tcp = 1
 tcp_port = "16509"
 listen_addr = "0.0.0.0"
 auth_tcp = "none"
+# /etc/init.d/libvirtd restart
 ```
 五、配置SSH信任
 ```
@@ -116,7 +120,7 @@ auth_tcp = "none"
 六、安装数据库(MySQL,Redis)
 ```
 安装配置MySQL
-# yum install mysql-server mysql-client mysql-devel
+# yum install mysql-server mysql-client 
 # service mysqld start
 # mysql -u root -p 
 mysql> create database vmanage;
@@ -124,14 +128,19 @@ mysql> grant all privileges on vmanage.* to 'username'@'%' identified by 'userpa
 mysql>quit
 
 安装配置Redis
-# wget http://download.redis.io/redis-stable.tar.gz
-# tar –zxvf redis-stable.tar.gz
-# cd redis-stable
-# make && cd src && make install PREFIX=/usr/local/redis
-# vim /usr/local/redis/etc/redis.conf
-将daemonize的值改为yes
-将./dir的值改为/usr/local/redis
-# /usr/local/redis/bin/redis-server /usr/local/redis/etc/redis-conf
+# wget http://download.redis.io/releases/redis-3.2.8.tar.gz
+# tar -xzvf redis-3.2.8.tar.gz
+# cd redis-3.2.8
+# make
+# make install
+# vim redis.conf
+daemonize yes
+loglevel warning
+logfile "/var/log/redis.log"
+bind 你的服务器ip地址
+# cd ../
+# mv redis-3.2.8 /usr/local/redis
+# /usr/local/redis/src/redis-server /usr/local/redis/redis.conf
 ```
 
 七、配置Django

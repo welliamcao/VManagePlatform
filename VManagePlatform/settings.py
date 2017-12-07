@@ -50,7 +50,7 @@ SECRET_KEY = 'nx-0=c6d*n8e_#c*f*=18!14ju$h%xvwbj6!q!yysgf#n*vmw1'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 TEMPLATE_DEBUG = True
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -142,11 +142,11 @@ USE_TZ = False
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = (
-     'E:\\MyPros\\VManagePlatform\\VManagePlatform\\static\\',
+     '/opt/apps/VManagePlatform/VManagePlatform/static/',
     )
 TEMPLATE_DIRS = (
 #     os.path.join(BASE_DIR,'mysite\templates'),
-    'E:\\MyPros\\VManagePlatform\\VManagePlatform\\templates\\',
+    '/opt/apps/VManagePlatform/VManagePlatform/templates/',
 )
 
 
