@@ -222,6 +222,11 @@ numprocs=1
 # supervisorctl status
 ```
 
+## 提供帮助
+
+如果您觉得VManagePlatform对您有所帮助，可以通过下列方式进行捐赠，谢谢！
+
+![image](https://github.com/welliamcao/OpsManage/blob/master/demo_imgs/donate.png)
 
 ## 部分功能截图:
     登录页面
