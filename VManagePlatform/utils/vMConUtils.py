@@ -661,6 +661,22 @@ class VMServer(VMBase):
                 if nk.getElementsByTagName('target'):
                     nk_name = nk.getElementsByTagName('target')[0].getAttribute("dev")                           
                     nkList.append(nk_name)                     
+            #获取网卡ip地址
+            ipaddress = []
+            if nkList:
+                try:
+                    data = instance.interfaceAddresses(1)
+                except libvirt.libvirtError, ex:
+                    print ex 
+                if data:
+                    for k,v in data.items():
+                        ips = {}
+                        if k != 'lo':
+                            try:
+                                ips[k] = v.get('addrs')[0] 
+                                ipaddress.append(ips) 
+                            except Exception ,ex:
+                                pass 
             #获取虚拟机实例内存的容量信息
             try:
                 mem = instance.info()[2] / 1024
@@ -699,7 +715,7 @@ class VMServer(VMBase):
             
             #生成noVNC需要的token
             domData['token'] = TokenUntils.makeToken(str=server_ip+domData['name'])             
-        
+            domData['ip'] = ipaddress
             if isinstance(dom,int):vms_active.append(domData)
             else:vms_inactive.append(domData)   
         return {"total":total,
@@ -1085,7 +1101,20 @@ class VMInstance(VMBase):
             for nk in xml.getElementsByTagName('interface'):
                 if nk.getElementsByTagName('target'):
                     nk_name = nk.getElementsByTagName('target')[0].getAttribute("dev")                           
-                    nkList.append(nk_name)                     
+                    nkList.append(nk_name)      
+            #获取网卡ip地址
+            ipaddress = []
+            if nkList:
+                data = self.getInterFaceIpAddress(instance, 1) 
+                if data:
+                    for k,v in data.items():
+                        ips = {}
+                        if k != 'lo':
+                            try:
+                                ips[k] = v.get('addrs')[0] 
+                                ipaddress.append(ips) 
+                            except Exception ,ex:
+                                pass 
             #获取虚拟机实例内存的容量信息
             try:
                 mem = instance.info()[2] / 1024
@@ -1121,6 +1150,7 @@ class VMInstance(VMBase):
             domData['name'] = vMname
             #生成noVNC需要的token
             domData['token'] = TokenUntils.makeToken(str=server_ip+vMname) 
+	        domData['ip'] = ipaddress
             return domData
 
     def getMediaDevice(self,instance):
@@ -1431,6 +1461,14 @@ class VMInstance(VMBase):
             return result
 
         return vMUtil.get_xml_path(instance.XMLDesc(0), func=networks)
+
+    def getInterFaceIpAddress(self,instance,source):
+        '''获取虚拟机ip地址'''
+        try:
+            return instance.interfaceAddresses(source)
+        except libvirt.libvirtError, ex:
+            print ex
+            return {}
             
     def setInterfaceBandwidth(self,instance,port,bandwidth):
         '''限制流量'''

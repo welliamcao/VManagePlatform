@@ -32,7 +32,23 @@
 							</div>
 						</div>	
 						
-						
+						<div class="profile-info-row">
+							<div class="profile-info-name"> Ip地址 </div>
+
+							<div class="profile-info-value">
+								{% if inStance.ip %}
+									<span class="editable" id="username">
+										 {% for i in inStance.ip %}
+										      {% for k,v in i.items %}
+										         <strong>{{k}}:</strong> <code>{{v.addr}}/{{v.prefix}}</code>
+										      {% endfor %}
+										 {% endfor %}		
+									</span>
+								{% else %}
+									<span class="editable" id="username"><code>未能获取</code></span>
+								{% endif %}
+							</div>
+						</div>						
 						
 						<div class="profile-info-row">
 							<div class="profile-info-name"> CPU </div>

@@ -186,7 +186,6 @@ def CreateIntanceConfig(dom_name,maxMem,mem,cpu,disk,iso_path,network):
         <domain type='kvm'>  
                 <name>{dom_name}</name>
                 <memory unit='KiB'>{mem}</memory>
-                <maxMemory unit='KiB'>{maxMem}</maxMemory>
                 <currentMemory unit='KiB'>{mem}</currentMemory>
                   <memtune>
                     <hard_limit unit='KiB'>{maxMem}</hard_limit>
@@ -213,6 +212,9 @@ def CreateIntanceConfig(dom_name,maxMem,mem,cpu,disk,iso_path,network):
                     <target dev='hda' bus='ide'/>  
                 </disk>  
                 {network}
+                <channel type='unix'>
+                   <target type='virtio' name='org.qemu.guest_agent.0'/>
+                </channel>
                 <input type='mouse' bus='ps2'/>  
                  <graphics type='vnc' port='-1' autoport='yes' listen = '0.0.0.0' keymap='en-us'/>
                </devices>  

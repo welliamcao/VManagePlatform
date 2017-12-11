@@ -28,7 +28,7 @@
 
 ## 环境要求：
 * 编程语言：Python2.7 
-* 系统：CentOS 6
+* 系统：CentOS 6 建议CentOS 7
 * 网络规划：管理网络接口=1，虚拟化数据网络>=1，如果只有一个网卡使用OpenVswitch时需要手动配置网络以免丢失网络
 * SDN需求：OpenVswitch Or Linux Birdge
 
@@ -51,7 +51,7 @@
 
 一、配置需求模块</br>
 ```
-# yum install zlib zlib-devel readline-devel bzip2-devel openssl-devel gdbm-devel libdbi-devel ncurses-libs kernel-devel libxslt-devel libffi-devel python-devel libvirt libvirt-devel gcc git mysql-devel -y
+# yum install zlib zlib-devel readline-devel bzip2-devel openssl-devel gdbm-devel libdbi-devel ncurses-libs kernel-devel libxslt-devel libffi-devel python-devel libvirt libvirt-client libvirt-devel gcc git mysql-devel -y
 # mkdir -p /opt/apps/ && cd /opt/apps/
 # git clone https://github.com/welliamcao/VManagePlatform.git
 # cd VManagePlatform
@@ -62,7 +62,9 @@
 1、关闭防火墙，selinux
 # service iptables stop
 # setenforce 0 临时关闭
+# service NetworkManager stop
 # chkconfig NetworkManager off
+
 
 2、安装kvm虚拟机
 # yum install python-virtinst qemu-kvm virt-viewer bridge-utils virt-top libguestfs-tools ca-certificates libxml2-python audit-libs-python device-mapper-libs 
@@ -103,7 +105,7 @@ AutoReq: no
 LIBVIRTD_CONFIG=/etc/libvirt/libvirtd.conf
 LIBVIRTD_ARGS="--listen"
 
-# vim /etc/libvirt/libvirtd.conf
+# vim /etc/libvirt/libvirtd.conf  #最后添加
 listen_tls = 0
 listen_tcp = 1
 tcp_port = "16509"
