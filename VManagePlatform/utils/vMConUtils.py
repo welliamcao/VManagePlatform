@@ -1138,8 +1138,7 @@ class VMInstance(VMBase):
             try:
                 vnc_port = xml.getElementsByTagName('graphics')[0].getAttribute("port") 
             except:
-                vnc_port = 0    
-                                                                      
+                vnc_port = 0                                                   
             domData['disks'] = diskList
             domData['netk'] = nkList
             domData['mem'] = mem 
@@ -1147,8 +1146,8 @@ class VMInstance(VMBase):
             domData['vnc'] = vnc_port
             domData['name'] = vMname
             #生成noVNC需要的token
-            domData['token'] = TokenUntils.makeToken(str=server_ip+vMname) 
-	        domData['ip'] = ipaddress
+            domData['token'] = TokenUntils.makeToken(str=server_ip+vMname)
+			domData['ip'] = ipaddress
             return domData
 
     def getMediaDevice(self,instance):
