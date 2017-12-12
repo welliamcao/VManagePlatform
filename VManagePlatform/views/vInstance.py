@@ -349,9 +349,10 @@ def handleInstance(request,id):
                 VMS.close()
                 return  JsonResponse({"code":200,"data":None,"msg":"克隆任务提交成功."}) 
             elif op == 'xml':
-                result = INSTANCE.defineXML(xml=request.POST.get('xml'))           
+                result = INSTANCE.defineXML(xml=request.POST.get('xml'))     
+				content = "通过xml修改实例{name}".format(name=insName)    
             VMS.close()     
-            if isinstance(result,int):
+            if isinstance(result,int) or isinstance(result,object):
                 recordLogs.delay(server_id=vServer.id,vm_name=insName,content=content,user=str(request.user),status=0)
                 return  JsonResponse({"code":200,"data":None,"msg":"操作成功。"}) 
             else:
