@@ -1147,7 +1147,7 @@ class VMInstance(VMBase):
             domData['name'] = vMname
             #生成noVNC需要的token
             domData['token'] = TokenUntils.makeToken(str=server_ip+vMname)
-			domData['ip'] = ipaddress
+	    domData['ip'] = ipaddress
             return domData
 
     def getMediaDevice(self,instance):
