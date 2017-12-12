@@ -704,15 +704,13 @@ class VMServer(VMBase):
             try:
                 vnc_port = xml.getElementsByTagName('graphics')[0].getAttribute("port") 
             except:
-                vnc_port = 0    
-                                                                      
+                vnc_port = 0                                       
             domData['name'] = insName
             domData['disks'] = diskList
             domData['netk'] = nkList
             domData['mem'] = mem 
             domData['cpu'] = cpu
             domData['vnc'] = vnc_port
-            
             #生成noVNC需要的token
             domData['token'] = TokenUntils.makeToken(str=server_ip+domData['name'])             
             domData['ip'] = ipaddress

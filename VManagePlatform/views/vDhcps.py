@@ -18,7 +18,10 @@ def configDhcp(request):
                                   {"user":request.user,"localtion":[{"name":"首页","url":'/'},{"name":"网络管理","url":'/addNetwork'}],
                                    "dataList":dataList},context_instance=RequestContext(request))
     elif  request.method == "POST":
-        dhcp =  VmDHCP.objects.get(mode=request.POST.get('mode'))
+        try:
+            dhcp =  VmDHCP.objects.get(mode=request.POST.get('mode'))
+        except:
+            dhcp = None
         if dhcp:return JsonResponse({"code":500,"msg":"DHCP已经存在","data":None})
         else:
             data = dict()

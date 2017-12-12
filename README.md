@@ -20,7 +20,7 @@
     *  增减卷，支持主流类型存储类型
     *  资源利用率
 * 网络管理
-    *  支持SDN，底层网络使用OpenVSwitch/Linux Bridge，支持子网隔离，IP地址分配，网卡流量限制等等。
+    *  支持SDN，底层网络使用OpenVSwitch/Linux Bridge，IP地址分配，网卡流量限制等等。
 * 用户管理
     *  支持用户权限，用户组，用户虚拟机资源分配等等 
 * 宿主机
@@ -28,7 +28,7 @@
 
 ## 环境要求：
 * 编程语言：Python2.7 
-* 系统：CentOS 6 建议CentOS 7
+* 系统：CentOS 7 
 * 网络规划：管理网络接口=1，虚拟化数据网络>=1，如果只有一个网卡使用OpenVswitch时需要手动配置网络以免丢失网络
 * SDN需求：OpenVswitch Or Linux Birdge
 
@@ -60,16 +60,16 @@
 二、安装kvm
 ```
 1、关闭防火墙，selinux
-# service iptables stop
+# systemctl stop firewalld.service && systemctl disable firewalld.service
 # setenforce 0 临时关闭
-# service NetworkManager stop
-# chkconfig NetworkManager off
+# systemctl stop NetworkManager
+# systemctl disable NetworkManager
 
 
 2、安装kvm虚拟机
 # yum install python-virtinst qemu-kvm virt-viewer bridge-utils virt-top libguestfs-tools ca-certificates libxml2-python audit-libs-python device-mapper-libs 
 # 启动服务
-# /etc/init.d/libvirtd start
+# systemctl start libvirtd
 注：下载virtio-win-1.5.2-1.el6.noarch.rpm，如果不安装window虚拟机或者使用带virtio驱动的镜像可以不用安装
 # rpm -ivh virtio-win-1.5.2-1.el6.noarch.rpm
 
@@ -95,7 +95,7 @@ BuildRequires: openssl-devel
 后面添加
 AutoReq: no
 
-# /etc/init.d/openvswitch start
+# systemctl start openvswitch
 
 ```
 
@@ -111,7 +111,7 @@ listen_tcp = 1
 tcp_port = "16509"
 listen_addr = "0.0.0.0"
 auth_tcp = "none"
-# /etc/init.d/libvirtd restart
+# systemctl restart libvirtd 
 ```
 五、配置SSH信任
 ```
@@ -123,7 +123,7 @@ auth_tcp = "none"
 ```
 安装配置MySQL
 # yum install mysql-server mysql-client 
-# service mysqld start
+# systemctl start mysqld.service
 # mysql -u root -p 
 mysql> create database vmanage;
 mysql> grant all privileges on vmanage.* to 'username'@'%' identified by 'userpasswd';
@@ -147,7 +147,7 @@ bind 你的服务器ip地址
 
 七、配置Django
 ```
-# cd /yourpath/VManagePlatform/VManagePlatform/
+# cd /opt/apps/VManagePlatform/VManagePlatform/
 # vim settings.py
 7.1、修改BROKER_URL：改为自己的地址
 7.2、修改DATABASES：
@@ -164,23 +164,23 @@ DATABASES = {
 }
 7.3、修改STATICFILES_DIRS
 STATICFILES_DIRS = (
-     '/yourpath/VManagePlatform/VManagePlatform/static/',
+     '/opt/apps/VManagePlatform/VManagePlatform/static/',
     )
 TEMPLATE_DIRS = (
 #     os.path.join(BASE_DIR,'mysite\templates'),
-    '/yourpath/VManagePlatform/VManagePlatform/templates',
+    '/opt/apps/VManagePlatform/VManagePlatform/templates',
 )
 ```
 
 八、生成VManagePlatform数据表
 ```
-# cd /yourpath/VManagePlatform/
+# cd /opt/apps/VManagePlatform/
 # python manage.py migrate
 # python manage.py createsuperuser
 ```
 九、启动VManagePlatform
 ```
-# cd /yourpath/VManagePlatform/
+# cd /opt/apps/VManagePlatform/
 # python manage.py runserver youripaddr:8000
 ```
 
@@ -191,7 +191,7 @@ TEMPLATE_DIRS = (
 最后添加
 [program:celery-worker]
 command=/usr/bin/python manage.py celery worker --loglevel=info -E -B  -c 2
-directory=/yourpath/VManagePlatform
+directory=/opt/apps/VManagePlatform
 stdout_logfile=/var/log/celery-worker.log
 autostart=true
 autorestart=true
@@ -201,7 +201,7 @@ numprocs=1
 
 [program:celery-beat]
 command=/usr/bin/python manage.py celery beat
-directory=/yourpath/VManagePlatform
+directory=/opt/apps/VManagePlatform
 stdout_logfile=/var/log/celery-beat.log
 autostart=true
 autorestart=true
@@ -211,7 +211,7 @@ numprocs=1
 
 [program:celery-cam]
 command=/usr/bin/python manage.py celerycam
-directory=/yourpath/VManagePlatform
+directory=/opt/apps/VManagePlatform
 stdout_logfile=/var/log/celery-celerycam.log
 autostart=true
 autorestart=true
