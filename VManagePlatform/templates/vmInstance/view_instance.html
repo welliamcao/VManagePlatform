@@ -846,15 +846,20 @@
 								</div>
 								
 								<div id="status" class="tab-pane">
-						            <div class="tab-pane tab-inst active" id="statistics">
-						                <div id="cpu-usage" style="width: 800px;height:300px;"></div>
-						            </div>		
-						            <div class="tab-pane tab-inst active" id="statistics">
-						                <div id="netdev-usage" style="width: 800px;height:300px;"></div>
-						            </div>	
-						            <div class="tab-pane tab-inst active" id="statistics">
-						                <div id="disk-usage" style="width: 800px;height:300px;"></div>
-						            </div>							            					            						
+									{% if inStance.vnc != '-1'  %}
+										<div class="hr hr32 hr-dotted"></div>
+							            <div class="tab-pane tab-inst active" id="statistics">
+							                <div id="cpu-usage" style="width: 800px;height:300px;"></div>
+							            </div>		
+							            <div class="tab-pane tab-inst active" id="statistics">
+							                <div id="netdev-usage" style="width: 800px;height:300px;"></div>
+							            </div>	
+							            <div class="tab-pane tab-inst active" id="statistics">
+							                <div id="disk-usage" style="width: 800px;height:300px;"></div>
+							            </div>	
+							        {% else %}
+							        	<div class="hr hr32 hr-dotted"></div>
+						            {% endif %}							            					            						
 								</div>
 
 							</div>
@@ -1027,6 +1032,7 @@
 			
 		</div>
 		<script src="/static/js/highcharts.js"></script>
+		{% if inStance.vnc != '-1'  %}
 		<script type="text/javascript"> 
 		
 		/* cpu利用率 */
@@ -1365,7 +1371,7 @@
 		});	
  		
 		</script>  
-
+		{% endif %}
 		<script type="text/javascript">
 	
 		
