@@ -36,6 +36,7 @@
 * 控制服务器：执行1-10步骤 
 * 节点服务器：执行2/3/4步骤，在控制服务器上执行5步骤中的ssh-copy-id
 * 为了更好的体验，建议使用Chrome或者Foxfire，如果要获取虚拟机ip，请在虚拟机里面安装qemu-guest-agent(centos 6需要安装libvirt>=2.3.0以上)
+* 主机列表跟用户中心-我的虚拟机的数据更新，需要在任务调度里面配置task
 
 ## 虚拟机添加流程：
 * 第一步，平台先添加宿主机（计算节点） 
@@ -231,6 +232,8 @@ numprocs=1
 ![image](https://github.com/welliamcao/OpsManage/blob/master/demo_imgs/donate.png)
 
 ## 部分功能截图:
+    用户中心
+![](https://github.com/welliamcao/VManagePlatform/raw/master/demo_images/user.png)</br>
     登录页面
 ![](https://github.com/welliamcao/VManagePlatform/raw/master/demo_images/login.png)</br>
     用户注册需要admin激活才能登陆</br>

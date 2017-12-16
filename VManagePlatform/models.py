@@ -66,6 +66,7 @@ class VmServerInstance(models.Model):
     owner =  models.CharField(max_length=50,blank=True,null=True,verbose_name='拥有者')
     rate_limit = models.SmallIntegerField(blank=True,null=True,verbose_name='网卡限速')
     token = models.CharField(max_length=100,blank=True,null=True,verbose_name='令牌')
+    ips = models.TextField(max_length=200,blank=True,null=True,verbose_name='ip地址')
     vnc = models.SmallIntegerField(blank=True,null=True,verbose_name='VNC端口')
     class Meta:
         permissions = (

@@ -35,10 +35,10 @@ def updateVMserver():
         if SERVER:
             if server.status == 0:
                 data = SERVER.getVmServerInfo()
-                VMS.close()
                 try:
                     VmServer.objects.filter(id=server.id).update(instance=data.get('ins'),mem=data.get('mem'),
                                                           cpu_total=data.get('cpu_total'))
+                    VMS.close()
                 except Exception,e:
                     return e
             elif server.status == 1:
@@ -61,16 +61,21 @@ def updateVMinstance(host=None):
                 if SERVER:
                     dataList = SERVER.getVmInstanceBaseInfo(server_ip=server.server_ip,server_id=server.id)
                     for ds in dataList:
+                        ipaddress = ''
+                        for ip in ds.get('ip'):
+                            for k,v in ip.items():
+                                ips = k + ':' + v.get('addr') + '/' + str(v.get('prefix')) 
+                                ipaddress = ips + '\n' + ipaddress  
                         result = VmServerInstance.objects.filter(server=server,name=ds.get('name'))
                         if result:VmServerInstance.objects.filter(server=server,name=ds.get('name')).update(server=server,cpu=ds.get('cpu'),
                                                                                                             mem=ds.get('mem'),status=ds.get('status'),
                                                                                                             name=ds.get('name'),token=ds.get('token'),
-                                                                                                            vnc=ds.get('vnc'),
-                                                                                                            )
+                                                                                                            vnc=ds.get('vnc'),ips=ipaddress)
+                                                                                                            
                         else:VmServerInstance.objects.create(server=server,cpu=ds.get('cpu'),
                                                              mem=ds.get('mem'),vnc=ds.get('vnc'),
                                                              status=ds.get('status'),name=ds.get('name'),
-                                                             token=ds.get('token'))
+                                                             token=ds.get('token'),ips=ipaddress)
                     VMS.close()
                     
     else:
@@ -80,19 +85,45 @@ def updateVMinstance(host=None):
             SERVER = VMS.genre(model='server')    
             if SERVER:
                 dataList = SERVER.getVmInstanceBaseInfo(server_ip=server.server_ip,server_id=server.id)
-                for ds in dataList:                            
+                for ds in dataList:     
+                    ipaddress = ''
+                    for ip in ds.get('ip'):
+                        for k,v in ip.items():
+                            ips = k + ':' + v.get('addr') + '/' + str(v.get('prefix')) 
+                            ipaddress = ips + '\n' + ipaddress                           
                     result = VmServerInstance.objects.filter(server=server,name=ds.get('name'))
                     if result:VmServerInstance.objects.filter(server=server,name=ds.get('name')).update(server=server,cpu=ds.get('cpu'),
                                                                                                         mem=ds.get('mem'),vnc=ds.get('vnc'),
                                                                                                         status=ds.get('status'),name=ds.get('name'),
-                                                                                                        token=ds.get('token'))
+                                                                                                        token=ds.get('token'),ips=ipaddress)
                     else:VmServerInstance.objects.create(server=server,cpu=ds.get('cpu'),
                                                          mem=ds.get('mem'),status=ds.get('status'),
                                                          name=ds.get('name'),token=ds.get('token'),
-                                                         vnc=ds.get('vnc'))
+                                                         vnc=ds.get('vnc'),ips=ipaddress)
                 VMS.close()   
 
 
+@task()
+def checkVMinstance():
+    '''检查所有宿主机上面的实例，如果不存在的实例则从数据库里面清除掉'''
+    serverList = VmServer.objects.all()    
+    for server in  serverList:
+        if server.status == 0:     
+            VMS = LibvirtManage(server.server_ip,server.username, server.passwd, server.vm_type,pool=False)
+            SERVER = VMS.genre(model='server')   
+            vList = SERVER.getAllInstance()
+            try:
+                vmList = [ str(vm.token) for vm in VmServerInstance.objects.filter(server=server).all()]
+            except Exception ,ex:
+                print ex
+            delVmList = list(set(vmList).difference(set(vList)))
+            for v in delVmList:
+                try:
+                    vm = VmServerInstance.objects.filter(server=server,token=v)
+                    vm.delete()
+                except Exception ,ex:
+                    print ex
+            if SERVER:VMS.close() 
 
 @task()
 def startDhcpServer():

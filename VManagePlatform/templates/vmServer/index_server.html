@@ -590,10 +590,10 @@
 								                  <strong> 网络接口	</strong>
 							                	</td>	
 							                	<td class="center">
-								                  <strong> ip地址	</strong>
-							                	</td>	
+								                  <strong>VNC端口 </strong>
+							                	</td>							                	
 							                	<td class="center">
-								                  <strong>VNC端口	</strong>
+								                  <strong>ip地址</strong>
 							                	</td>					                	
 							                	<td class="center">
 								                  <strong>状态	</strong>
@@ -680,20 +680,20 @@
 								                  
 							                	</td>
 							                	<td class="center">
-										{% if ds.ip %}
-									       		{% for i in ds.ip %}
-									            		{% for k,v in i.items %}
-									                		<strong>{{k}}:</strong> <code>{{v.addr}}/{{v.prefix}}</code>
-									            		{% endfor %}
-														<br>
-									       		{% endfor %}
-								       		{% else %}
-								       	 		<code>未发现</code>		
-								    		{% endif %}	
-							                	</td>
-							                	<td class="center">
 								                  {{ ds.vnc }}
-							                	</td>					                						                
+							                	</td>	
+							                	<td class="center">
+								                	{% if ds.ip %}
+									                  {% for i in ds.ip %}
+									                  		{% for k,v in i.items %}
+									                  			<strong>{{k}}:</strong> <code>{{v.addr}}/{{v.prefix}}</code>
+									                  		{% endfor %}
+									                  		<br>
+									                  {% endfor %}
+													{% else %}
+	                                                    <code>未发现</code>
+	                                                {% endif %}
+							                	</td>								                					                						                
 							                	<td class="center">
 								                   	{% if ds.status == 1 %}
 								                   		 <i class="icon-play green"></i>

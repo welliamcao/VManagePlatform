@@ -91,7 +91,7 @@ def StorageTypeXMLConfig(pool_type,pool_name,pool_spath=None,pool_tpath=None,poo
         return False
     
 def CreateBridgeNetwork(name,bridgeName,mode): 
-    '''´´½¨ÇÅ½ÓÍøÂç'''
+    '''åˆ›å»ºæ¡¥æŽ¥ç½‘ç»œ'''
     network_xml = '''
             <network>
                   <name>{name}</name>
@@ -103,7 +103,7 @@ def CreateBridgeNetwork(name,bridgeName,mode):
     return network_xml 
     
 def CreateNatNetwork(netName,dhcpIp,dhcpMask,dhcpStart,dhcpEnd): 
-    '''´´½¨natÍøÂç'''
+    '''åˆ›å»ºnatç½‘ç»œ'''
     network_xml = '''
         <network>
           <name>{netNam}</name>
@@ -177,6 +177,16 @@ def CreateDisk(volume_path,diskSn=None):
         disk_xml = disk_xml.format(volume_path=volume_path)
     return disk_xml
 
+def CreateCdrom(isoPath,diskSn):
+    xml = '''
+            <disk type='file' device='cdrom'>
+              <driver name='file'/>
+              <source file='{isoPath}'/>
+              <target dev='{diskSn}'/>
+              <readonly/>
+            </disk>            
+        '''.format(isoPath=isoPath,diskSn=diskSn)
+    return xml
        
 def CreateIntanceConfig(dom_name,maxMem,mem,cpu,disk,iso_path,network):
     if isinstance(mem, int) and isinstance(maxMem, int):
@@ -217,6 +227,7 @@ def CreateIntanceConfig(dom_name,maxMem,mem,cpu,disk,iso_path,network):
                 </channel>
                 <input type='mouse' bus='ps2'/>  
                  <graphics type='vnc' port='-1' autoport='yes' listen = '0.0.0.0' keymap='en-us'/>
+                <input type=â€™tabletâ€™ bus=â€™usbâ€™/>
                </devices>  
              </domain>        
     '''

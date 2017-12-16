@@ -540,6 +540,15 @@ class VMServer(VMBase):
                 'max_vcpu':max_vcpu,"status":status,"cpu_mhz":data[3],'ins':total,
                 'type':vm_type,"version":version,'cpu_model':cpu_model,"vmStatus":vmStatus}                
 
+    def getAllInstance(self):
+        '''获取所有实例列表'''
+        vList = []
+        try:
+            for dom in self.conn.listAllDomains():
+                vList.append(dom.UUIDString())
+            return vList
+        except:
+            return vList
 
     def getVmInstatus(self):
         '''获取实例状态'''           
@@ -588,6 +597,23 @@ class VMServer(VMBase):
                     ntkData['name'] = name
                     ntkData['mac'] = mac
                     ntkList.append(ntkData)
+            #获取ip地址
+            ipaddress = []
+            if ntkList:
+                try:
+                    data = ins.interfaceAddresses(1)
+                except libvirt.libvirtError, ex:
+                    print ex
+                    data = None 
+                if data:
+                    for k,v in data.items():
+                        ips = {}
+                        if k != 'lo':
+                            try:
+                                ips[k] = v.get('addrs')[0] 
+                                ipaddress.append(ips) 
+                            except Exception ,ex:
+                                pass                 
             data = dict()
             data["name"] = ins.name()
             data["status"] = ins.state()[0]
@@ -598,6 +624,7 @@ class VMServer(VMBase):
             data["vnc"] = vnc_port
             data['token'] = ins.UUIDString()
             data['netk'] = ntkList
+            data['ip'] = ipaddress
             dataList.append(data)
         return dataList
     
@@ -973,8 +1000,7 @@ class VMInstance(VMBase):
         @param dev: 设备序号，比如hda
         @param images: /opt/iso/CentOS-6.3-x86_64-bin-DVD1.iso  
         '''
-        cdrom = None
-        tree = ElementTree.fromstring(self.getInsXMLDesc(instance,0))
+        tree = ElementTree.fromstring(self.getInsXMLDesc(instance,0))        
         for disk in tree.findall('devices/disk'):
             if disk.get('device') == 'cdrom':
                 for elm in disk:
@@ -983,22 +1009,29 @@ class VMInstance(VMBase):
                             src_media = elm
                     if elm.tag == 'target':
                         if elm.get('dev') == dev:
-                            disk.remove(src_media)
-                cdrom = disk
-        if len(cdrom) >0:
-            if instance.state()[0] == 1:
-                xml_disk = ElementTree.tostring(cdrom)
-                print xml_disk
-                instance.attachDevice(xml_disk)
-                xmldom = self.getInsXMLDesc(instance,1)
-            if instance.state()[0] == 5:
-                xmldom = ElementTree.tostring(tree)
-            if self.defineXML(xmldom):return 0
+                            try:
+                                disk.remove(src_media)
+                                if instance.state()[0] == 1:
+                                    xml_disk = ElementTree.tostring(disk)
+                                    try:
+                                        instance.attachDevice(xml_disk)
+                                    except libvirt.libvirtError,e:
+                                        return '卸载失败，失败原因：{result}'.format(result=e.get_error_message())                                
+                                    xmldom = self.getInsXMLDesc(instance,1)
+                                if instance.state()[0] == 5:
+                                    xmldom = ElementTree.tostring(tree)
+                                try:
+                                    return self.defineXML(xmldom)
+                                except libvirt.libvirtError,e:
+                                    return '卸载失败，失败原因：{result}'.format(result=e.get_error_message())                                
+                            except:
+                                return False
+                                
+
         
         
     
     def mountIso(self,instance,dev, image):
-        cdrom = None
         tree = ElementTree.fromstring(self.getInsXMLDesc(instance,0))
         for disk in tree.findall('devices/disk'):
             if disk.get('device') == 'cdrom':
@@ -1007,16 +1040,22 @@ class VMInstance(VMBase):
                         if elm.get('dev') == dev:
                             src_media = ElementTree.Element('source')
                             src_media.set('file', image)
-                            disk.insert(2, src_media)
-                cdrom = disk  
-        if len(cdrom) >0 :          
-            if instance.state()[0] == 1:
-                xml = ElementTree.tostring(cdrom)
-                instance.attachDevice(xml)
-                xmldom = self.getInsXMLDesc(instance,1)
-            if instance.state()[0] == 5:
-                xmldom = ElementTree.tostring(tree)
-            if self.defineXML(xmldom):return 0    
+                            disk.append(src_media)
+                            if instance.state()[0] == 1:
+                                xml_disk = ElementTree.tostring(disk)
+                                try:
+                                    instance.attachDevice(xml_disk)
+                                except libvirt.libvirtError,e:
+                                    return '挂载失败，失败原因：{result}'.format(result=e.get_error_message()) 
+                                xmldom = self.getInsXMLDesc(instance,1)
+                            if instance.state()[0] == 5:
+                                xmldom = ElementTree.tostring(tree)
+                            try:
+                                return self.defineXML(xmldom)
+                            except libvirt.libvirtError,e:
+                                return '卸载失败，失败原因：{result}'.format(result=e.get_error_message()) 
+        
+  
     
      
     def changeSettings(self,instance,description, cur_memory, memory, cur_vcpu, vcpu):
@@ -1173,7 +1212,8 @@ class VMInstance(VMBase):
                             src_path = media.xpathEval('source/@file')[0].content
                             volume = media.xpathEval('source/@file')[0].content.split('/')[-1]
                     except:
-                        pass
+                        src_path = None
+                        volume = None
                     finally:
                         result.append({'dev': dev, 'image': volume, 'storage': storage, 'path': src_path})
             return result
@@ -1359,6 +1399,51 @@ class VMInstance(VMBase):
         except libvirt.libvirtError,e:
             return '实例添加硬盘失败，失败原因：{result}'.format(result=e.get_error_message()) 
 
+    def addInstanceCdrom(self,instance,isoPath):
+        diskSn = 'hdb'
+        diskList = ['hd'+chr(i) for i in range(97,123)]
+        domXml = instance.XMLDesc(0)
+        tree = ElementTree.fromstring(domXml)
+        for ds in tree.findall('devices/disk'):
+            device = ds.get('device')
+            vdisk = ds.find('target').get('dev')
+            if device == 'cdrom' and vdisk in diskList:diskSn = diskList[diskList.index(vdisk) + 1]
+        domXml = instance.XMLDesc(0)
+        root = ElementTree.fromstring(domXml)
+        dev = root.find('./devices')
+        cmXml = ElementTree.SubElement(dev,'disk')
+        cmXml.set('type','file')
+        cmXml.set('device','cdrom')
+        drXml = ElementTree.SubElement(cmXml,'driver')
+        drXml.set('name','qemu')
+        srxml = ElementTree.SubElement(cmXml,'source')
+        srxml = srxml.set('file',isoPath)
+        tgxml = ElementTree.SubElement(cmXml,'target')
+        tgxml = tgxml.set('dev',diskSn)
+        ElementTree.SubElement(cmXml,'readonly')
+        domXml = ElementTree.tostring(root)
+        try:
+            return self.defineXML(domXml)#如果是关闭状态则标记flags为3，保证添加的硬盘重启不会丢失 
+        except libvirt.libvirtError,e:
+            return '实例添加光驱失败，失败原因：{result}'.format(result=e.get_error_message())       
+    
+    def delInstanceCdrom(self,instance,cdrom):
+        '''删除光驱'''
+        raw_xml = instance.XMLDesc(0) 
+        root = ElementTree.fromstring(raw_xml) 
+        for dk in root.findall('./devices'):
+            devs = dk.getchildren()
+            for dev in devs:
+                if dev.tag == 'disk'and dev.get('device')=='cdrom':
+                    for iter in dev:
+                        if iter.tag == 'target' and iter.get('dev') == cdrom:
+                            devs.remove(dev)
+        diskXml = ElementTree.tostring(root)      
+        try:
+            return self.defineXML(diskXml)
+        except libvirt.libvirtError,e:
+            return '实例删除光驱失败，失败原因：{result}'.format(result=e.get_error_message()) 
+
     
     
     def addInstanceInterface(self,instance,brName):
@@ -1372,7 +1457,6 @@ class VMInstance(VMBase):
                 mode = 'brctl'
             model = tree.find('forward').get('mode')               
             interXml = Const.CreateNetcard(nkt_br=brName, ntk_name=brName +'-'+CommTools.radString(length=4), data={'type':model,'mode':mode})
-            print interXml
             try:
                 return instance.attachDeviceFlags(interXml,3)#如果是关闭状态则标记flags为3，保证添加的硬盘重启不会丢失 
             except libvirt.libvirtError,e:

@@ -490,6 +490,7 @@
 															<option value="">选择设备类型</option>		
 															<option value="disk">硬盘</option>
 															<option value="netk">网卡</option>
+															<option value="cdrom">光驱</option>
 														</select>											
 													</div>
 												</div>			
@@ -541,11 +542,23 @@
 													<select id="netk-select" name="netk_name" onchange="javascript:oBtAddDeviceTypeSelect();">
 														<option value="">选择一个网络</option>
 														{% for netk in netkInfo %}
-															<option value="{{ netk.name }}">{{ netk.name  }}</option>	
+															<option value="{{ netk.name }}">{{ netk.name  }}</option>
 														{% endfor %}
 													</select>											
 													</div>
 												</div>
+												
+												<div class="form-group" style="display:none;" id="add-div_cdrom">								
+													<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>镜像</strong></label>
+													<div class="col-sm-9">																				
+													<select id="iso-select" name="iso_path">
+														<option value="" name="iso_path">选择一个镜像</option>
+															{% for ds in isoList %}												
+																<option  value="{{ds.vol_path}}" name="iso_path">{{ds.vol_name}}</option>																														
+															{% endfor %}
+													</select>											
+													</div>
+												</div>												
 												
 												<div class="hr hr32 hr-dotted"></div>
 												<div class="form-group">
@@ -594,6 +607,7 @@
 															<option value="">选择设备类型</option>		
 															<option value="disk">硬盘</option>
 															<option value="netk">网卡</option>
+															<option value="cdrom">光驱</option>
 														</select>											
 													</div>
 												</div>			
@@ -616,6 +630,18 @@
 														<option value="">选择一个网卡设备</option>
 														{% for vd in inStance.netk %}
 															<option value="{{ vd }}">{{ vd }}</option>	
+														{% endfor %}
+													</select>											
+													</div>
+												</div>
+
+												<div class="form-group" style="display:none;" id="del-div_cdrom">								
+													<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>光驱</strong></label>
+													<div class="col-sm-9">																				
+													<select id="netk-select" name="cdrom" onchange="javascript:oBtDelDeviceTypeSelect();">
+														<option value="">选择一个光驱设备</option>
+														{% for vd in imgList %}
+															<option value="{{ vd.dev}}">{{ vd.dev }} - {{vd.image|default:"未挂载镜像"}}</option>	
 														{% endfor %}
 													</select>											
 													</div>
@@ -660,8 +686,10 @@
 													<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>镜像</strong></label>
 													<div class="col-sm-9">
 														<select name="iso">	
-															{% for ds in imgList %}												
-																<option  value="{{ds.path}}|{{ds.dev}}">{{ds.image}}</option>																														
+															{% for ds in imgList %}	
+																{% if ds.path %}											
+																	<option  value="{{ds.path}}|{{ds.dev}}">{{ds.image}}</option>	
+																{% endif %}																													
 															{% endfor %}
 														</select>
 														{% if imgList.0.path %}
@@ -1531,7 +1559,8 @@
 				   document.getElementById("add-vol_name").style.display="";
 				   document.getElementById("add-vol_drive").style.display="";
 				   document.getElementById("add-vol_size").style.display="";
-				   document.getElementById("del-div_netk").style.display="none";
+				   document.getElementById("add-div_netk").style.display="none";
+				   document.getElementById("add-div_cdrom").style.display="none";
 
 			   }			   
 			   else if (value=="netk"){
@@ -1541,7 +1570,16 @@
 				   document.getElementById("add-vol_name").style.display="none";
 				   document.getElementById("add-vol_drive").style.display="none";
 				   document.getElementById("add-vol_size").style.display="none";
-
+				   document.getElementById("add-div_cdrom").style.display="none";
+			   }
+			   else if (value=="cdrom"){
+				   required = ['iso_path']
+				   document.getElementById("add-div_disk").style.display="none";
+				   document.getElementById("add-div_netk").style.display="none";
+				   document.getElementById("add-vol_name").style.display="none";
+				   document.getElementById("add-vol_drive").style.display="none";
+				   document.getElementById("add-vol_size").style.display="none";
+				   document.getElementById("add-div_cdrom").style.display="";
 			   }			   
 		   }
 		   
@@ -1758,12 +1796,21 @@
 				   required = ['device','disk'];
 				   document.getElementById("del-div_disk").style.display="";
 				   document.getElementById("del-div_netk").style.display="none";
+				   document.getElementById("del-div_cdrom").style.display="none";
 
 			   }			   
 			   else if (value=="netk"){
 				   required = ['netk']
 				   document.getElementById("del-div_disk").style.display="none";
 				   document.getElementById("del-div_netk").style.display="";
+				   document.getElementById("del-div_cdrom").style.display="none";
+
+			   }	
+			   else if (value=="cdrom"){
+				   required = ['cdrom']
+				   document.getElementById("del-div_disk").style.display="none";
+				   document.getElementById("del-div_netk").style.display="none";
+				   document.getElementById("del-div_cdrom").style.display="";
 
 			   }			   
 		   }

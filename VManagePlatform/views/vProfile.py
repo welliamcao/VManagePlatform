@@ -11,8 +11,11 @@ from django.contrib.auth.models import User
 def profile(request):
     if request.method == "GET":
         try:
+            if request.user.is_superuser:
+                vmList = VmServerInstance.objects.select_related().all().order_by("-id")
+            else:
+                vmList = VmServerInstance.objects.select_related().filter(owner=request.user).all().order_by("-id")[0:200]
             logList = VmLogs.objects.filter(user=request.user).all().order_by("-id")[0:10]
-            vmList = VmServerInstance.objects.select_related().filter(owner=request.user).all().order_by("-id")[0:100]
         except:
             logList = None
             vmList = None
