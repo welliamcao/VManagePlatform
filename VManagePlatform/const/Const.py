@@ -227,7 +227,7 @@ def CreateIntanceConfig(dom_name,maxMem,mem,cpu,disk,iso_path,network):
                 </channel>
                 <input type='mouse' bus='ps2'/>  
                  <graphics type='vnc' port='-1' autoport='yes' listen = '0.0.0.0' keymap='en-us'/>
-                <input type=’tablet’ bus=’usb’/>
+                <input type='tablet' bus='usb'/>
                </devices>  
              </domain>        
     '''
