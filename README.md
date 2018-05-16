@@ -10,6 +10,9 @@
 * 后端Web框架：Django  
 * 后端Task框架：Celery + Redis
 
+## QQ交流群
+![image](https://github.com/welliamcao/OpsManage/blob/master/demo_imgs/qq_group.png)
+
 ## VManagePlatform有哪些功能？
 
 * Kvm虚拟机`生产周期`管理功能
