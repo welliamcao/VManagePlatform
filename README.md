@@ -86,13 +86,14 @@
 ```
 安装openvswitch
 # yum install gcc make python-devel openssl-devel kernel-devel graphviz kernel-debug-devel autoconf automake rpm-build redhat-rpm-config libtool 
+# cd /usr/local/src
 # wget http://openvswitch.org/releases/openvswitch-2.3.1.tar.gz
 # tar xfz openvswitch-2.3.1.tar.gz
 # mkdir -p ~/rpmbuild/SOURCES
-# cp openvswitch-2.3.1.tar.gz rpmbuild/SOURCES
+# cp openvswitch-2.3.1.tar.gz ~/rpmbuild/SOURCES
 # sed 's/openvswitch-kmod, //g' openvswitch-2.3.1/rhel/openvswitch.spec > openvswitch-2.3.1/rhel/openvswitch_no_kmod.spec
-# rpmbuild -bb --without check ~/openvswitch-2.3.1/rhel/openvswitch_no_kmod.spec
-# yum localinstall /root/rpmbuild/RPMS/x86_64/openvswitch-2.3.1-1.x86_64.rpm
+# rpmbuild -bb --without check openvswitch-2.3.1/rhel/openvswitch_no_kmod.spec
+# yum localinstall ~/rpmbuild/RPMS/x86_64/openvswitch-2.3.1-1.x86_64.rpm
 如果出现python依赖错误
 # vim openvswitch-2.3.1/rhel/openvswitch_no_kmod.spec
 BuildRequires: openssl-devel
