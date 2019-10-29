@@ -2,7 +2,7 @@ django==1.8.17
 Celery==3.1.23
 django-celery==3.1.17
 celery-with-redis
-djangorestframework==3.5.3
+djangorestframework==3.9.1
 paramiko
 redis
 libvirt-python
