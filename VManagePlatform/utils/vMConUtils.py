@@ -474,6 +474,7 @@ class VMServer(VMBase):
             return storage
         
     def getVmIsoList(self):
+        '''列举出ISO文件'''
         isoList = []
         try:               
             vMdisk = self.conn.listStoragePools()
@@ -494,7 +495,9 @@ class VMServer(VMBase):
                     volData['vol_size'] = info[1] / 1024/ 1024/ 1024
                     volData['vol_available'] = info[2] / 1024/ 1024/ 1024
                     volData['vol_path'] = stgvol.path()
-                    if volData['vol_type'].endswith('.iso') or volData['vol_path'].endswith('.iso'):isoList.append(volData)
+
+                    if volData['vol_type'].endswith('.iso') or volData['vol_path'].endswith('.iso'):
+                        isoList.append(volData)
             return isoList
         except libvirt.libvirtError:                    
             return isoList
@@ -1101,12 +1104,14 @@ class VMInstance(VMBase):
                     vmPoolList.append(data)                 
             except libvirt.libvirtError:
                 pass
+
         if instance:
             domData = {}
             status = instance.state()
             domData['status'] = status[0]   
             raw_xml = instance.XMLDesc(0)
             xml = minidom.parseString(raw_xml)
+
             diskList = []
             #获取实例的磁盘信息
             for disk in xml.getElementsByTagName('disk'):
@@ -1133,12 +1138,14 @@ class VMInstance(VMBase):
                             data['disk_capacity'] = 0  
                             data['disk_per'] = 0                   
                         diskList.append(data)
+
             #获取虚拟机实例的网卡名称
             nkList = []
             for nk in xml.getElementsByTagName('interface'):
                 if nk.getElementsByTagName('target'):
                     nk_name = nk.getElementsByTagName('target')[0].getAttribute("dev")                           
-                    nkList.append(nk_name)      
+                    nkList.append(nk_name)
+
             #获取网卡ip地址
             ipaddress = []
             if nkList:
@@ -1151,33 +1158,36 @@ class VMInstance(VMBase):
                                 ips[k] = v.get('addrs')[0] 
                                 ipaddress.append(ips) 
                             except Exception ,ex:
-                                pass 
+                                pass
+
             #获取虚拟机实例内存的容量信息
             try:
                 mem = instance.info()[2] / 1024
             except:
                 mem = 0   
-            #mem利用率与ip地址
+            #mem利用率
             try:
                 if status[0] == 5:domData['mem_per'] = 0
                 else:
                     mem_per =  round(float(instance.memoryStats().get('rss')) / instance.memoryStats().get('actual')*100,2)
                     if mem_per > 100:domData['mem_per'] = 100
                     else:domData['mem_per'] = mem_per
-                    
             except Exception,e:     
                 domData['mem_per'] = 0
+
             #获取虚拟机实例CPU信息
             try:
                 cpu = xml.getElementsByTagName('vcpu')[0].getAttribute('current') 
                 if len(cpu) == 0: cpu = xml.getElementsByTagName('vcpu')[0].childNodes[0].data   
             except:
-                cpu = 0    
+                cpu = 0
+
             #获取vnc端口信息
             try:
                 vnc_port = xml.getElementsByTagName('graphics')[0].getAttribute("port") 
             except:
-                vnc_port = 0                                                   
+                vnc_port = 0
+
             domData['disks'] = diskList
             domData['netk'] = nkList
             domData['mem'] = mem 
@@ -1187,6 +1197,7 @@ class VMInstance(VMBase):
             #生成noVNC需要的token
             domData['token'] = TokenUntils.makeToken(str=server_ip+vMname)
             domData['ip'] = ipaddress
+
             return domData
 
     def getMediaDevice(self,instance):
@@ -1862,7 +1873,7 @@ class VMNetwork(VMBase):
             return netk.undefine()
         except libvirt.libvirtError:
             return False  
-        
+
         
     def listNetwork(self):
         '''列出所有网络'''

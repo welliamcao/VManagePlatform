@@ -1,13 +1,10 @@
 {% extends "vmServer/index_server.html" %}
 
 {% block content %}
-
-
 		<div class="row">
 		
 			<div class="col-xs-12">
-				
-			
+
 				<div class="col-sm-4">
 					<h3 class="header smaller lighter blue">
 					<i class="icon-spinner icon-spin orange bigger-125"></i>
@@ -1073,6 +1070,7 @@
 		    var points = chart.series[0].points;
 		    chart.tooltip.refresh(points[points.length -1]);
 		}
+
 		$('#cpu-usage').highcharts({
 		    chart: {
 		        type: 'areaspline',
@@ -1092,8 +1090,7 @@
 			                        	y = result['data']['per'];
 			                    	series.addPoint([x, y], true, true);
 			                    	activeLastPointToolip(chart)
-		        	        }});	
-
+		        	        }});
 		                }, 5000);
 		            }
 		        }
@@ -1148,6 +1145,7 @@
 		}, function(c) {
 		    activeLastPointToolip(c)
 		});
+
  		/* 网络流量图 */
 		$(function () {
 		    $(document).ready(function() {
@@ -1165,7 +1163,6 @@
 		                marginRight: 10,
 		                events: {
 		                    load: function() {
-		    
 		                        // set up the updating of the chart each second
 		                        var series = this.series[0];
 		                        var series1 = this.series[1];
@@ -1269,8 +1266,8 @@
 		            }]
 		        });
 		    });
-		    
-		});	
+		});
+
  		/* 磁盘I/O */
  		$(function () {
 		    $(document).ready(function() {
@@ -1288,7 +1285,6 @@
 		                marginRight: 10,
 		                events: {
 		                    load: function() {
-		    
 		                        // set up the updating of the chart each second
 		                        var series = this.series[0];
 		                        var series1 = this.series[1];
@@ -1393,13 +1389,11 @@
 		        });
 		    });
 		    
-		});	
- 		
-		</script>  
+		});
+		</script>
 		{% endif %}
+
 		<script type="text/javascript">
-	
-		
 		function snapshotInstance(obj,serverId,vmName,op){
 		 	var required = ['snap_name']
 			var server_data = {};
@@ -1439,7 +1433,7 @@
 		    		window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
 		    	}
 			})
-	   }
+	   	}
 		
 		function viewSnapshot(obj, server_id,vm_name,snap,op){
 				$.ajax({
@@ -1622,7 +1616,7 @@
 		    		window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
 		    	}
 			})
-	   }
+	   	}
 		
 		function cloneInstance(obj,vm_sname,op){
 		 	var required = ['vm_cname','vol_name']
@@ -1661,223 +1655,223 @@
 		    		window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
 		    	}
 			})
-	   }		
+	   	}
 		
-		 function mountVmInstanceImg(obj,op){
-			 	var btnObj = $(obj);
-				btnObj.attr('disabled',true);
-			 	var required = ['iso','dev']
-				var server_data = {};
-				var form = document.getElementById('mountInstanceImg');
-				for (var i = 0; i < form.length; ++i) {
-					var name = form[i].name;
-					var id = form[i].id;
-					var value = form[i].value;	
-					idx = $.inArray(name, required);						
-					if (idx >= 0 && value.length == 0){
-						window.wxc.xcConfirm("请注意必填项不能为空~", window.wxc.xcConfirm.typeEnum.error);
-						return false;
-					};	
-					if ( value.length != 0 && name.length != 0 ){						
-						server_data[name] = value;
-					};					
+		function mountVmInstanceImg(obj,op){
+			var btnObj = $(obj);
+			btnObj.attr('disabled',true);
+			var required = ['iso','dev']
+			var server_data = {};
+			var form = document.getElementById('mountInstanceImg');
+			for (var i = 0; i < form.length; ++i) {
+				var name = form[i].name;
+				var id = form[i].id;
+				var value = form[i].value;
+				idx = $.inArray(name, required);
+				if (idx >= 0 && value.length == 0){
+					window.wxc.xcConfirm("请注意必填项不能为空~", window.wxc.xcConfirm.typeEnum.error);
+					return false;
 				};
-				server_data['op'] = op
-				$.ajax({
-					dataType: "JSON",
-					url:'/handleInstance/{{vmServer.id}}/', //请求地址
-					type:"POST",  //提交类似
-					data:server_data,  //提交参数
-					success:function(response){
-						btnObj.removeAttr('disabled');
-						if (response["code"] == 200){
-							window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
-						}
-						else {
-							window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
-						}
-						
-					},
-			    	error:function(response){
-			    		btnObj.removeAttr('disabled');
-			    		window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
-			    	}
-				})
-		   }
-		
-		   function umountVmInstanceImg(obj,op){
-			   	var btnObj = $(obj);
-				btnObj.attr('disabled',true);
-				var server_data = {};
-				var form = document.getElementById('umountInstanceImg');
-				for (var i = 0; i < form.length; ++i) {
-					var name = form[i].name;
-					var id = form[i].id;
-					var value = form[i].value;	
-					idx = $.inArray(name, required);						
-					if (idx >= 0 && value.length == 0){
-						window.wxc.xcConfirm("请注意必填项不能为空~", window.wxc.xcConfirm.typeEnum.error);
-						return false;
-					};	
-					if ( value.length != 0 && name.length != 0 ){
-						if (name == 'iso'){
-							server_data['dev'] = value.split("|")[1];
-						};
-						server_data[name] = value.split("|")[0];
-						
-					};					
+				if ( value.length != 0 && name.length != 0 ){
+					server_data[name] = value;
 				};
-				server_data['op'] = op
-				$.ajax({
-					dataType: "JSON",
-					url:'/handleInstance/{{vmServer.id}}/', //请求地址
-					type:"POST",  //提交类似
-					data:server_data,  //提交参数
-					success:function(response){
-						btnObj.removeAttr('disabled');
-						if (response["code"] == 200){
-							window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
-						}
-						else {
-							window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
-						}
-						
-					},
-			    	error:function(response){
-			    		btnObj.removeAttr('disabled');
-			    		window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
-			    	}
-				})
-		   }
-		
-		
-		   function addVmInstance(obj) {
-				var server_data = {};
-				server_data['op'] = "attach";
-				var form = document.getElementById('addInstance');
-				for (var i = 0; i < form.length; ++i) {
-					var name = form[i].name;
-					var value = form[i].value;	
-					idx = $.inArray(name, required);						
-					if (idx >= 0 && value.length == 0){
-						window.wxc.xcConfirm("请注意必填项不能为空~", window.wxc.xcConfirm.typeEnum.error);
-						return false;
-					};	
-					if ( value.length != 0 && name.length != 0 ){
-						server_data[name] = value;
-					};					
+			};
+			server_data['op'] = op
+			$.ajax({
+				dataType: "JSON",
+				url:'/handleInstance/{{vmServer.id}}/', //请求地址
+				type:"POST",  //提交类似
+				data:server_data,  //提交参数
+				success:function(response){
+					btnObj.removeAttr('disabled');
+					if (response["code"] == 200){
+						window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
+					}
+					else {
+						window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+					}
+
+				},
+				error:function(response){
+					btnObj.removeAttr('disabled');
+					window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+				}
+			})
+		}
+
+		function umountVmInstanceImg(obj,op){
+			var btnObj = $(obj);
+			btnObj.attr('disabled',true);
+			var server_data = {};
+			var form = document.getElementById('umountInstanceImg');
+			for (var i = 0; i < form.length; ++i) {
+				var name = form[i].name;
+				var id = form[i].id;
+				var value = form[i].value;
+				idx = $.inArray(name, required);
+				if (idx >= 0 && value.length == 0){
+					window.wxc.xcConfirm("请注意必填项不能为空~", window.wxc.xcConfirm.typeEnum.error);
+					return false;
 				};
-				
-				$.ajax({
-					dataType: "JSON",
-					url:'/modfInstance/{{vmServer.id}}/', //请求地址
-					type:"POST",  //提交类似
-					data:server_data,  //提交参数
-					success:function(response){
-						if (response["code"] == 200){
-							window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
-						}
-						else {
-							window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
-						}
-						
-					},
-			    	error:function(response){
-			    		window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
-			    	}
-				})	
-			}
-		
+				if ( value.length != 0 && name.length != 0 ){
+					if (name == 'iso'){
+						server_data['dev'] = value.split("|")[1];
+					};
+					server_data[name] = value.split("|")[0];
+
+				};
+			};
+			server_data['op'] = op
+			$.ajax({
+				dataType: "JSON",
+				url:'/handleInstance/{{vmServer.id}}/', //请求地址
+				type:"POST",  //提交类似
+				data:server_data,  //提交参数
+				success:function(response){
+					btnObj.removeAttr('disabled');
+					if (response["code"] == 200){
+						window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
+					}
+					else {
+						window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+					}
+
+				},
+				error:function(response){
+					btnObj.removeAttr('disabled');
+					window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+				}
+			})
+		}
+
+
+		function addVmInstance(obj) {
+			var server_data = {};
+			server_data['op'] = "attach";
+			var form = document.getElementById('addInstance');
+			for (var i = 0; i < form.length; ++i) {
+				var name = form[i].name;
+				var value = form[i].value;
+				idx = $.inArray(name, required);
+				if (idx >= 0 && value.length == 0){
+					window.wxc.xcConfirm("请注意必填项不能为空~", window.wxc.xcConfirm.typeEnum.error);
+					return false;
+				};
+				if ( value.length != 0 && name.length != 0 ){
+					server_data[name] = value;
+				};
+			};
+
+			$.ajax({
+				dataType: "JSON",
+				url:'/modfInstance/{{vmServer.id}}/', //请求地址
+				type:"POST",  //提交类似
+				data:server_data,  //提交参数
+				success:function(response){
+					if (response["code"] == 200){
+						window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
+					}
+					else {
+						window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+					}
+
+				},
+				error:function(response){
+					window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+				}
+			})
+		}
+
 		function oBtDelDeviceTypeSelect() {
-			   var obj = document.getElementById("del-device-select"); 
-			   var index = obj.selectedIndex;
-			   var value = obj.options[index].value; 
-			   if (value=="disk"){
-				   required = ['device','disk'];
-				   document.getElementById("del-div_disk").style.display="";
-				   document.getElementById("del-div_netk").style.display="none";
-				   document.getElementById("del-div_cdrom").style.display="none";
+		   var obj = document.getElementById("del-device-select");
+		   var index = obj.selectedIndex;
+		   var value = obj.options[index].value;
+		   if (value=="disk"){
+			   required = ['device','disk'];
+			   document.getElementById("del-div_disk").style.display="";
+			   document.getElementById("del-div_netk").style.display="none";
+			   document.getElementById("del-div_cdrom").style.display="none";
 
-			   }			   
-			   else if (value=="netk"){
-				   required = ['netk']
-				   document.getElementById("del-div_disk").style.display="none";
-				   document.getElementById("del-div_netk").style.display="";
-				   document.getElementById("del-div_cdrom").style.display="none";
-
-			   }	
-			   else if (value=="cdrom"){
-				   required = ['cdrom']
-				   document.getElementById("del-div_disk").style.display="none";
-				   document.getElementById("del-div_netk").style.display="none";
-				   document.getElementById("del-div_cdrom").style.display="";
-
-			   }			   
 		   }
-		   
-		   function delVmInstance(obj) {
-				var server_data = {};
-				server_data['op'] = "detach";
-				var form = document.getElementById('delInstance');
-				for (var i = 0; i < form.length; ++i) {
-					var name = form[i].name;
-					var value = form[i].value;	
-					idx = $.inArray(name, required);						
-					if (idx >= 0 && value.length == 0){
-						window.wxc.xcConfirm("请注意必填项不能为空~", window.wxc.xcConfirm.typeEnum.error);
-						return false;
-					};	
-					if ( value.length != 0 && name.length != 0 ){
-						server_data[name] = value;
-					};					
+		   else if (value=="netk"){
+			   required = ['netk']
+			   document.getElementById("del-div_disk").style.display="none";
+			   document.getElementById("del-div_netk").style.display="";
+			   document.getElementById("del-div_cdrom").style.display="none";
+
+		   }
+		   else if (value=="cdrom"){
+			   required = ['cdrom']
+			   document.getElementById("del-div_disk").style.display="none";
+			   document.getElementById("del-div_netk").style.display="none";
+			   document.getElementById("del-div_cdrom").style.display="";
+
+		   }
+		}
+
+		function delVmInstance(obj) {
+			var server_data = {};
+			server_data['op'] = "detach";
+			var form = document.getElementById('delInstance');
+			for (var i = 0; i < form.length; ++i) {
+				var name = form[i].name;
+				var value = form[i].value;
+				idx = $.inArray(name, required);
+				if (idx >= 0 && value.length == 0){
+					window.wxc.xcConfirm("请注意必填项不能为空~", window.wxc.xcConfirm.typeEnum.error);
+					return false;
 				};
-				
-				$.ajax({
-					dataType: "JSON",
-					url:'/modfInstance/{{vmServer.id}}/', //请求地址
-					type:"POST",  //提交类似
-					data:server_data,  //提交参数
-					success:function(response){
-						if (response["code"] == 200){
-							window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
-						}
-						else {
-							window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
-						}
-						
-					},
-			    	error:function(response){
-			    		window.wxc.xcConfirm("操作失败，请先启动虚拟机.", window.wxc.xcConfirm.typeEnum.error);
-			    	}
-				})	
-			}
+				if ( value.length != 0 && name.length != 0 ){
+					server_data[name] = value;
+				};
+			};
+
+			$.ajax({
+				dataType: "JSON",
+				url:'/modfInstance/{{vmServer.id}}/', //请求地址
+				type:"POST",  //提交类似
+				data:server_data,  //提交参数
+				success:function(response){
+					if (response["code"] == 200){
+						window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
+					}
+					else {
+						window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+					}
+
+				},
+				error:function(response){
+					window.wxc.xcConfirm("操作失败，请先启动虚拟机.", window.wxc.xcConfirm.typeEnum.error);
+				}
+			})
+		}
 
 		var required = ['cpu']; /* 必填项列表 */
-		
-		   function oBtDeviceTypeSelect() {
-			   var obj = document.getElementById("device-select"); 
-			   var index = obj.selectedIndex;
-			   var value = obj.options[index].value; 
-			   if (value=="cpu"){
-				   required = ['cpu','device']
-				   document.getElementById("div_cpu").style.display="";   
-				   document.getElementById("div_mem").style.display="none";
+
+		function oBtDeviceTypeSelect() {
+		   var obj = document.getElementById("device-select");
+		   var index = obj.selectedIndex;
+		   var value = obj.options[index].value;
+		   if (value=="cpu"){
+			   required = ['cpu','device']
+			   document.getElementById("div_cpu").style.display="";
+			   document.getElementById("div_mem").style.display="none";
 // 				   document.getElementById("div_disk").style.display="none";
-				   document.getElementById("div_bandwidth").style.display="none";
-				   document.getElementById("div_bandwidth_port").style.display="none";
-				   document.getElementById("div_netk").style.display="none";
-				   document.getElementById("div_storage").style.display="none";
-			   }
-			   else if (value=="mem"){
-				   required = ['mem','device']
-				   document.getElementById("div_cpu").style.display="none";   
-				   document.getElementById("div_mem").style.display="";
+			   document.getElementById("div_bandwidth").style.display="none";
+			   document.getElementById("div_bandwidth_port").style.display="none";
+			   document.getElementById("div_netk").style.display="none";
+			   document.getElementById("div_storage").style.display="none";
+		   }
+		   else if (value=="mem"){
+			   required = ['mem','device']
+			   document.getElementById("div_cpu").style.display="none";
+			   document.getElementById("div_mem").style.display="";
 // 				   document.getElementById("div_disk").style.display="none";
-				   document.getElementById("div_bandwidth").style.display="none";
-				   document.getElementById("div_bandwidth_port").style.display="none";
-				   document.getElementById("div_netk").style.display="none";
-				   document.getElementById("div_storage").style.display="none";
-			   }
+			   document.getElementById("div_bandwidth").style.display="none";
+			   document.getElementById("div_bandwidth_port").style.display="none";
+			   document.getElementById("div_netk").style.display="none";
+			   document.getElementById("div_storage").style.display="none";
+		   }
 // 			   else if (value=="disk"){
 // 				   required = ['disk','storage','device']
 // 				   document.getElementById("div_cpu").style.display="none";   
@@ -1888,193 +1882,188 @@
 // 				   document.getElementById("div_netk").style.display="none";
 // 				   document.getElementById("div_storage").style.display="";
 // 			   }	
-			   else if (value=="bandwidth"){
-				   required = ['bandwidth','netk_name','device']
-				   document.getElementById("div_cpu").style.display="none";   
-				   document.getElementById("div_mem").style.display="none";
+		   else if (value=="bandwidth"){
+			   required = ['bandwidth','netk_name','device']
+			   document.getElementById("div_cpu").style.display="none";
+			   document.getElementById("div_mem").style.display="none";
 // 				   document.getElementById("div_disk").style.display="none";
-				   document.getElementById("div_bandwidth").style.display="";
-				   document.getElementById("div_bandwidth_port").style.display="";
-				   document.getElementById("div_netk").style.display="none";
-			   }			   
+			   document.getElementById("div_bandwidth").style.display="";
+			   document.getElementById("div_bandwidth_port").style.display="";
+			   document.getElementById("div_netk").style.display="none";
 		   }
+		}
 
-			jQuery(function($) {
-					var oldie = /msie\s*(8|7|6)/.test(navigator.userAgent.toLowerCase());
-					$('.easy-pie-chart.percentage').each(function(){
-						$(this).easyPieChart({
-							barColor: $(this).data('color'),
-							trackColor: '#EEEEEE',
-							scaleColor: false,
-							lineCap: 'butt',
-							lineWidth: 8,
-							animate: oldie ? false : 1000,
-							size:75
-						}).css('color', $(this).data('color'));
-					});
-					
-					$( "#input-size-slider-3" ).css('width','200px').slider({
-						value:1,
-						range: "min",
-						min: 1,
-						max: 8,
-						step: 1,
-						slide: function( event, ui ) {
-							var sizing = ['1', '2', '4', '6', '8', '12', '16', '24', '32'];
-							var val = parseInt(ui.value);
-							$('#form-field-3').attr('class', sizing[val]).val(sizing[val]);
-						}
-					});
-				
-
-				
-				
-				
-					$( "#input-size-slider-4" ).css('width','200px').slider({
-						value:1,
-						range: "min",
-						min: 1,
-						max: 8,
-						step: 1,
-						slide: function( event, ui ) {
-							var sizing = ['128', '512', '1024', '2048', '2048', '4096', '8192', '16384', '32768'];
-							var val = parseInt(ui.value);
-							$('#form-field-4').attr('class', sizing[val]).val(sizing[val]);
-						}
-					});
-				
-					$( "#input-size-slider-5" ).css('width','200px').slider({
-						value:1,
-						range: "min",
-						min: 1,
-						max: 8,
-						step: 1,
-						slide: function( event, ui ) {
-							var sizing = ['10', '20', '30', '40', '50', '60', '80', '100', '120'];
-							var val = parseInt(ui.value);
-							$('#form-field-5').attr('class', sizing[val]).val(sizing[val]);
-						}
-					});
-					
-					
-					$( "#input-size-slider-6" ).css('width','200px').slider({
-						value:1,
-						range: "min",
-						min: 1,
-						max: 8,
-						step: 1,
-						slide: function( event, ui ) {
-							var sizing = ['1','2', '5', '10', '20', '30', '50', '100', '100'];
-							var val = parseInt(ui.value);
-							$('#form-field-6').attr('class', sizing[val]).val(sizing[val]);
-						}
-					});	
-					
+		jQuery(function($) {
+				var oldie = /msie\s*(8|7|6)/.test(navigator.userAgent.toLowerCase());
+				$('.easy-pie-chart.percentage').each(function(){
+					$(this).easyPieChart({
+						barColor: $(this).data('color'),
+						trackColor: '#EEEEEE',
+						scaleColor: false,
+						lineCap: 'butt',
+						lineWidth: 8,
+						animate: oldie ? false : 1000,
+						size:75
+					}).css('color', $(this).data('color'));
 				});
-			
-			   function onBtnHandleIns(obj, server_id,vm_name,op){
-					var btnObj = $(obj);
-					if ( op == 'start'){
-						var txt=  "是否确认启动？"
-					}
-					else if ( op == 'shutdown'){
-						var txt=  "是否确认关闭？"
-					}
-					else if( op == 'resume' ){
-						var txt=  "是否确认恢复？"
-					}
-					else if( op == 'suspend' ){
-						var txt=  "是否确认暂停？"
-					}			
-					else if( op == 'halt' ){
-						var txt=  "是否确认强制关闭？"
-					}	
-					else if( op == 'reboot' ){
-						var txt=  "是否确认重启？"
-					}
-					else if( op == 'delete' ){
-						var txt=  "是否确认删除？"
-					};				
-					var option = {
-							title: "操作主机("+vm_name+")",
-							btn: parseInt("0011",2),
-							onOk: function(){
-								$.ajax({
-									  type: 'POST',
-									  url: '/handleInstance/{{vmServer.id}}/',
-									  data:{
-											"server_id":server_id,
-											"op":op,
-											"vm_name":vm_name
-										},
-								      success:function(response){			            
-							                if (response["code"]=="200"){ 
-							                	window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
-							                	location.reload();
-							                }
-								        	else{
-								        		window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
-								        	}						                
-									},
-						            error:function(response){
-						            	window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
-						            },		
-									});
-							},
-							onCancel:function(){	
-							},
-							onClose:function(){
-							}
-						}			
-					window.wxc.xcConfirm(txt, "custom", option);
-				}
-			
-			   
-			
-			   function addVmInstanceDevice(obj) {
-					var server_data = {}
-					server_data['op'] = "attach";
-					server_data['server_id'] = {{ vmServer.id }};
-					server_data['vm_name']="{{ inStance.name }}" ;
-					var form = document.getElementById('modfInstance');
-					for (var i = 0; i < form.length; ++i) {
-						var name = form[i].name;
-						var value = form[i].value;	
-						idx = $.inArray(name, required);						
-						if (idx >= 0 && value.length == 0){
-							window.wxc.xcConfirm("请注意必填项不能为空~", window.wxc.xcConfirm.typeEnum.error);
-							return false;
-						};	
-						if ( idx >= 0 && value.length != 0 && name.length != 0 ){
-							server_data[name] = value;
-						};					
-					};		
 
-					$.ajax({
-						dataType: "JSON",
-						url:'/modfInstance/{{vmServer.id}}/', //请求地址
-						type:"POST",  //提交类似
-						data:server_data,  //提交参数
-						success:function(response){
-							if (response["code"] == 200){
-								window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
-							}
-							else {
+				$( "#input-size-slider-3" ).css('width','200px').slider({
+					value:1,
+					range: "min",
+					min: 1,
+					max: 8,
+					step: 1,
+					slide: function( event, ui ) {
+						var sizing = ['1', '2', '4', '6', '8', '12', '16', '24', '32'];
+						var val = parseInt(ui.value);
+						$('#form-field-3').attr('class', sizing[val]).val(sizing[val]);
+					}
+				});
+
+
+
+
+
+				$( "#input-size-slider-4" ).css('width','200px').slider({
+					value:1,
+					range: "min",
+					min: 1,
+					max: 8,
+					step: 1,
+					slide: function( event, ui ) {
+						var sizing = ['128', '512', '1024', '2048', '2048', '4096', '8192', '16384', '32768'];
+						var val = parseInt(ui.value);
+						$('#form-field-4').attr('class', sizing[val]).val(sizing[val]);
+					}
+				});
+
+				$( "#input-size-slider-5" ).css('width','200px').slider({
+					value:1,
+					range: "min",
+					min: 1,
+					max: 8,
+					step: 1,
+					slide: function( event, ui ) {
+						var sizing = ['10', '20', '30', '40', '50', '60', '80', '100', '120'];
+						var val = parseInt(ui.value);
+						$('#form-field-5').attr('class', sizing[val]).val(sizing[val]);
+					}
+				});
+
+
+				$( "#input-size-slider-6" ).css('width','200px').slider({
+					value:1,
+					range: "min",
+					min: 1,
+					max: 8,
+					step: 1,
+					slide: function( event, ui ) {
+						var sizing = ['1','2', '5', '10', '20', '30', '50', '100', '100'];
+						var val = parseInt(ui.value);
+						$('#form-field-6').attr('class', sizing[val]).val(sizing[val]);
+					}
+				});
+
+		});
+
+		function onBtnHandleIns(obj, server_id,vm_name,op){
+			var btnObj = $(obj);
+			if ( op == 'start'){
+				var txt=  "是否确认启动？"
+			}
+			else if ( op == 'shutdown'){
+				var txt=  "是否确认关闭？"
+			}
+			else if( op == 'resume' ){
+				var txt=  "是否确认恢复？"
+			}
+			else if( op == 'suspend' ){
+				var txt=  "是否确认暂停？"
+			}
+			else if( op == 'halt' ){
+				var txt=  "是否确认强制关闭？"
+			}
+			else if( op == 'reboot' ){
+				var txt=  "是否确认重启？"
+			}
+			else if( op == 'delete' ){
+				var txt=  "是否确认删除？"
+			};
+			var option = {
+					title: "操作主机("+vm_name+")",
+					btn: parseInt("0011",2),
+					onOk: function(){
+						$.ajax({
+							  type: 'POST',
+							  url: '/handleInstance/{{vmServer.id}}/',
+							  data:{
+									"server_id":server_id,
+									"op":op,
+									"vm_name":vm_name
+								},
+							  success:function(response){
+									if (response["code"]=="200"){
+										window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
+										location.reload();
+									}
+									else{
+										window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+									}
+							},
+							error:function(response){
 								window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
-							}
-							
-						},
-				    	error:function(response){
-				    		window.wxc.xcConfirm("操作失败，请先启动虚拟机.", window.wxc.xcConfirm.typeEnum.error);
-				    	}
-					})	
-				}	   
-			   
-			   
-			   
-			   
-		</script>										
+							},
+							});
+					},
+					onCancel:function(){
+					},
+					onClose:function(){
+					}
+				}
+			window.wxc.xcConfirm(txt, "custom", option);
+		}
 
 
+
+		function addVmInstanceDevice(obj) {
+			var server_data = {}
+			server_data['op'] = "attach";
+			server_data['server_id'] = {{ vmServer.id }};
+			server_data['vm_name']="{{ inStance.name }}" ;
+			var form = document.getElementById('modfInstance');
+			for (var i = 0; i < form.length; ++i) {
+				var name = form[i].name;
+				var value = form[i].value;
+				idx = $.inArray(name, required);
+				if (idx >= 0 && value.length == 0){
+					window.wxc.xcConfirm("请注意必填项不能为空~", window.wxc.xcConfirm.typeEnum.error);
+					return false;
+				};
+				if ( idx >= 0 && value.length != 0 && name.length != 0 ){
+					server_data[name] = value;
+				};
+			};
+
+			$.ajax({
+				dataType: "JSON",
+				url:'/modfInstance/{{vmServer.id}}/', //请求地址
+				type:"POST",  //提交类似
+				data:server_data,  //提交参数
+				success:function(response){
+					if (response["code"] == 200){
+						window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
+					}
+					else {
+						window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+					}
+
+				},
+				error:function(response){
+					window.wxc.xcConfirm("操作失败，请先启动虚拟机.", window.wxc.xcConfirm.typeEnum.error);
+				}
+			})
+		}
+
+		</script>
 
 {% endblock %}
