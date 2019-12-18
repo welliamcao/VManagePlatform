@@ -1,2 +1,6 @@
 .svn/
 .idea
+venv
+logs
+db.sqlite3
+vnc/utils/vnc_tokens
