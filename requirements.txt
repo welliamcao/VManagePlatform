@@ -6,6 +6,7 @@ djangorestframework==3.5.3
 paramiko
 redis
 libvirt-python
-supervisor
-MySQL-python
+#supervisor
+#MySQL-python
+mysqlclient
 DBUtils
