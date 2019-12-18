@@ -1084,7 +1084,7 @@
 		                setInterval(function () {
 		        	        $.ajax({  
 		        	            url : '/status/cpu/{{vmServer.id}}/{{inStance.name}}/',  
-		        	            type : 'post', 
+		        	            type : 'get',
 		        	            success : function(result){
 				                    var x = (new Date()).getTime(), // current time
 			                        	y = result['data']['per'];
@@ -1169,7 +1169,7 @@
 		                        setInterval(function() {
 	    		        	        $.ajax({  
 	    		        	            url : '/status/net/{{vmServer.id}}/{{inStance.name}}/',  
-	    		        	            type : 'post', 
+	    		        	            type : 'get',
 	    		        	            success : function(result){
 	    				                    var x = (new Date()).getTime(), // current time
 	    			                        	net_in = result['data']['net']['in'];
@@ -1291,7 +1291,7 @@
 		                        setInterval(function() {
 	    		        	        $.ajax({  
 	    		        	            url : '/status/disk/{{vmServer.id}}/{{inStance.name}}/',  
-	    		        	            type : 'post', 
+	    		        	            type : 'get',
 	    		        	            success : function(result){
 	    				                    var x = (new Date()).getTime(), // current time
 	    			                        	disk_rd = result['data']['disk']['rd'];
