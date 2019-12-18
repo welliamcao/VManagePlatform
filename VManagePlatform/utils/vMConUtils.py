@@ -1782,7 +1782,10 @@ class VMNetwork(VMBase):
                 mode = tree.find('virtualport').get('type') 
             except:
                 mode = 'brctl'
-            model = tree.find('forward').get('mode')
+            try:
+                model = tree.find('forward').get('mode')
+            except:
+                model = 'isolated'
             return {'mode':mode,'type': model}
         else:return False
         
