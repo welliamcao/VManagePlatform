@@ -53,7 +53,7 @@ def handleDhcp(request):
                 return JsonResponse({"code":500,"data":None,"msg":"DHCP配置不存在。"})
             DHCP = DHCPConfig()  
             if op == 'enable':
-                if vMdhcp.isAlive == 1:
+                if vMdhcp.isAlive == 0:
                     status = DHCP.enableNets(netnsName=vMdhcp.mode, brName=vMdhcp.brName, 
                                              port=vMdhcp.dhcp_port, ip=vMdhcp.server_ip, 
                                              drive=vMdhcp.drive)
@@ -64,7 +64,7 @@ def handleDhcp(request):
                         return JsonResponse({"code":500,"msg":"激活失败。","data":status[1]})
                 else:return JsonResponse({"code":500,"msg":"配置已是激活状态。","data":None})
             elif op == 'disable':
-                if vMdhcp.isAlive == 0:
+                if vMdhcp.isAlive == 1:
                     status = DHCP.disableNets(netnsName=vMdhcp.mode, brName=vMdhcp.brName, 
                                              port=vMdhcp.dhcp_port,drive=vMdhcp.drive)
                     if status[0] == 0:
