@@ -30,8 +30,8 @@ def addInstance(request,id):
         netkList = NETWORK.listNetwork()
         VMS.close()
         return render_to_response('vmInstance/add_instance.html',
-                                  {"user":request.user,"localtion":[{"name":"首页","url":'/'},{"name":"虚拟机实例","url":'#'},
-                                                                    {"name":"添加虚拟机","url":"/addInstance"}],
+                                  {"user":request.user,"localtion":[{"name":"首页","url":'/'},{"name":"宿主机","url":'/viewServer/'+str(vmServer.id)},
+                                                                    {"name":"添加虚拟机","url":"/addInstance/"+str(vmServer.id)}],
                                     "vmServer":vmServer,"vStorage":vStorage,"vMImages":vMImages,"netkList":netkList,
                                     "tempList":tempList,"userList":userList},
                                   context_instance=RequestContext(request))
@@ -414,7 +414,7 @@ def listInstance(request,id):
         except:
             inStanceList = None
         return render_to_response('vmInstance/list_instance.html',
-                                  {"user":request.user,"localtion":[{"name":"首页","url":'/'},{"name":"虚拟机实例","url":'#'},
+                                  {"user":request.user,"localtion":[{"name":"首页","url":'/'},{"name":"宿主机","url":'/viewServer/'+str(vServer.id)},
                                                                     {"name":"虚拟机实例列表","url":"/listInstance/%d/" % vServer.id}],
                                    "inStanceList":inStanceList,"vmServer":vServer,"userList":userList},
                                   context_instance=RequestContext(request))    
@@ -452,8 +452,8 @@ def viewInstance(request,id,vm):
             snapList = None
             insInfo = None
         return render_to_response('vmInstance/view_instance.html',
-                                  {"user":request.user,"localtion":[{"name":"首页","url":'/'},{"name":"虚拟机实例","url":'#'},
-                                                                    {"name":"虚拟机实例列表","url":"/listInstance"}],
+                                  {"user":request.user,"localtion":[{"name":"首页","url":'/'},{"name":"宿主机","url":'/viewServer/'+id},
+                                                                    {"name":"虚拟机实例","url":"#"}],
                                    "inStance":insInfo,"vmServer":vmServer,"snapList":snapList,"poolInfo":poolInfo,
                                    "netkInfo":netkInfo,"imgList":imgList,"isoList":isoList,"serverList":serverList,
                                    "insXml":insXml},
