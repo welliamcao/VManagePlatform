@@ -144,8 +144,8 @@ def CreateNetcard(nkt_br,ntk_name,data,nkt_vlan=0):
                 <model type='virtio'/>
               </interface>
             '''      
-        ntk_xml = ntk_xml.format(nkt_br=nkt_br,nkt_vlan=nkt_vlan,ntk_name=ntk_name)          
-    elif data.get('mode') == 'brctl' and data.get('type') == 'nat':
+        ntk_xml = ntk_xml.format(nkt_br=nkt_br,nkt_vlan=nkt_vlan,ntk_name=ntk_name)
+    elif data.get('mode') == 'brctl' and (data.get('type') == 'nat' or data.get('type') == 'route'):
         ntk_xml = '''
             <interface type='network'>
                <source network='{nkt_br}'/>
