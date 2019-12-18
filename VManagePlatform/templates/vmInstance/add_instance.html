@@ -29,7 +29,7 @@
 													<ul class="list-unstyled">
 														<li>
 															<i class="icon-caret-right blue"></i>
-															配置存储池：平台使用存储管理虚拟机镜像资源
+															配置存储池：平台使用存储池管理虚拟机镜像资源
 														</li>
 						
 															<li>
@@ -81,7 +81,7 @@
 																	<label class="col-sm-3 control-label no-padding-right" for="form-field-1">
 																	<i class="icon-user bigger-110 green"></i>
 																		 <strong>
-																		 	虚拟管理器
+																		 	宿主机
 																		 </strong> 
 																	</label>
 							
@@ -129,11 +129,11 @@
 																<div class="form-group">
 																	<label class="col-sm-3 control-label no-padding-right" for="form-input-readonly">
 																	<i class="icon-ok bigger-110 green"></i>
-																	<strong> 操作系统</strong> </label>
+																	<strong> 操作系统安装盘</strong> </label>
 							
 																	<div class="col-sm-9">
 																		<select id="system-select" name="system">
-																			<option value="">操作系统</option>
+																			<option value="">选择操作系统安装盘</option>
 																			{% for ds in vMImages %}
 																				<option value="{{ds.vol_path}}">{{ds.vol_name}}</option>
 																			{% endfor %}											
@@ -144,7 +144,7 @@
 									
 																<div class="form-group">
 																	<label class="col-sm-3 control-label no-padding-right" for="form-input-readonly">																	
-																	<strong> 虚拟机分配</strong> </label>							
+																	<strong>所有者</strong> </label>
 																	<div class="col-sm-9">
 																		<select id="owner-select" name="owner">
 																			<option value="">选择用户</option>
@@ -189,7 +189,7 @@
 							
 																
 																<div class="form-group">
-																	<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>网络接口</strong></label>
+																	<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>接入网络</strong></label>
 							
 																	<div class="col-sm-9">
 																		<select multiple class="width-20 chosen-select" id="netk"  data-placeholder="网络选择">	
@@ -397,7 +397,7 @@
 							
 																	<div class="col-sm-9">
 																		<select name="temp">
-																			<option value="">模板选择</option>
+																			<option value="">选择模板</option>
 																			{% for ds in tempList %}
 																				<option value="{{ds.id}}">{{ds.name}}</option>
 																			{% endfor %}											
@@ -436,11 +436,11 @@
 							
 																<div class="form-group">
 																	<label class="col-sm-3 control-label no-padding-right" for="form-input-readonly">																	
-																	<strong> 操作系统</strong> </label>
+																	<strong> 操作系统安装盘</strong> </label>
 							
 																	<div class="col-sm-9">
 																		<select id="system-select" name="system">
-																			<option value="">操作系统</option>
+																			<option value="">选择操作系统安装盘</option>
 																			{% for ds in vMImages %}
 																				<option value="{{ds.vol_path}}">{{ds.vol_name}}</option>
 																			{% endfor %}											

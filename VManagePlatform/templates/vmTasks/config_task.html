@@ -112,7 +112,7 @@
 		
 														<button class="btn btn-xs btn-success pull-left" class="btn btn-primary btn-lg" data-toggle="modal"  data-target="#addCrontabModal">
 															<i class="icon-arrow-right icon-plus"></i>
-															<span class="bigger-110">添加计划任务</span>
+															<span class="bigger-110">添加计划调度</span>
 														</button>
 													</div>												
 													<div>
@@ -178,7 +178,7 @@
 		
 														<button class="btn btn-xs btn-success pull-left" class="btn btn-primary btn-lg" data-toggle="modal"  data-target="#addIntervalModal">
 															<i class="icon-arrow-right icon-plus"></i>
-															<span class="bigger-110">添加间隔任务</span>
+															<span class="bigger-110">添加间隔调度</span>
 														</button>
 													</div>												
 													<div>
@@ -381,10 +381,10 @@
 																	
 
 								<div class="form-group">
-										<label class="col-sm-3 control-label no-padding-right" for="form-field-3"><strong>计划类型</strong></label>
+										<label class="col-sm-3 control-label no-padding-right" for="form-field-3"><strong>计划调度</strong></label>
 											<div class="col-sm-9">
 												<select name="crontab">
-													<option value="">选择一个计划任务</option>
+													<option value="">选择一个计划调度</option>
 													{% for cron in crontabList %}
 														{% if ds.crontab_id == cron.id %}
 															<option selected="selected" value="{{cron.id}}">{{cron.minute}}&nbsp;{{cron.hour}}&nbsp;{{cron.day_of_week}}&nbsp;{{cron.day_of_month}}&nbsp;{{cron.month_of_year}}</option>
@@ -399,10 +399,10 @@
 
 								
 								<div class="form-group">
-										<label class="col-sm-3 control-label no-padding-right" for="form-field-3"><strong>间隔类型</strong></label>
+										<label class="col-sm-3 control-label no-padding-right" for="form-field-3"><strong>间隔调度</strong></label>
 											<div class="col-sm-9">
 												<select name="interval">
-													<option value="">选择一个间隔类型</option>
+													<option value="">选择一个间隔调度</option>
 													{% for inter in intervalList %}
 														{% if ds.interval_id == inter.id %}
 															<option   selected="selected" value="{{inter.id}}">{{inter.every}}&nbsp;{{inter.period}}</option>
@@ -659,10 +659,10 @@
 								</div>	
 								
 								<div class="form-group" style="display: none;" id="div_crontab">
-										<label class="col-sm-3 control-label no-padding-right" for="form-field-3"><strong>计划类型*</strong></label>
+										<label class="col-sm-3 control-label no-padding-right" for="form-field-3"><strong>计划调度*</strong></label>
 											<div class="col-sm-9">
 												<select name="crontab">
-													<option value="">选择一个计划任务</option>
+													<option value="">选择一个计划调度</option>
 													{% for ds in crontabList %}
 														<option value="{{ds.id}}">{{ds.minute}}&nbsp;{{ds.hour}}&nbsp;{{ds.day_of_week}}&nbsp;{{ds.day_of_month}}&nbsp;{{ds.month_of_year}}</option>
 													{% endfor %}																																								
@@ -672,10 +672,10 @@
 								</div>
 								
 								<div class="form-group" style="display: none;" id="div_interval">
-										<label class="col-sm-3 control-label no-padding-right" for="form-field-3"><strong>间隔类型*</strong></label>
+										<label class="col-sm-3 control-label no-padding-right" for="form-field-3"><strong>间隔调度*</strong></label>
 											<div class="col-sm-9">
 												<select name="interval">
-													<option value="">选择一个间隔类型</option>
+													<option value="">选择一个间隔调度</option>
 													{% for ds in intervalList %}
 														<option value="{{ds.id}}">{{ds.every}}&nbsp;{{ds.period}}</option>
 													{% endfor %}																																								
