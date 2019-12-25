@@ -49,7 +49,7 @@
 															<label>
 																<input type="checkbox" class="ace" />
 																<span class="lbl"></span>
-																{{ ds.pool_name }}
+																<a href="/viewStorage/{{vmServer.id}}/{{ds.pool_name}}">{{ ds.pool_name }}</a>
 															</label>
 														</td>
 														<td>
@@ -210,7 +210,7 @@
 														<div class="form-group" id="div_pool_tpath">
 															<label class="col-sm-3 control-label no-padding-right" for="form-field-3"><strong>存储路径</strong></label>
 															<div class="col-sm-9">
-																<input class="input-sm" type="text" name="pool_tpath" placeholder="/path/" value="" />											
+																<input class="input-sm" size=50 type="text" name="pool_tpath" placeholder="/path/" value="" />
 																<div class="space-2"></div>									
 															</div>
 														</div>									
