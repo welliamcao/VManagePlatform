@@ -329,15 +329,22 @@
 					success:function(response){
 						btnObj.removeAttr('disabled');
 						if (response["code"] == 200){
-							window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
+							//window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
+							layer.alert(response["msg"], function() {
+								layer.closeAll();
+								$('#addPoolModal').modal('hide');
+								window.location.reload();
+							});
 						}
 						else {
-							window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+                            layer.alert(response["msg"], {icon: 2});
+							//window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
 						}
 						
 					},
 			    	error:function(response){
-			    		window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+                        layer.alert(response["msg"], {icon: 2});
+			    		//window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
 			    	}
 				})	
 			}		
@@ -390,37 +397,36 @@
                     var txt=  "是否确认刷新？"
                 }
 
-                var option = {
+                layer.confirm(txt, {
                     title: "操作主机("+server_ip+")",
-                    btn: parseInt("0011",2),
-                    onOk: function(){
-                        $.ajax({
-                              type: 'POST',
-                              url: '/handleStorage/{{vmServer.id}}/',
-                              data:{
-                                    "server_id":server_id,
-                                    "op":op,
-                                    "pool_name":pool_name
-                                },
-                              success:function(response){
-                                    if (response["code"]=="200"){
-                                        window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
-                                    }
-                                    else{
-                                        window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
-                                    }
-                            },
-                            error:function(response){
-                                window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
-                            },
-                            });
-                    },
-                    onCancel:function(){
-                    },
-                    onClose:function(){
-                    }
-                }
-                window.wxc.xcConfirm(txt, "custom", option);
+                    btn: ['确定','取消'] //按钮
+                }, function(){
+                    $.ajax({
+                        type: 'POST',
+                        url: '/handleStorage/{{vmServer.id}}/',
+                        data:{
+                            "server_id":server_id,
+                            "op":op,
+                            "pool_name":pool_name
+                        },
+                        success:function(response){
+                            if (response["code"]=="200"){
+                                layer.alert(response["msg"], function(){
+                                        layer.closeAll();
+                                        layer.load(1);
+                                        window.location.reload();
+                                    });
+                            } else{
+                                layer.alert(response["msg"], {icon: 2});
+                            }
+                        },
+                        error:function(response){
+                            layer.alert(response["msg"], {icon: 2});
+                        },
+                    });
+                }, function(){
+                    //cancel
+                });
             }
     </script>
 
