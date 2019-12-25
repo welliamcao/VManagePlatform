@@ -177,7 +177,7 @@
                                             </td>
 
                                             <td class="center">
-                                                <button class="btn btn-primary btn-xs" onclick="onBtnHandleVolume(this,{{vmServer.id}},'{{storage.pool_name}}','{{ds.vol_name}}','clone')">
+                                                <button class="btn btn-primary btn-xs" onclick="onBtnHandleCloneVolume(this,{{vmServer.id}},'{{storage.pool_name}}','{{ds.vol_name}}')">
                                                     克隆
                                                 </button>
                                                 <button class="btn btn-danger btn-xs" onclick="onBtnHandleVolume(this,{{vmServer.id}},'{{storage.pool_name}}','{{ds.vol_name}}','delete')">
@@ -308,7 +308,10 @@
 				data:server_data,  //提交参数
 				success:function(response){
 					if (response["code"] == 200){
-						window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
+						window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success,
+							{onOk:function(){
+								window.location.reload();
+							}});
 					}
 					else {
 						window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
@@ -345,7 +348,10 @@
                         },
                         success:function(response){
                             if (response["code"]=="200"){
-                                window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
+                                window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success,
+                                    {onOk:function(){
+                                        window.location.reload();
+                                    }});
                             }
                             else{
                                 window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
@@ -363,5 +369,39 @@
             }
 			window.wxc.xcConfirm(txt, "custom", option);
 		}
+
+        //克隆卷
+	    function onBtnHandleCloneVolume(obj, server_id, pool_name, volume_name){
+	        layer.prompt({title: '请输入克隆后的卷名称', value: 'clone_'+volume_name, formType: 0}, function(val, index){
+                layer.close(index);
+
+                $.ajax({
+                    type: 'POST',
+                    url: '/handleVolume/',
+                    data:{
+                        "server_id":server_id,
+                        "op": 'clone',
+                        "pool_name": pool_name,
+                        "vol_name": volume_name,
+                        "new_vol_name": val,
+                    },
+                    success:function(response){
+                        if (response["code"]=="200"){
+                            layer.alert(response["msg"], function() {
+								layer.closeAll();
+								window.location.reload();
+							});
+                        }
+                        else{
+                            layer.alert(response["msg"], {icon: 2});
+                        }
+                    },
+                    error:function(response){
+                        layer.alert(response["msg"], {icon: 2});
+                    },
+                });
+            });
+		}
+
 	</script>
 {% endblock %}
