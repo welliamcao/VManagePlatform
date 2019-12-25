@@ -102,6 +102,6 @@ def handleStorage(request,id):
                 VMS.close()
                 if isinstance(result,int):return  JsonResponse({"code":200,"msg":"操作成功。","data":None})
                 else:return  JsonResponse({"code":500,"msg":result})                    
-            else:return JsonResponse({"code":500,"msg":"存储池不存在。","data":e}) 
+            else:return JsonResponse({"code":500,"msg":"存储池不存在。","data":None})
         else:return  JsonResponse({"code":500,"data":None,"msg":"不支持操作或者您没有权限操作此项"})                        
-    else:return  JsonResponse({"code":500,"data":None,"msg":"不支持的HTTP操作"})                
+    else:return  JsonResponse({"code":500,"data":None,"msg":"不支持的HTTP操作"})
