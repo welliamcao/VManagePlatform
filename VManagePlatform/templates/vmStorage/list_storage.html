@@ -122,9 +122,8 @@
 														{{ vmServer.hostname }}添加存储池
 													</h4>
 												</div>
+
 												<div class="modal-body">
-													
-													
 													<form class="form-horizontal" role="form" id="addStroage">
 														<div class="form-group">
 															<label class="col-sm-3 control-label no-padding-right" for="form-field-1">
@@ -216,9 +215,8 @@
 														</div>									
 														<div class="space-4"></div>																				
 													</form>
-													
-													
 												</div>
+
 												<div class="modal-footer">
 													<button type="button" class="btn btn-default" data-dismiss="modal">关闭
 													</button>
@@ -379,52 +377,51 @@
 				}
 			})
 
-			
-		function onBtnHandleStorage(obj, server_id,server_ip,pool_name,op){
-			var btnObj = $(obj);
-			if ( op == 'delete'){
-				var txt=  "是否确认删除？"
-			}
-			else if ( op == 'disable'){
-				var txt=  "是否确认禁用？"
-			}
-			else if ( op == 'refresh'){
-				var txt=  "是否确认刷新？"
-			}
+            //存储池操作按钮
+            function onBtnHandleStorage(obj, server_id,server_ip,pool_name,op){
+                var btnObj = $(obj);
+                if ( op == 'delete'){
+                    var txt=  "是否确认删除？"
+                }
+                else if ( op == 'disable'){
+                    var txt=  "是否确认禁用？"
+                }
+                else if ( op == 'refresh'){
+                    var txt=  "是否确认刷新？"
+                }
 
-			var option = {
-					title: "操作主机("+server_ip+")",
-					btn: parseInt("0011",2),
-					onOk: function(){
-						$.ajax({
-							  type: 'POST',
-							  url: '/handleStorage/{{vmServer.id}}/',
-							  data:{
-									"server_id":server_id,		
-									"op":op,
-									"pool_name":pool_name
-								},
-						      success:function(response){			            
-					                if (response["code"]=="200"){ 
-					                	window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
-
-					                }
-						        	else{
-						        		window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
-						        	}						                
-							},
-				            error:function(response){
-				            	window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
-				            },		
-							});
-					},
-					onCancel:function(){	
-					},
-					onClose:function(){
-					}
-				}			
-			window.wxc.xcConfirm(txt, "custom", option);
-	   	}
-</script>								
+                var option = {
+                    title: "操作主机("+server_ip+")",
+                    btn: parseInt("0011",2),
+                    onOk: function(){
+                        $.ajax({
+                              type: 'POST',
+                              url: '/handleStorage/{{vmServer.id}}/',
+                              data:{
+                                    "server_id":server_id,
+                                    "op":op,
+                                    "pool_name":pool_name
+                                },
+                              success:function(response){
+                                    if (response["code"]=="200"){
+                                        window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
+                                    }
+                                    else{
+                                        window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+                                    }
+                            },
+                            error:function(response){
+                                window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+                            },
+                            });
+                    },
+                    onCancel:function(){
+                    },
+                    onClose:function(){
+                    }
+                }
+                window.wxc.xcConfirm(txt, "custom", option);
+            }
+    </script>
 
 {% endblock %}

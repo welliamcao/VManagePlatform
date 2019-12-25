@@ -437,8 +437,8 @@ class VMServer(VMBase):
     def createInstance(self,dom_xml):
         '''创建虚拟机'''
         try:
-            dom = self.conn.defineXML(dom_xml)
-            return dom.create()
+            dom = self.conn.defineXML(dom_xml)  #创建虚拟机
+            return dom.create()    #启动虚拟机
         except libvirt.libvirtError,e:
             return '实例创建失败，失败原因：{result}'.format(result=e.get_error_message())  
      
@@ -501,7 +501,6 @@ class VMServer(VMBase):
             return isoList
         except libvirt.libvirtError:                    
             return isoList
-        
 
     def getVmServerInfo(self):  
         '''获取主机信息'''
@@ -919,7 +918,7 @@ class VMStorage(VMBase):
         vol_xml = self.getStorageVolumeXMLDesc(name)
         return vMUtil.get_xml_path(vol_xml, "/volume/target/format/@type")
     
-    def clone(self, pool,pool_name,name, clone, format=None):
+    def clone(self, pool, pool_name, name, clone, format=None):
         '''克隆卷'''
         storage_type = self.getStorageMode(pool_name)
         if storage_type == 'dir':
@@ -978,7 +977,7 @@ class VMInstance(VMBase):
         except libvirt.libvirtError,e:
             return '失败原因：{result}'.format(result=e.get_error_message())             
             
-    def getInsXMLDesc(self,instance,flag):
+    def getInsXMLDesc(self, instance, flag):
         try:
             return instance.XMLDesc(flag)
         except libvirt.libvirtError,e:
@@ -1270,15 +1269,21 @@ class VMInstance(VMBase):
         return vMUtil.get_xml_path(self.getInsXMLDesc(instance,0), func=disks)
     
     
-    def clone(self, instance,clone_data):
+    def clone(self, instance, clone_data):
         '''克隆实例'''
         clone_dev_path = []
+
         xml = self.getInsXMLDesc(instance, flag=1)
+        if not xml:
+            return False
         tree = ElementTree.fromstring(xml)
+
         name = tree.find('name')
         name.text = clone_data['name']
+
         uuid = tree.find('uuid')
         tree.remove(uuid)
+
         for num, net in enumerate(tree.findall('devices/interface')):
             elm = net.find('mac')
             inter = net.find('target')
@@ -1287,7 +1292,7 @@ class VMInstance(VMBase):
             elm.set('address', vMUtil.randomMAC())
         
         for disk in tree.findall('devices/disk'):
-            if disk.get('device') == 'disk':
+            if disk.get('device') == 'disk':   #cdrom时跳过
                 elm = disk.find('target')
                 device_name = elm.get('dev')
                 if device_name:
@@ -1297,17 +1302,20 @@ class VMInstance(VMBase):
                     except:
                         meta_prealloc = False
                     elm.set('dev', device_name)
+
                 elm = disk.find('source')
                 source_file = elm.get('file')
                 if source_file:
                     clone_dev_path.append(source_file)
-                    clone_path = os.path.join(os.path.dirname(source_file),
-                                              target_file)
+
+                    clone_path = os.path.join(os.path.dirname(source_file), target_file)
                     elm.set('file', clone_path)
+
                     vol = self.getVolumeByPath(source_file)
-                    vol_format = vMUtil.get_xml_path(vol.XMLDesc(0),"/volume/target/format/@type")
+                    vol_format = vMUtil.get_xml_path(vol.XMLDesc(0), "/volume/target/format/@type") #卷格式
                     if vol_format == 'qcow2' and meta_prealloc:
                         meta_prealloc = True
+
                     vol_clone_xml = """
                                     <volume>
                                         <name>%s</name>
@@ -1406,7 +1414,7 @@ class VMInstance(VMBase):
             if device == 'disk' and vdisk in diskList:diskSn = diskList[diskList.index(vdisk) + 1]
         diskXml = Const.CreateDisk(volume_path=volPath, diskSn=diskSn)
         try:
-            return instance.attachDeviceFlags(diskXml,3)#如果是关闭状态则标记flags为3，保证添加的硬盘重启不会丢失 
+            return instance.attachDeviceFlags(diskXml,3)    #如果是关闭状态则标记flags为3，保证添加的硬盘重启不会丢失
         except libvirt.libvirtError,e:
             return '实例添加硬盘失败，失败原因：{result}'.format(result=e.get_error_message()) 
 

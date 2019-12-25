@@ -204,14 +204,17 @@ def migrateInstace(data,user=None):
 def cloneInstace(data,user=None):
     server_id = data.get('server_id')
     insName = data.get('vm_name')
+
     try:
         vMserver =  VmServer.objects.get(id=server_id)
     except:
-        return False 
+        return False
+
     try:
         VMS = LibvirtManage(vMserver.server_ip,vMserver.username, vMserver.passwd, vMserver.vm_type,pool=False)
     except Exception,e:
         return  False
+
     try:
         INSTANCE = VMS.genre(model='instance')
         instance = INSTANCE.queryInstance(name=str(insName))
@@ -225,6 +228,7 @@ def cloneInstace(data,user=None):
     else:result = 1
     VMS.close()
     try:
+        #记录日志
         result = VmLogs.objects.create(server_id=data.get('server_id'),vm_name=insName,
                                        content="克隆虚拟机：{name}".format(name=insName),
                                        user=user,status=result,isRead=0) 

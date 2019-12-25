@@ -19,22 +19,26 @@ def addInstance(request,id):
         vmServer = VmServer.objects.get(id=id)
     except:
         return render_to_response('404.html',context_instance=RequestContext(request))
+
     if request.method == "GET":
         userList = User.objects.all()
         tempList = VmInstance_Template.objects.all()
         VMS = LibvirtManage(vmServer.server_ip,vmServer.username, vmServer.passwd,vmServer.vm_type)    
         SERVER = VMS.genre(model='server') 
         NETWORK = VMS.genre(model='network')       
-        if SERVER:vStorage = SERVER.getVmStorageInfo()
-        vMImages =SERVER.getVmIsoList()
+        if SERVER:
+            vStorage = SERVER.getVmStorageInfo()
+        vMImages =SERVER.getVmIsoList()  #.iso文件
         netkList = NETWORK.listNetwork()
         VMS.close()
+
         return render_to_response('vmInstance/add_instance.html',
                                   {"user":request.user,"localtion":[{"name":"首页","url":'/'},{"name":"宿主机","url":'/viewServer/'+str(vmServer.id)},
-                                                                    {"name":"添加虚拟机","url":"/addInstance/"+str(vmServer.id)}],
+                                                                    {"name":"创建虚拟机","url":"/addInstance/"+str(vmServer.id)}],
                                     "vmServer":vmServer,"vStorage":vStorage,"vMImages":vMImages,"netkList":netkList,
                                     "tempList":tempList,"userList":userList},
                                   context_instance=RequestContext(request))
+
     elif request.method == "POST":
         op = request.POST.get('op')
         if op in ['custom','xml','template'] and request.user.has_perm('VManagePlatform.add_vmserverinstance'):
@@ -42,7 +46,9 @@ def addInstance(request,id):
             INSTANCE = VMS.genre(model='instance')
             SERVER = VMS.genre(model='server')
             STORAGE = VMS.genre(model='storage')
-            NETWORK = VMS.genre(model='network')  
+            NETWORK = VMS.genre(model='network')
+
+            #自定义配置创建虚拟机
             if op == 'custom':
                 netks = [ str(i) for i in request.POST.get('netk').split(',')]
                 if INSTANCE:
@@ -56,6 +62,7 @@ def addInstance(request,id):
                             netkType = NETWORK.getNetworkType(nt)
                             netXml = Const.CreateNetcard(nkt_br=nt,ntk_name=nt+'-'+radStr,data=netkType)                             
                             networkXml = netXml +  networkXml
+
                         pool = STORAGE.getStoragePool(pool_name=request.POST.get('storage')) 
                         volume_name = request.POST.get('vm_name')+'.img'
                         if pool:
@@ -74,11 +81,15 @@ def addInstance(request,id):
                         if dom==0:    
                             instance = INSTANCE.queryInstance(name=str(request.POST.get('vm_name')))
                             VMS.close()
+
+                            #生成VmServerInstance表记录
                             try:
                                 VmServerInstance.objects.create(server=vmServer,name=request.POST.get('vm_name'),mem=int(request.POST.get('mem')),status=1,
                                                                 cpu=request.POST.get('cpu'),token=INSTANCE.getInsUUID(instance))
                             except Exception,e: 
-                                return  JsonResponse({"code":500,"data":None,"msg":e})    
+                                return  JsonResponse({"code":500,"data":None,"msg":e})
+
+                            #生成日志
                             recordLogs.delay(server_id=vmServer.id,vm_name=request.POST.get('vm_name'),
                                              content="创建虚拟机{name}".format(name=request.POST.get('vm_name')),
                                              user=str(request.user),status=dom) 
@@ -89,7 +100,8 @@ def addInstance(request,id):
                             recordLogs.delay(server_id=vmServer.id,vm_name=request.POST.get('vm_name'),
                                              content="创建虚拟机{name}".format(name=request.POST.get('vm_name')),
                                              user=str(request.user),status=1,result=dom)                            
-                            return JsonResponse({"code":500,"data":None,"msg":dom}) 
+                            return JsonResponse({"code":500,"data":None,"msg":dom})
+
             elif op == 'xml':
                 domXml = request.POST.get('xml')
                 dom = SERVER.defineXML(xml=domXml)
@@ -104,6 +116,7 @@ def addInstance(request,id):
                                              content="通过XML创建虚拟机{name}".format(name=request.POST.get('vm_name')),
                                              user=str(request.user),status=1,result=dom) 
                     return JsonResponse({"code":500,"data":None,"msg":dom})
+
             elif op=='template':
                 try:
                     temp = VmInstance_Template.objects.get(id=request.POST.get('temp'))
@@ -118,9 +131,10 @@ def addInstance(request,id):
                                 disk_path = volume.path()
                                 volume_name = volume.name()
                                 disk_xml = Const.CreateDisk(volume_path=disk_path)  
-                            else:return JsonResponse({"code":500,"msg":"添加虚拟机失败，存储池里面以存在以主机名命名的磁盘","data":None})
+                            else:
+                                return JsonResponse({"code":500,"msg":"创建虚拟机失败，存储池里面以存在以主机名命名的磁盘","data":None})
                         else:
-                            return  JsonResponse({"code":500,"msg":"添加虚拟机失败，存储池已经被删除掉","data":None}) 
+                            return  JsonResponse({"code":500,"msg":"创建虚拟机失败，存储池已经被删除掉","data":None})
                         dom_xml = Const.CreateIntanceConfig(dom_name=request.POST.get('vm_name'),maxMem=int(SERVER.getServerInfo().get('mem')),
                                                       mem=temp.mem,cpu=temp.cpu,disk=disk_xml,
                                                       iso_path=request.POST.get('system'),network=None)
@@ -141,7 +155,8 @@ def addInstance(request,id):
                 except:
                     return JsonResponse({"code":500,"data":None,"msg":"虚拟主机添加失败。"})
                     
-        else:return JsonResponse({"code":500,"data":None,"msg":"不支持的操作或者您没有权限添加虚拟机"})
+        else:
+            return JsonResponse({"code":500,"data":None,"msg":"不支持的操作或者您没有权限创建虚拟机"})
 
 @login_required
 def modfInstance(request,id):      
@@ -320,12 +335,14 @@ def modfInstance(request,id):
             LIBMG.close()                                 
         else:
             return  JsonResponse({"code":500,"data":None,"msg":"暂时不支持的操作或者您没有权限操作操作此项。"})
+
 @login_required
 def handleInstance(request,id):
     try:
         vServer = VmServer.objects.get(id=id)
     except Exception,e:
-        return JsonResponse({"code":500,"msg":"找不到主机资源","data":e})  
+        return JsonResponse({"code":500,"msg":"找不到主机资源","data":e})
+
     if request.method == "POST":
         op = request.POST.get('op')
         insName = request.POST.get('vm_name')
@@ -381,7 +398,8 @@ def handleInstance(request,id):
             elif op == 'xml':
                 result = INSTANCE.defineXML(xml=request.POST.get('xml'))
                 content = "通过xml修改实例{name}".format(name=insName)    
-            VMS.close()     
+            VMS.close()
+
             if isinstance(result,str):
                 recordLogs.delay(server_id=vServer.id,vm_name=insName,content=content,user=str(request.user),status=1,result=result)
                 return  JsonResponse({"code":500,"data":result,"msg":result})      
