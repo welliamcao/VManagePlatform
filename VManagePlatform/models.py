@@ -13,6 +13,7 @@ class VmServer(models.Model):
     mem = models.CharField(max_length=100,blank=True,null=True,verbose_name='内存容量')
     cpu_total = models.SmallIntegerField(blank=True,null=True,verbose_name='CPU个数') 
     status =  models.SmallIntegerField(blank=True,null=True,verbose_name='状态')
+    description = models.CharField(max_length=200,verbose_name='备注')
     createTime = models.DateTimeField(auto_now_add=True,blank=True,null=True)
     modifyTime = models.DateTimeField(auto_now=True,blank=True,null=True)
     class Meta:
@@ -48,7 +49,9 @@ class VmInstance_Template(models.Model):
     name =  models.CharField(unique=True,max_length=100,verbose_name='模板名称')
     cpu =  models.SmallIntegerField(verbose_name='cpu个数')
     mem =  models.SmallIntegerField(verbose_name='mem大小')
-    disk =  models.SmallIntegerField(verbose_name='磁盘大小') 
+    disk =  models.SmallIntegerField(verbose_name='磁盘大小')
+    createTime = models.DateTimeField(auto_now_add=True,blank=True,null=True)
+    modifyTime = models.DateTimeField(auto_now=True,blank=True,null=True)
     class Meta:
         permissions = (
             ("read_vminstance_template", "Can read 虚拟主机模板"),
@@ -68,6 +71,9 @@ class VmServerInstance(models.Model):
     token = models.CharField(max_length=100,blank=True,null=True,verbose_name='令牌')
     ips = models.TextField(max_length=200,blank=True,null=True,verbose_name='ip地址')
     vnc = models.SmallIntegerField(blank=True,null=True,verbose_name='VNC端口')
+    description = models.CharField(max_length=200,verbose_name='备注')
+    createTime = models.DateTimeField(auto_now_add=True,blank=True,null=True)
+    modifyTime = models.DateTimeField(auto_now=True,blank=True,null=True)
     class Meta:
         permissions = (
             ("read_vmserver_instance", "Can read 虚拟主机实例"),
@@ -92,4 +98,4 @@ class VmLogs(models.Model):
             ("read_vmlogs", "Can read 虚拟主机操作日志"),
         )
         verbose_name = '虚拟主机操作日志'  
-        verbose_name_plural = '虚拟主机操作日志' 
+        verbose_name_plural = '虚拟主机操作日志'
