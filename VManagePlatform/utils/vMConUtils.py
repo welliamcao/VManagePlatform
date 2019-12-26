@@ -980,8 +980,9 @@ class VMInstance(VMBase):
     def getInsXMLDesc(self, instance, flag):
         try:
             return instance.XMLDesc(flag)
-        except libvirt.libvirtError,e:
-            return '失败原因：{result}'.format(result=e.get_error_message())          
+        except libvirt.libvirtError, e:
+            return False
+            # return '失败原因：{result}'.format(result=e.get_error_message())
     
     def managedSave(self, instance):
         try:
@@ -1288,8 +1289,10 @@ class VMInstance(VMBase):
             elm = net.find('mac')
             inter = net.find('target')
             brName = net.find('source').get('bridge')
-            inter.set('dev',brName + '-' + CommTools.radString(4))
-            elm.set('address', vMUtil.randomMAC())
+            if not brName:
+                continue;
+            inter.set('dev',brName + '-' + CommTools.radString(4))    #随机生成接口名
+            elm.set('address', vMUtil.randomMAC())    #随机生成MAC地址
         
         for disk in tree.findall('devices/disk'):
             if disk.get('device') == 'disk':   #cdrom时跳过
@@ -1325,9 +1328,12 @@ class VMInstance(VMBase):
                                             <format type='%s'/>
                                         </target>
                                     </volume>""" % (target_file, vol_format)
-                    stg = vol.storagePoolLookupByVolume()
-                    stg.createXMLFrom(vol_clone_xml, vol, meta_prealloc)
-        if self.defineXML(ElementTree.tostring(tree)):return 0
+                    stg = vol.storagePoolLookupByVolume()    #virStoragePool
+                    stg.createXMLFrom(vol_clone_xml, vol, meta_prealloc)   #从vol卷复制卷，阻塞
+
+        # 创建VM
+        domain = self.defineXML(ElementTree.tostring(tree))
+        return domain
     
     def getCpuUsage(self,instance):       
         if instance.state()[0] == 1:

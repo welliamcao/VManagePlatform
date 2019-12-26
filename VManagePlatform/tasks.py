@@ -207,6 +207,12 @@ def cloneInstace(data,user=None):
 
     try:
         vMserver =  VmServer.objects.get(id=server_id)
+        vmServerInstance = VmServerInstance.objects.filter(server=server_id, name=insName)
+
+        if vmServerInstance:
+            vmServerInstance = vmServerInstance[0]
+        else:
+            vmServerInstance = None
     except:
         return False
 
@@ -219,14 +225,39 @@ def cloneInstace(data,user=None):
         INSTANCE = VMS.genre(model='instance')
         instance = INSTANCE.queryInstance(name=str(insName))
     except Exception,e:
-        return False   
+        return False
+
+    if not instance:
+        return False
+
     clone_data = {}
     clone_data['name'] = data.get('vm_cname')
     clone_data['disk'] = data.get('vol_name')
-    result = INSTANCE.clone(instance, clone_data=clone_data)
-    if result == 0:result = 0
-    else:result = 1
+    domain = INSTANCE.clone(instance, clone_data=clone_data)
+    if domain:
+        domain.create()    #启动虚拟机
+        state, maxmem, curmem, cpus, cput = domain.info()
+        # print('The state is ' + str(state))
+        # print('The max memory is ' + str(maxmem))
+        # print('The memory is ' + str(curmem))
+        # print('The number of cpus is ' + str(cpus))
+        # print('The cpu time is ' + str(cput))
+        mem = curmem / 1024
+        cpu = cpus
+        token=domain.UUIDString()
+
+        result = 0
+    else:
+        result = 1
     VMS.close()
+
+    try:
+        VmServerInstance.objects.create(server=vMserver, name=data.get('vm_cname'),
+                                        mem=mem, status=state,
+                                        cpu=cpu, token=token)
+    except Exception, e:
+        return False
+
     try:
         #记录日志
         result = VmLogs.objects.create(server_id=data.get('server_id'),vm_name=insName,
