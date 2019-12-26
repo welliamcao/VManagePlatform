@@ -378,7 +378,10 @@ def handleInstance(request,id):
                 INSTANCE = VMS.genre(model='instance')
                 instance = INSTANCE.queryInstance(name=str(insName))
             except Exception,e:
-                return JsonResponse({"code":500,"msg":"虚拟机强制关闭失败。。","data":e})  
+                return JsonResponse({"code":500,"msg":"虚拟机强制关闭失败。。","data":e})
+            if not instance:
+                return JsonResponse({"code":500,"msg":"虚拟机不存在。"})
+
             if op == 'halt':
                 result = INSTANCE.destroy(instance)
                 content = "关闭虚拟机{name}".format(name=insName)
@@ -398,8 +401,16 @@ def handleInstance(request,id):
                 result = INSTANCE.resume(instance)  
                 content = "恢复虚拟机{name}".format(name=insName)
             elif op == 'delete':
-                INSTANCE.delDisk(instance)  
-                VmServerInstance.objects.get(token=INSTANCE.getInsUUID(instance)).delete()         
+                # 删除磁盘文件
+                INSTANCE.delDisk(instance)
+
+                #删除VmServerInstance表记录
+                token=INSTANCE.getInsUUID(instance)
+                serverInstance = VmServerInstance.objects.filter(token=token)
+                if serverInstance:
+                    serverInstance[0].delete()
+
+                # 删除虚拟机
                 result = INSTANCE.delete(instance) 
                 content = "删除虚拟机{name}".format(name=insName)
             elif op == 'migrate':
