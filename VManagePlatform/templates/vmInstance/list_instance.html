@@ -71,49 +71,49 @@
 							<td class="center col-sm-3">
 								<div class="visible-md visible-lg hidden-sm hidden-xs action-buttons">
 									{% if ds.vnc != '-1'  %}
-									<a class="blue" href="/vnc/{{ ds.server_id }}/{{ ds.vnc }}/{{ ds.token }}/" target="_black">
+									<a class="blue" title="VNC" href="/vnc/{{ ds.server_id }}/{{ ds.vnc }}/{{ ds.token }}/" target="_black">
 										<i class="icon-desktop bigger-120"></i>
 									</a>
 									{% else %}
-									<a class="blue" href="#" target="_black">
+									<a class="blue" title="VNC" href="#" target="_black">
 										<i class="icon-desktop bigger-120"></i>
 									</a>
 									{% endif %}
 
-									<a class="blue" href="javascript:" onclick="onBtnHandleIns(this,{{ ds.server_id }},'{{ ds.name }}','start')">
+									<a class="blue" title="启动" href="javascript:" onclick="onBtnHandleIns(this,{{ ds.server_id }},'{{ ds.name }}','start')">
 										<i class="icon-play bigger-120 green"></i>
 									</a>
 
-									<a class="blue" href="javascript:" onclick="onBtnHandleIns(this,{{ ds.server_id }},'{{ ds.name }}','suspend')">
+									<a class="blue" title="暂停" href="javascript:" onclick="onBtnHandleIns(this,{{ ds.server_id }},'{{ ds.name }}','suspend')">
 										<i class="icon-pause bigger-120 orange"></i>
 									</a>
 
-									<a class="blue" href="javascript:" onclick="onBtnHandleIns(this,{{ ds.server_id }},'{{ ds.name }}','resume')">
+									<a class="blue" title="恢复" href="javascript:" onclick="onBtnHandleIns(this,{{ ds.server_id }},'{{ ds.name }}','resume')">
 										<i class="icon-play-circle bigger-120 "></i>
 									</a>
 
-									<a class="blue" href="javascript:" onclick="onBtnHandleIns(this,{{ ds.server_id }},'{{ ds.name }}','reboot')">
+									<a class="blue" title="重启" href="javascript:" onclick="onBtnHandleIns(this,{{ ds.server_id }},'{{ ds.name }}','reboot')">
 										<i class="icon-repeat bigger-120"></i>
 									</a>
 
-									<a class="blue" href="javascript:" onclick="onBtnHandleIns(this,{{ ds.server_id }},'{{ ds.name }}','shutdown')">
+									<a class="blue" title="关机" href="javascript:" onclick="onBtnHandleIns(this,{{ ds.server_id }},'{{ ds.name }}','shutdown')">
 										<i class="icon-stop bigger-120 red"></i>
 									</a>
 
-									<a class="red" href="javascript:" onclick="onBtnHandleIns(this,{{ ds.server_id}},'{{ ds.name }}','halt')">
+									<a class="red" title="停机" href="javascript:" onclick="onBtnHandleIns(this,{{ ds.server_id}},'{{ ds.name }}','halt')">
 										<i class="icon-off bigger-120"></i>
 									</a>
 
-									<a class="black" href="javascript:" onclick="snapshotInstance(this,{{ ds.server_id }},'{{ ds.name }}','add')">
+									<a class="black" title="快照" href="javascript:" onclick="snapshotInstance(this,{{ ds.server_id }},'{{ ds.name }}','add')">
 										<i class="icon-camera bigger-120"></i>
 									</a>
-									<a class="red" href="javascript:" onclick="onBtnHandleIns(this,{{ ds.server_id }},'{{ ds.name }}','delete')">
+									<a class="red" title="删除" href="javascript:" onclick="onBtnHandleIns(this,{{ ds.server_id }},'{{ ds.name }}','delete')">
 										<i class="icon-trash  bigger-120"></i>
 									</a>
-									<a class="black" href="/viewInstance/{{ds.server_id}}/{{ ds.name }}/">
+									<a class="black" title="详细" href="/viewInstance/{{ds.server_id}}/{{ ds.name }}/">
 										<i class="icon-zoom-in  bigger-120"></i>
 									</a>
-									<a class="black"  data-toggle="modal" data-target="#myModal">
+									<a class="black" title="分配"  data-toggle="modal" data-target="#myModal">
 										<i class="icon-external-link  bigger-120"></i>
 									</a>
 								</div>
