@@ -591,3 +591,40 @@ def instanceDiskStatus(request,id,vm):
         return JsonResponse({"code":200,"data":data,"msg":None}) #
     except Exception,e:
         return JsonResponse({"code":200,"data":{'ctime':time.strftime('%Y-%m-%d %H:%M:%S' ,time.localtime()),"disk":{"rd":0,"wr":0}},"msg":str(e)}) 
+
+@login_required
+def instanceAllStatus(request,id,vm):
+    """
+    Return instance disk/net/cpu/mem usage
+    """
+    vmServer = VmServer.objects.get(id=id)
+    try:
+        VMS = LibvirtManage(vmServer.server_ip,vmServer.username, vmServer.passwd, vmServer.vm_type)
+        INSTANCE = VMS.genre(model='instance')
+        instance = INSTANCE.queryInstance(name=str(vm))
+        netFlow = INSTANCE.getNetUsage(instance)
+        diskUsage = INSTANCE.getDiskUsage(instance)
+        cpuUsage = INSTANCE.getCpuUsage(instance)
+
+        data = dict()
+        data['ctime'] = time.strftime('%Y-%m-%d %H:%M:%S' ,time.localtime())
+
+        rd = 0
+        wr = 0
+        for dev in diskUsage:
+            rd += dev.get('rd')
+            wr += dev.get('wr')
+        data['disk'] = {'rd':int(rd/1024)/1024,'wr':int(wr/1024)/1024}      #{'in':random.randint(50,100),'out':random.randint(50,100)}
+
+        rx = 0
+        tx = 0
+        for dev in netFlow:
+            rx += dev.get('rx')
+            tx += dev.get('tx')
+        data['net'] = {'in':int(tx/1024)/1024,'out':int(rx/1024)/1024}      #{'in':random.randint(50,100),'out':random.randint(50,100)}
+
+        data['per'] = cpuUsage
+
+        return JsonResponse({"code":200,"data":data,"msg":None}) #
+    except Exception,e:
+        return JsonResponse({"code":200,"data":{'ctime':time.strftime('%Y-%m-%d %H:%M:%S' ,time.localtime()),"disk":{"rd":0,"wr":0}},"msg":str(e)})

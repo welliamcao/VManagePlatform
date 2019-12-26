@@ -51,6 +51,7 @@ urlpatterns = [
     url(r'^status/cpu/(?P<id>[0-9]+)/(?P<vm>\w.+)/$',vInstance.instanceCpuStatus),
     url(r'^status/net/(?P<id>[0-9]+)/(?P<vm>\w.+)/$',vInstance.instanceNetStatus),
     url(r'^status/disk/(?P<id>[0-9]+)/(?P<vm>\w.+)/$',vInstance.instanceDiskStatus),
+    url(r'^status/all/(?P<id>[0-9]+)/(?P<vm>\w.+)/$',vInstance.instanceAllStatus),
     url(r'^tempInstance/$',vInstance.tempInstance),
     url(r'^addStorage/(?P<id>[0-9]+)/$',vStorage.addStorage),
     url(r'^handleStorage/(?P<id>[0-9]+)/$',vStorage.handleStorage),
