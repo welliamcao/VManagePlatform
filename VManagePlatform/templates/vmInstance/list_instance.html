@@ -357,16 +357,21 @@
 							  success:function(response){
 									btnObj.removeAttr('disabled');
 									if (response["code"]=="200"){
-										window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
-
+										//window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
+                                        layer.alert(response["msg"], function() {
+                                            layer.closeAll();
+                                            window.location.reload();
+                                        });
 									}
 									else{
-										window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+										//window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+                                        layer.alert(response["msg"], {icon: 2});
 									}
 							},
 							error:function(response){
 								btnObj.removeAttr('disabled');
-								window.wxc.xcConfirm("操作失败", window.wxc.xcConfirm.typeEnum.error);
+								//window.wxc.xcConfirm("操作失败", window.wxc.xcConfirm.typeEnum.error);
+                                layer.alert(response["msg"], {icon: 2});
 							},
 							});
 					},
