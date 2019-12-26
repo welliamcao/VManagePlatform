@@ -192,6 +192,9 @@ def CreateIntanceConfig(dom_name,maxMem,mem,cpu,disk,iso_path,network):
     if isinstance(mem, int) and isinstance(maxMem, int):
         mem = mem*1024  
         maxMem = maxMem*1024
+    if iso_path == None:
+        iso_path = ""
+
     dom_xml = '''
         <domain type='kvm'>  
                 <name>{dom_name}</name>

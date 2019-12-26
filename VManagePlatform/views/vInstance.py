@@ -65,18 +65,31 @@ def addInstance(request,id):
 
                         pool = STORAGE.getStoragePool(pool_name=request.POST.get('storage')) 
                         volume_name = request.POST.get('vm_name')+'.img'
-                        if pool:
+                        if not pool:
+                            return  JsonResponse({"code":500,"msg":"创建虚拟机失败，存储池已经被删除掉","data":None})
+
+                        if request.POST.get('storagetype') == 'new':   #创建新磁盘
                             volume = STORAGE.createVolumes(pool, volume_name=volume_name, volume_capacity=request.POST.get('disk'))
-                            if isinstance(volume, str):return JsonResponse({"code":500,"msg":volume,"data":None})                               
-                            else:
-                                disk_path = volume.path()
-                                volume_name = volume.name()
-                                disk_xml = Const.CreateDisk(volume_path=disk_path)  
-                        else:
-                            return  JsonResponse({"code":500,"msg":"添加虚拟机失败，存储池已经被删除掉","data":None}) 
+                            if isinstance(volume, str):
+                                return JsonResponse({"code":500,"msg":volume,"data":None})
+                            disk_path = volume.path()
+                            volume_name = volume.name()
+                            disk_xml = Const.CreateDisk(volume_path=disk_path)
+                        else:           #使用现有磁盘
+                            volume = STORAGE.getStorageVolume(pool, request.POST.get('vol'))
+                            if isinstance(volume, str):
+                                return JsonResponse({"code":500,"msg":volume,"data":None})
+                            disk_path = volume.path()
+                            volume_name = volume.name()
+                            disk_xml = Const.CreateDisk(volume_path=disk_path)
+
+                        iso_path = request.POST.get('system')
+                        if not iso_path:
+                            iso_path = ""
+
                         dom_xml = Const.CreateIntanceConfig(dom_name=request.POST.get('vm_name'),maxMem=int(SERVER.getServerInfo().get('mem')),
                                                       mem=int(request.POST.get('mem')),cpu=request.POST.get('cpu'),disk=disk_xml,
-                                                      iso_path=request.POST.get('system'),network=networkXml)
+                                                      iso_path=iso_path,network=networkXml)
                         dom = SERVER.createInstance(dom_xml)                          
                         if dom==0:    
                             instance = INSTANCE.queryInstance(name=str(request.POST.get('vm_name')))
@@ -95,7 +108,10 @@ def addInstance(request,id):
                                              user=str(request.user),status=dom) 
                             return JsonResponse({"code":200,"data":None,"msg":"虚拟主机添加成功。"}) 
                         else:
-                            STORAGE.deleteVolume(pool, volume_name)
+                            if request.POST.get('storagetype') == 'new':
+                                #创建虚拟机失败时，删除创建的磁盘文件
+                                STORAGE.deleteVolume(pool, volume_name)
+
                             VMS.close() 
                             recordLogs.delay(server_id=vmServer.id,vm_name=request.POST.get('vm_name'),
                                              content="创建虚拟机{name}".format(name=request.POST.get('vm_name')),
@@ -120,8 +136,10 @@ def addInstance(request,id):
             elif op=='template':
                 try:
                     temp = VmInstance_Template.objects.get(id=request.POST.get('temp'))
-                    if INSTANCE:instance =  INSTANCE.queryInstance(name=str(request.POST.get('vm_name'))) 
-                    if instance:return  JsonResponse({"code":500,"msg":"虚拟机已经存在","data":None})
+                    if INSTANCE:
+                        instance =  INSTANCE.queryInstance(name=str(request.POST.get('vm_name')))
+                    if instance:
+                        return  JsonResponse({"code":500,"msg":"虚拟机已经存在","data":None})
                     else:
                         pool = STORAGE.getStoragePool(pool_name=request.POST.get('storage')) 
                         volume_name = request.POST.get('vm_name')+'.img'
@@ -184,7 +202,7 @@ def modfInstance(request,id):
                     if storage:
                         volume = STROAGE.createVolumes(pool=storage, volume_name=request.POST.get('vol_name'),
                                                        drive=request.POST.get('vol_drive'), volume_capacity=request.POST.get('vol_size'))
-                        if volume:
+                        if volume and not isinstance(volume, str):      #libvirt.virStorageVol
                             volPath = volume.path()
                             volume_name = volume.name()
                         else:
@@ -193,11 +211,14 @@ def modfInstance(request,id):
                         status = INSTANCE.addInstanceDisk(instance, volPath)
                         LIBMG.close()
                         if isinstance(status,int):
-                            recordLogs.delay(server_id=vServer.id,vm_name=request.POST.get('vm_name'),
+                            try:
+                                recordLogs.delay(server_id=vServer.id,vm_name=request.POST.get('vm_name'),
                                              content="虚拟机{name},添加{size}GB的硬盘{volume_name}".format(name=request.POST.get('vm_name'),
                                                                                            volume_name=request.POST.get('vol_name'),
                                                                                            size=request.POST.get('vol_size')),
-                                             user=str(request.user),status=0) 
+                                             user=str(request.user),status=0)
+                            except:
+                                pass
                             return  JsonResponse({"code":200,"data":None,"msg":"操作成功。"})
                         else:
                             recordLogs.delay(server_id=vServer.id,vm_name=request.POST.get('vm_name'),

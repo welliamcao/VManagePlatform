@@ -1,4 +1,4 @@
-{% extends "vmServer/index_server.html" %}
+﻿{% extends "vmServer/index_server.html" %}
 
 {% block content %}
 
@@ -50,7 +50,7 @@
 											<div class="widget-header">
 												<h4 class="lighter">
 													<i class="icon-cogs"></i>
-													添加虚拟机
+													创建虚拟机
 												</h4>
 
 												<div class="widget-toolbar no-border">
@@ -108,9 +108,20 @@
 																</div>
 
 																<div class="form-group">
-																	<label class="col-sm-3 control-label no-padding-right" for="form-field-2"> 
-																	<i class="icon-ok bigger-110 green"></i>
-																	<strong>存储池</strong>
+																	<label class="col-sm-3 control-label no-padding-right" for="storage-install-type">
+																		<strong>系统磁盘</strong>
+																	</label>
+																	<div class="col-sm-9">
+																		<select id="storage-install-type" name="storagetype">
+																			<option value="new">创建新的磁盘</option>
+																			<option value="existing">选择现有磁盘</option>
+																		</select>
+																	</div>
+																</div>
+																
+																<div class="form-group">
+																	<label class="col-sm-3 control-label no-padding-right" for="vStorage-select">
+																		<strong>存储池</strong>
 																	</label>
 																	<div class="col-sm-9">
 																		<select id="vStorage-select" name="storage">
@@ -124,11 +135,10 @@
 							
 																<div class="space-4"></div>
 							
-																<div class="form-group">
-																	<label class="col-sm-3 control-label no-padding-right" for="form-input-readonly">
-																	<i class="icon-ok bigger-110 green"></i>
-																	<strong> 操作系统安装盘</strong> </label>
-							
+																<div class="form-group" id="field-system-select">
+																	<label class="col-sm-3 control-label no-padding-right" for="system-select">
+																		<strong> 操作系统安装盘</strong>
+																	</label>
 																	<div class="col-sm-9">
 																		<select id="system-select" name="system">
 																			<option value="">选择操作系统安装盘</option>
@@ -138,11 +148,25 @@
 																		</select>	
 																	</div>
 																</div>
-																
+
+																<div class="form-group" id="field-disk-select">
+																	<label class="col-sm-3 control-label no-padding-right" for="disk-select">
+																		<strong>磁盘镜像文件</strong>
+																	</label>
+																	<div class="col-sm-9">
+																		<select id="disk-select" name="vol">
+																			<option value="">选择磁盘镜像</option>
+																			{% for ds in diskImages %}
+																				<option value="{{ds.vol_path}}">{{ds.vol_name}}</option>
+																			{% endfor %}
+																		</select>
+																	</div>
+																</div>
 									
 																<div class="form-group">
-																	<label class="col-sm-3 control-label no-padding-right" for="form-input-readonly">																	
-																	<strong>所有者</strong> </label>
+																	<label class="col-sm-3 control-label no-padding-right" for="owner-select">
+																		<strong>所有者</strong>
+																	</label>
 																	<div class="col-sm-9">
 																		<select id="owner-select" name="owner">
 																			<option value="">选择用户</option>
@@ -173,8 +197,8 @@
 																	</div>
 																</div>
 							
-																<div class="form-group">
-																	<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>硬盘</strong></label>
+																<div class="form-group" id="field-disk-size">
+																	<label class="col-sm-3 control-label no-padding-right" for="form-field-5"><strong>硬盘</strong></label>
 							
 																	<div class="col-sm-9">
 																		<input class="input-sm" type="text" id="form-field-5" placeholder="单位GB" name="disk" />											
@@ -428,7 +452,7 @@
 							
 																<div class="form-group">
 																	<label class="col-sm-3 control-label no-padding-right" for="form-input-readonly">																	
-																	<strong> 操作系统安装盘</strong> </label>
+																	<strong> 操作系统安装盘1</strong> </label>
 							
 																	<div class="col-sm-9">
 																		<select id="system-select" name="system">
@@ -537,8 +561,41 @@
 						var val = parseInt(ui.value);
 						$('#form-field-6').attr('class', sizing[val]).val(sizing[val]);
 					}
-				});				
-					
+				});
+
+
+				$('#storage-install-type').on('change', function(){
+					var installType = $(this).val();
+					if(installType == "new") {
+						$("#field-system-select").show();
+						$("#field-disk-select").hide();
+						$("#field-disk-size").show();
+					} else if(installType == "existing") {
+						$("#field-system-select").hide();
+						$("#field-disk-select").show();
+						$("#field-disk-size").hide();
+					}
+				});
+				$('#storage-install-type').trigger('change');
+
+				$('#vStorage-select').on('change', function(){
+					var poolName = $('#vStorage-select').val();
+					$.ajax({
+						dataType: "JSON",
+						url:'/api/vmstorage/{{ vmServer.id }}/' + poolName,
+						type:"GET",
+						success:function(response){
+							var poolVols = response.pool_vols;
+							$('#disk-select option[value!=""]').remove();
+							poolVols.forEach(function(poolVol) {
+								if(poolVol.vol_type == 'qcow2' || poolVol.vol_type == 'raw') {
+									$('#disk-select').append("<option value='" + poolVol.vol_name + "'>" + poolVol.vol_name + "</option>")
+								}
+							});
+						}
+					})
+				});
+				$('#vStorage-select').trigger('change');
 			});
 			
 
@@ -617,14 +674,19 @@
 				btnObj.attr('disabled',true);
 
 				var server_data = {};
-				var required = ['vm_name','cpu',"system","disk","mem","storage"]; /* 必填项列表 */
+				var required = ['vm_name','cpu',"mem","storage"]; /* 必填项列表 */
+				if($("#storage-install-type").val() == 'new') {
+					required.push("disk");
+					required.push("system");
+				}
+
 				var form = document.getElementById('addInstance');
 				for (var i = 1; i < form.length; ++i) {
 					var name = form[i].name;
 					var value = form[i].value;	
 					idx = $.inArray(name, required);						
 					if (idx >= 0 && value.length == 0){
-						window.wxc.xcConfirm("请注意必填项不能为空~", window.wxc.xcConfirm.typeEnum.error);
+						window.wxc.xcConfirm("请注意必填项不能为空~"+name, window.wxc.xcConfirm.typeEnum.error);
 						btnObj.removeAttr('disabled');
 						return false;
 					};	
