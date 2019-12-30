@@ -181,33 +181,45 @@ def modfInstance(request,id):
     try:
         vServer = VmServer.objects.get(id=id)
     except Exception,e:
-        return JsonResponse({"code":500,"msg":"找不到主机资源","data":e})          
+        return JsonResponse({"code":500,"msg":"找不到主机资源","data":e})
+
     if request.method == "POST":
         if CommTools.argsCkeck(args=['op','server_id','vm_name'], data=request.POST) and request.user.has_perm('VManagePlatform.change_vmserverinstance'):
             LIBMG = LibvirtManage(vServer.server_ip,vServer.username, vServer.passwd,vServer.vm_type)  
             SERVER = LIBMG.genre(model='server')
-            STROAGE = LIBMG.genre(model='storage')
+            STORAGE = LIBMG.genre(model='storage')
             INSTANCE = LIBMG.genre(model='instance')
+
             if SERVER:
                 instance = INSTANCE.queryInstance(name=str(request.POST.get('vm_name')))  
                 if instance is False:
                     LIBMG.close()
                     return  JsonResponse({"code":404,"data":None,"msg":"虚拟机不存在，或者已经被删除。"})     
-            else:return  JsonResponse({"code":500,"data":None,"msg":"虚拟主机链接失败。"}) 
+            else:return  JsonResponse({"code":500,"data":None,"msg":"虚拟主机链接失败。"})
+
             #调整磁盘            
             if request.POST.get('device') == 'disk':   
                 if request.POST.get('op') == 'attach':                     
                     if instance.state()[0] == 5:return  JsonResponse({"code":500,"data":None,"msg":"请先启动虚拟机。"})
-                    storage = STROAGE.getStoragePool(pool_name=request.POST.get('pool_name'))                     
+                    storage = STORAGE.getStoragePool(pool_name=request.POST.get('pool_name'))
                     if storage:
-                        volume = STROAGE.createVolumes(pool=storage, volume_name=request.POST.get('vol_name'),
-                                                       drive=request.POST.get('vol_drive'), volume_capacity=request.POST.get('vol_size'))
-                        if volume and not isinstance(volume, str):      #libvirt.virStorageVol
+                        vol_choose_type = request.POST.get('choosetype')
+                        if vol_choose_type == "new":
+                            volume = STORAGE.createVolumes(pool=storage, volume_name=request.POST.get('vol_name'),
+                                                           drive=request.POST.get('vol_drive'), volume_capacity=request.POST.get('vol_size'))
+                            if volume and not isinstance(volume, str):      #libvirt.virStorageVol
+                                volPath = volume.path()
+                                volume_name = volume.name()
+                            else:
+                                LIBMG.close()
+                                return  JsonResponse({"code":500,"data":None,"msg":"卷已经存在。"})
+                        else:
+                            volume = STORAGE.getStorageVolume(storage, request.POST.get('vol'))
+                            if not volume or isinstance(volume, str):
+                                return JsonResponse({"code":500,"msg":"卷不存在。","data":None})
                             volPath = volume.path()
                             volume_name = volume.name()
-                        else:
-                            LIBMG.close()
-                            return  JsonResponse({"code":500,"data":None,"msg":"卷已经存在。"})
+
                         status = INSTANCE.addInstanceDisk(instance, volPath)
                         LIBMG.close()
                         if isinstance(status,int):
@@ -229,7 +241,8 @@ def modfInstance(request,id):
                             return  JsonResponse({"code":500,"data":status,"msg":status})
                     else: 
                         LIBMG.close()                       
-                        return  JsonResponse({"code":404,"data":None,"msg":"存储池不存在，或者已经被删除。"})                             
+                        return  JsonResponse({"code":404,"data":None,"msg":"存储池不存在，或者已经被删除。"})
+
                 elif  request.POST.get('op') == 'detach':
                     status = INSTANCE.delInstanceDisk(instance, volPath=request.POST.get('disk'))    
                     LIBMG.close()
@@ -243,7 +256,8 @@ def modfInstance(request,id):
                         recordLogs.delay(server_id=vServer.id,vm_name=request.POST.get('vm_name'),
                                              content="虚拟机{name},删除硬盘{volume_name}".format(name=request.POST.get('vm_name'),volume_name=request.POST.get('volPath')),
                                              user=str(request.user),status=1,result=status)                         
-                        return  JsonResponse({"code":500,"data":status,"msg":status})                     
+                        return  JsonResponse({"code":500,"data":status,"msg":status})
+
             #调整网卡
             elif  request.POST.get('device') == 'netk':
                 if request.POST.get('op') == 'attach': 
@@ -270,6 +284,7 @@ def modfInstance(request,id):
                                          content="虚拟机{name}删除网卡".format(name=request.POST.get('vm_name')),
                                          user=str(request.user),status=1,result=result)                         
                         return  JsonResponse({"code":500,"data":None,"msg":result})
+
             #调整内存大小
             elif  request.POST.get('device') == 'mem':
                 if request.POST.get('op') == 'attach': 
@@ -286,6 +301,7 @@ def modfInstance(request,id):
                                                                          size=request.POST.get('mem')),
                                          user=str(request.user),status=1)                         
                         return  JsonResponse({"code":500,"data":None,"msg":"不能设置虚拟机内存超过宿主机机器的物理内存"})
+
             #调整cpu个数   
             elif  request.POST.get('device') == 'cpu':
                 if request.POST.get('op') == 'attach': 
