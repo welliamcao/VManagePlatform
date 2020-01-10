@@ -28,6 +28,7 @@ if django.VERSION >= (1, 7):#自动判断版本
                     
 @task()
 def updateVMserver():
+    '''刷新宿主机信息和状态'''
     serverList = VmServer.objects.all()   
     for server in  serverList: 
         VMS = LibvirtManage(server.server_ip,server.username, server.passwd, server.vm_type,pool=False)
@@ -36,23 +37,25 @@ def updateVMserver():
             if server.status == 0:
                 data = SERVER.getVmServerInfo()
                 try:
+                    #更新实例数，内存，CPU数
                     VmServer.objects.filter(id=server.id).update(instance=data.get('ins'),mem=data.get('mem'),
                                                           cpu_total=data.get('cpu_total'))
-                    VMS.close()
                 except Exception,e:
                     return e
             elif server.status == 1:
                 try:
+                    #更新实例状态
                     VmServer.objects.filter(id=server.id).update(status=0)
                 except Exception,e:
-                    return e                     
-            
- 
+                    return e
+        VMS.close()
 
 
 @task
 def updateVMinstance(host=None):
+    '''刷新虚拟机信息和状态'''
     if host is None:
+        #所有虚拟机
         serverList = VmServer.objects.all()    
         for server in  serverList:
             if server.status == 0: 
@@ -67,16 +70,19 @@ def updateVMinstance(host=None):
                                 ips = k + ':' + v.get('addr') + '/' + str(v.get('prefix')) 
                                 ipaddress = ips + '\n' + ipaddress  
                         result = VmServerInstance.objects.filter(server=server,name=ds.get('name'))
-                        if result:VmServerInstance.objects.filter(server=server,name=ds.get('name')).update(server=server,cpu=ds.get('cpu'),
+                        if result:
+                            #更新记录
+                            VmServerInstance.objects.filter(server=server,name=ds.get('name')).update(server=server,cpu=ds.get('cpu'),
                                                                                                             mem=ds.get('mem'),status=ds.get('status'),
                                                                                                             name=ds.get('name'),token=ds.get('token'),
                                                                                                             vnc=ds.get('vnc'),ips=ipaddress)
-                                                                                                            
-                        else:VmServerInstance.objects.create(server=server,cpu=ds.get('cpu'),
+                        else:
+                            #创建记录
+                            VmServerInstance.objects.create(server=server,cpu=ds.get('cpu'),
                                                              mem=ds.get('mem'),vnc=ds.get('vnc'),
                                                              status=ds.get('status'),name=ds.get('name'),
                                                              token=ds.get('token'),ips=ipaddress)
-                    VMS.close()
+                VMS.close()
                     
     else:
         server =  VmServer.objects.get(server_ip=host)
@@ -92,15 +98,19 @@ def updateVMinstance(host=None):
                             ips = k + ':' + v.get('addr') + '/' + str(v.get('prefix')) 
                             ipaddress = ips + '\n' + ipaddress                           
                     result = VmServerInstance.objects.filter(server=server,name=ds.get('name'))
-                    if result:VmServerInstance.objects.filter(server=server,name=ds.get('name')).update(server=server,cpu=ds.get('cpu'),
+                    if result:
+                        #更新记录
+                        VmServerInstance.objects.filter(server=server,name=ds.get('name')).update(server=server,cpu=ds.get('cpu'),
                                                                                                         mem=ds.get('mem'),vnc=ds.get('vnc'),
                                                                                                         status=ds.get('status'),name=ds.get('name'),
                                                                                                         token=ds.get('token'),ips=ipaddress)
-                    else:VmServerInstance.objects.create(server=server,cpu=ds.get('cpu'),
+                    else:
+                        #创建记录
+                        VmServerInstance.objects.create(server=server,cpu=ds.get('cpu'),
                                                          mem=ds.get('mem'),status=ds.get('status'),
                                                          name=ds.get('name'),token=ds.get('token'),
                                                          vnc=ds.get('vnc'),ips=ipaddress)
-                VMS.close()   
+            VMS.close()
 
 
 @task()

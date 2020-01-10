@@ -81,24 +81,28 @@
 																				
 																				<li>
 																					<i class="icon-caret-right blue"></i>
-																					获取<strong>宿主机</strong>的信息以及状态：<ins><strong>tasks.updateVMserver</strong></ins>
+																					刷新<strong>宿主机</strong>的信息以及状态的任务：<ins><strong>tasks.updateVMserver</strong></ins>
 																				</li>
 																					
 																				<li>
 																					<i class="icon-caret-right blue"></i>
-																					获取<strong>虚拟机</strong>的信息以及状态：<ins><strong>tasks.updateVMinstance</strong></ins>
+																					刷新<strong>虚拟机</strong>的信息以及状态的任务：<ins><strong>tasks.updateVMinstance</strong></ins>
 																				</li>
 																				<li>
 																					<i class="icon-caret-right blue"></i>
-																					同步<strong>我的虚拟机</strong>的信息以及状态：<ins><strong>tasks.checkVMinstance</strong></ins>
+																					同步<strong>我的虚拟机</strong>的信息以及状态的任务：<ins><strong>tasks.checkVMinstance</strong></ins>
 																				</li>																				
 																				<li>
 																					<i class="icon-caret-right blue"></i>
-																					如果<ins><strong>tasks.updateVMinstance</strong></ins>不带参数，则是获取<strong>所有宿主机的实例状态</strong>，如果宿主机器过多建议传递宿主机的<strong>IP地址</strong>作为参数。
+																					如果<ins><strong>tasks.updateVMinstance</strong></ins>不带参数，则是获取<strong>所有宿主机</strong>的实例状态，如果宿主机器过多建议传递宿主机的<strong>IP地址</strong>作为参数。
 																				</li>
 																				<li>
 																					<i class="icon-caret-right blue"></i>
-																					使用<ins><strong>tasks.updateVMinstance</strong></ins>，建议间隔时间大于5秒。
+																					使用<ins><strong>tasks.updateVMinstance</strong></ins>时，建议任务执行间隔时间大于5秒。
+																				</li>
+																				<li>
+																					<i class="icon-caret-right blue"></i>
+																					<strong>python manage.py celery beat</strong>命令启动任务调度进程， <strong>python manage.py celery worker</strong>命令启动任务执行进程
 																				</li>
 									
 																			</ul>
