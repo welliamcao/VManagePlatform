@@ -13,7 +13,7 @@ class VmServer(models.Model):
     mem = models.CharField(max_length=100,blank=True,null=True,verbose_name='内存容量')
     cpu_total = models.SmallIntegerField(blank=True,null=True,verbose_name='CPU个数') 
     status =  models.SmallIntegerField(blank=True,null=True,verbose_name='状态')
-    description = models.CharField(max_length=200,verbose_name='备注')
+    description = models.CharField(max_length=200,null=True,verbose_name='备注')
     createTime = models.DateTimeField(auto_now_add=True,blank=True,null=True)
     modifyTime = models.DateTimeField(auto_now=True,blank=True,null=True)
     class Meta:
@@ -71,7 +71,7 @@ class VmServerInstance(models.Model):
     token = models.CharField(max_length=100,blank=True,null=True,verbose_name='令牌')
     ips = models.TextField(max_length=200,blank=True,null=True,verbose_name='ip地址')
     vnc = models.SmallIntegerField(blank=True,null=True,verbose_name='VNC端口')
-    description = models.CharField(max_length=200,verbose_name='备注')
+    description = models.CharField(max_length=200,null=True,verbose_name='备注')
     createTime = models.DateTimeField(auto_now_add=True,blank=True,null=True)
     modifyTime = models.DateTimeField(auto_now=True,blank=True,null=True)
     class Meta:

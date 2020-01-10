@@ -25,8 +25,8 @@
 								<label>
 									<input type="checkbox" class="ace" />
 									<span class="lbl"></span>
+									主机名
 								</label>
-								主机名
 							</th>
 							<th>管理IP地址</th>
 							<th>CPU个数</th>
@@ -38,6 +38,8 @@
 							</th>
 
 							<th class="hidden-480">状态</th>
+
+							<th class="hidden-480">备注</th>
 
 							<th class="col-sm-2">操作</th>
 						</tr>
@@ -79,6 +81,9 @@
 									</span>
 								{% endif %}
 							</td>
+							<td class="hidden-480">
+								{{ ds.description }}
+							</td>
 
 							<td>
 								<div class="visible-md visible-lg hidden-sm hidden-xs action-buttons">
@@ -90,6 +95,9 @@
 
 										<ul class="dropdown-menu dropdown-info pull-right">
 											<li>
+												<a href="/viewServer/{{ds.id}}/">详细信息</a>
+											</li>
+											<li>
 												<a href="/addInstance/{{ ds.id }}">创建虚拟机</a>
 											</li>
 											<li>
@@ -98,11 +106,14 @@
 											<li class="divider"></li>
 
 											<li>
-												<a href="/viewServer/{{ds.id}}/">详细信息</a>
+												<a href="javascript:" onclick="onBtnHandleServerSetName(this, {{ ds.id  }})">修改主机名</a>
+											</li>
+											<li>
+												<a href="javascript:" onclick="onBtnHandleServerSetDesc(this, {{ ds.id  }})">设置备注</a>
 											</li>
 
 											<li>
-												<a href="javascript:" onclick="onBtnHandleServer(this,{{ ds.id  }},'delete','{{ ds.server_ip }}')">删除主机</a>
+												<a href="javascript:" onclick="onBtnHandleServer(this, {{ ds.id  }}, 'delete', '{{ ds.server_ip }}')">删除主机</a>
 											</li>
 
 <!-- 																		<li> -->
@@ -136,6 +147,7 @@
 			"aoColumns": [
 			  { "bSortable": false },
 			  null, null,null, null, null,
+			  { "bSortable": false },
 			  { "bSortable": false }
 			] } );
 
@@ -163,6 +175,54 @@
 				return 'left';
 			}
 		})
+
+	   	function onBtnHandleServerSetName(obj, id){
+	   		layer.prompt({title: '请输入新主机名', formType: 0}, function(value, index){
+			  	layer.close(index);
+
+				$.ajax({
+					type: 'PUT',
+					url: '/api/vmserver/hostname/'+ id +'/',
+					data: value,
+					success:function(response){
+						layer.alert('修改成功', function() {
+							layer.closeAll();
+							window.location.reload();
+						});
+					},
+					error:function(response){
+						layer.alert('修改失败', {icon: 2});
+					},
+					complete: function(response){
+						//btnObj.removeAttr('disabled');
+					}
+				});
+			});
+		}
+
+	   	function onBtnHandleServerSetDesc(obj, id){
+	   		layer.prompt({title: '请输入备注', formType: 0}, function(value, index){
+			  	layer.close(index);
+
+				$.ajax({
+					type: 'PUT',
+					url: '/api/vmserver/desc/'+ id +'/',
+					data: value,
+					success:function(response){
+						layer.alert('修改成功', function() {
+							layer.closeAll();
+							window.location.reload();
+						});
+					},
+					error:function(response){
+						layer.alert('修改失败', {icon: 2});
+					},
+					complete: function(response){
+						//btnObj.removeAttr('disabled');
+					}
+				});
+			});
+		}
 
 	   	function onBtnHandleServer(obj,id,op,hostname){
 			var btnObj = $(obj);

@@ -69,6 +69,8 @@ urlpatterns = [
     url(r'^profile/',vProfile.profile),
     url(r'^vnc/(?P<id>[0-9]+)/(?P<vnc>\d+)/(?P<uuid>.*)/',vComs.run_vnc),
     url(r'^api/vmserver/(?P<id>[0-9]+)/$', rest_vMserver.vmServer_detail),
+    url(r'^api/vmserver/hostname/(?P<id>[0-9]+)/$', rest_vMserver.vmServer_hostname),
+    url(r'^api/vmserver/desc/(?P<id>[0-9]+)/$', rest_vMserver.vmServer_desc),
     url(r'^api/logs/$', rest_vmlog.vmlog_list),
     url(r'^api/logs/(?P<id>[0-9]+)/$', rest_vmlog.vmlog_detail),
     url(r'^api/log/(?P<username>.+)/$', rest_vmlog.LogsList.as_view()),
