@@ -8,7 +8,7 @@
 			<div class="widget-header widget-header-large">
 					<h4>
 						<i class="icon-edit"></i>
-						添加管理主机
+						添加宿主机
 					</h4>
 
 					<div class="widget-toolbar">
@@ -37,20 +37,21 @@
 						<fieldset>
 
 						<div class="form-group" >
-							 <label class="col-sm-2 control-label">主机名*</label>
+							 <label class="col-sm-3 control-label">主机名*</label>
 							 <div class="col-sm-6">
 							 	<input type="text" class="form-control" name="hostname" placeholder="hostname" value="" title="请输入主机名称"  class="input-xlarge" required/>
 							 </div>
 						</div>
 						
 						<div class="form-group" >
-							 <label class="col-sm-2 control-label">主机地址*</label>
+							 <label class="col-sm-3 control-label">管理IP地址*</label>
 							 <div class="col-sm-6">
 							 	<input type="text" class="form-control" name="server_ip" placeholder="Ip Address" value="" pattern="^(\d+\.\d+\.\d+\.\d+|[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(/.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+/.?))$" title="请输入IP地址或者域名"  class="input-xlarge" required/>
 							 </div>
-						</div>				
+						</div>
+
 						<div class="form-group" >
-							 <label class="col-sm-2 control-label">虚拟化类型*</label>
+							 <label class="col-sm-3 control-label">连接方式*</label>
 							 <div class="col-sm-6">
 								<select id="pool_type" name="vm_type" onchange="javascript:oBtLibvirtTypeSelect();">
 									<option value="1">TCP</option>
@@ -63,27 +64,25 @@
 						
 						<div class="form-group" style="display: none;" id="username">
 							<div class="form-group">
-								 <label class="col-sm-2 control-label">&nbsp;用户*</label>
+								 <label class="col-sm-3 control-label">&nbsp;用户*</label>
 								 <div class="col-sm-6">
 								 <input type="text" class="form-control" name="username" placeholder="root"  class="input-xlarge" value="" />
 								 </div>
-							</div>							
-	
+							</div>
 						
 							<div class="form-group">
-								 <label class="col-sm-2 control-label">&nbsp;密码*</label>
+								 <label class="col-sm-3 control-label">&nbsp;密码*</label>
 								 <div class="col-sm-6">
 								 <input type="password" class="form-control" name="passwd" placeholder="root"  class="input-xlarge" value="" />
 								 </div>
 							</div>							
-						</div>						
-						
+						</div>
 					
 						</fieldset>
 						<legend></legend>
 						<div class="form-group">
 						<label class="col-sm-3 control-label"></label>
-						<button type="button" id="add_host_submit" onclick="repealFromVaule(this)" class="btn btn-danger" >撤销操作</button>
+						<button type="button" id="add_host_submit" onclick="repealFromVaule()" class="btn btn-danger" >取消操作</button>
 				 		<button type="submit" class="btn btn-primary" >确认提交</button>
 				 		</div>
 				 		
@@ -98,20 +97,28 @@
 	window.wxc.xcConfirm('{{errorInfo}}', window.wxc.xcConfirm.typeEnum.error);
 {% endif %}
 	
-	   function oBtLibvirtTypeSelect() {
-		   var obj = document.getElementById("pool_type"); 
-		   var index = obj.selectedIndex;
-		   var value = obj.options[index].value; 
-		   if (value=="2"){
-			   document.getElementById("username").style.display="";
-		   }
-		   else if (value=="3"){
-			   document.getElementById("username").style.display="";   
-		   }	
-		   else {
-			   document.getElementById("username").style.display="none";   
-		   }		   
+	function oBtLibvirtTypeSelect() {
+	   var obj = document.getElementById("pool_type");
+	   var index = obj.selectedIndex;
+	   var value = obj.options[index].value;
+	   if (value=="1"){
+		   document.getElementById("username").style.display="";
 	   }
+	   else if (value=="2"){
+		   document.getElementById("username").style.display="none";
+	   }
+	   else if (value=="3"){
+		   document.getElementById("username").style.display="";
+	   }
+	   else {
+		   document.getElementById("username").style.display="none";
+	   }
+	}
+   	oBtLibvirtTypeSelect();
+
+	function repealFromVaule() {
+	    $("#addHost").clearForm();
+	}
 	
 </script> 		
 			

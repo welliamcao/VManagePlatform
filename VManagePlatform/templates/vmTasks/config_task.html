@@ -81,24 +81,28 @@
 																				
 																				<li>
 																					<i class="icon-caret-right blue"></i>
-																					获取<strong>宿主机</strong>的信息以及状态：<ins><strong>tasks.updateVMserver</strong></ins>
+																					刷新<strong>宿主机</strong>的信息以及状态的任务：<ins><strong>tasks.updateVMserver</strong></ins>
 																				</li>
 																					
 																				<li>
 																					<i class="icon-caret-right blue"></i>
-																					获取<strong>虚拟机</strong>的信息以及状态：<ins><strong>tasks.updateVMinstance</strong></ins>
+																					刷新<strong>虚拟机</strong>的信息以及状态的任务：<ins><strong>tasks.updateVMinstance</strong></ins>
 																				</li>
 																				<li>
 																					<i class="icon-caret-right blue"></i>
-																					同步<strong>我的虚拟机</strong>的信息以及状态：<ins><strong>tasks.checkVMinstance</strong></ins>
+																					同步<strong>我的虚拟机</strong>的信息以及状态的任务：<ins><strong>tasks.checkVMinstance</strong></ins>
 																				</li>																				
 																				<li>
 																					<i class="icon-caret-right blue"></i>
-																					如果<ins><strong>tasks.updateVMinstance</strong></ins>不带参数，则是获取<strong>所有宿主机的实例状态</strong>，如果宿主机器过多建议传递宿主机的<strong>IP地址</strong>作为参数。
+																					如果<ins><strong>tasks.updateVMinstance</strong></ins>不带参数，则是获取<strong>所有宿主机</strong>的实例状态，如果宿主机器过多建议传递宿主机的<strong>IP地址</strong>作为参数。
 																				</li>
 																				<li>
 																					<i class="icon-caret-right blue"></i>
-																					使用<ins><strong>tasks.updateVMinstance</strong></ins>，建议间隔时间大于5秒。
+																					使用<ins><strong>tasks.updateVMinstance</strong></ins>时，建议任务执行间隔时间大于5秒。
+																				</li>
+																				<li>
+																					<i class="icon-caret-right blue"></i>
+																					<strong>python manage.py celery beat</strong>命令启动任务调度进程， <strong>python manage.py celery worker</strong>命令启动任务执行进程
 																				</li>
 									
 																			</ul>
@@ -112,7 +116,7 @@
 		
 														<button class="btn btn-xs btn-success pull-left" class="btn btn-primary btn-lg" data-toggle="modal"  data-target="#addCrontabModal">
 															<i class="icon-arrow-right icon-plus"></i>
-															<span class="bigger-110">添加计划任务</span>
+															<span class="bigger-110">添加计划调度</span>
 														</button>
 													</div>												
 													<div>
@@ -178,7 +182,7 @@
 		
 														<button class="btn btn-xs btn-success pull-left" class="btn btn-primary btn-lg" data-toggle="modal"  data-target="#addIntervalModal">
 															<i class="icon-arrow-right icon-plus"></i>
-															<span class="bigger-110">添加间隔任务</span>
+															<span class="bigger-110">添加间隔调度</span>
 														</button>
 													</div>												
 													<div>
@@ -381,10 +385,10 @@
 																	
 
 								<div class="form-group">
-										<label class="col-sm-3 control-label no-padding-right" for="form-field-3"><strong>计划类型</strong></label>
+										<label class="col-sm-3 control-label no-padding-right" for="form-field-3"><strong>计划调度</strong></label>
 											<div class="col-sm-9">
 												<select name="crontab">
-													<option value="">选择一个计划任务</option>
+													<option value="">选择一个计划调度</option>
 													{% for cron in crontabList %}
 														{% if ds.crontab_id == cron.id %}
 															<option selected="selected" value="{{cron.id}}">{{cron.minute}}&nbsp;{{cron.hour}}&nbsp;{{cron.day_of_week}}&nbsp;{{cron.day_of_month}}&nbsp;{{cron.month_of_year}}</option>
@@ -399,10 +403,10 @@
 
 								
 								<div class="form-group">
-										<label class="col-sm-3 control-label no-padding-right" for="form-field-3"><strong>间隔类型</strong></label>
+										<label class="col-sm-3 control-label no-padding-right" for="form-field-3"><strong>间隔调度</strong></label>
 											<div class="col-sm-9">
 												<select name="interval">
-													<option value="">选择一个间隔类型</option>
+													<option value="">选择一个间隔调度</option>
 													{% for inter in intervalList %}
 														{% if ds.interval_id == inter.id %}
 															<option   selected="selected" value="{{inter.id}}">{{inter.every}}&nbsp;{{inter.period}}</option>
@@ -659,10 +663,10 @@
 								</div>	
 								
 								<div class="form-group" style="display: none;" id="div_crontab">
-										<label class="col-sm-3 control-label no-padding-right" for="form-field-3"><strong>计划类型*</strong></label>
+										<label class="col-sm-3 control-label no-padding-right" for="form-field-3"><strong>计划调度*</strong></label>
 											<div class="col-sm-9">
 												<select name="crontab">
-													<option value="">选择一个计划任务</option>
+													<option value="">选择一个计划调度</option>
 													{% for ds in crontabList %}
 														<option value="{{ds.id}}">{{ds.minute}}&nbsp;{{ds.hour}}&nbsp;{{ds.day_of_week}}&nbsp;{{ds.day_of_month}}&nbsp;{{ds.month_of_year}}</option>
 													{% endfor %}																																								
@@ -672,10 +676,10 @@
 								</div>
 								
 								<div class="form-group" style="display: none;" id="div_interval">
-										<label class="col-sm-3 control-label no-padding-right" for="form-field-3"><strong>间隔类型*</strong></label>
+										<label class="col-sm-3 control-label no-padding-right" for="form-field-3"><strong>间隔调度*</strong></label>
 											<div class="col-sm-9">
 												<select name="interval">
-													<option value="">选择一个间隔类型</option>
+													<option value="">选择一个间隔调度</option>
 													{% for ds in intervalList %}
 														<option value="{{ds.id}}">{{ds.every}}&nbsp;{{ds.period}}</option>
 													{% endfor %}																																								
@@ -708,7 +712,6 @@
 								</div>	
 								<div class="form-group">
 										<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>过期时间</strong></label>
-							
 
 										<div class="col-sm-9">
 											<input class="input-sm" type="text"   value="" placeholder="2017-01-10 00:00:01" name="expires" />																				
@@ -717,17 +720,14 @@
 								</div>	
 								<div class="form-group">
 										<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>是否激活</strong></label>
-							
 
 										<div class="col-sm-9">
 											<select name="enabled">
 													<option selected="selected" value="1">激活</option>
 													<option value="0">冻结</option>																																								
 											</select>																				
-										</div>																				
-										
-								</div>				
-																		
+										</div>
+								</div>
 						</form>	
 						
 					</div>
@@ -747,310 +747,311 @@
 	
 	<script type="text/javascript">
 	
-	jQuery(function($) {
-		var oTable1 = $('#sample-table-2').dataTable( {
-		"aoColumns": [
-	      { "bSortable": false },
-	      null, null,null, null, null,
-		  { "bSortable": false }
-		] } );
-		
-		
-		$('table th input:checkbox').on('click' , function(){
-			var that = this;
-			$(this).closest('table').find('tr > td:first-child input:checkbox')
-			.each(function(){
-				this.checked = that.checked;
-				$(this).closest('tr').toggleClass('selected');
+		jQuery(function($) {
+			var oTable1 = $('#sample-table-2').dataTable( {
+			"aoColumns": [
+			  { "bSortable": false },
+			  null, null,null, null, null,
+			  { "bSortable": false }
+			] } );
+
+
+			$('table th input:checkbox').on('click' , function(){
+				var that = this;
+				$(this).closest('table').find('tr > td:first-child input:checkbox')
+				.each(function(){
+					this.checked = that.checked;
+					$(this).closest('tr').toggleClass('selected');
+				});
+
 			});
-				
-		});
+
+
+			$('[data-rel="tooltip"]').tooltip({placement: tooltip_placement});
+			function tooltip_placement(context, source) {
+				var $source = $(source);
+				var $parent = $source.closest('table')
+				var off1 = $parent.offset();
+				var w1 = $parent.width();
+
+				var off2 = $source.offset();
+				var w2 = $source.width();
+
+				if( parseInt(off2.left) < parseInt(off1.left) + parseInt(w1 / 2) ) return 'right';
+				return 'left';
+			}
+		})
 	
-	
-		$('[data-rel="tooltip"]').tooltip({placement: tooltip_placement});
-		function tooltip_placement(context, source) {
-			var $source = $(source);
-			var $parent = $source.closest('table')
-			var off1 = $parent.offset();
-			var w1 = $parent.width();
-	
-			var off2 = $source.offset();
-			var w2 = $source.width();
-	
-			if( parseInt(off2.left) < parseInt(off1.left) + parseInt(w1 / 2) ) return 'right';
-			return 'left';
-		}
-	})
-	
-	addTaskrequired = ['name','task']; /* 必填项列表 */
-	function oBtTaskTypeSelect() {
-			   var obj = document.getElementById("schetype"); 
-			   var index = obj.selectedIndex;
-			   var value = obj.options[index].value; 
-			   if (value=="select_crontab"){
-				   addTaskrequired = ['name','task',"crontab"]; /* 必填项列表 */
-				   document.getElementById("div_interval").style.display="none";
-				   document.getElementById("div_crontab").style.display="";
-			   }
-			   else if (value=="select_nterval"){
-				   addTaskrequired = ['name','task',"interval"]; /* 必填项列表 */
-				   document.getElementById("div_interval").style.display="";
-				   document.getElementById("div_crontab").style.display="none";
-			   }			   
+		addTaskrequired = ['name','task']; /* 必填项列表 */
+
+		function oBtTaskTypeSelect() {
+		   var obj = document.getElementById("schetype");
+		   var index = obj.selectedIndex;
+		   var value = obj.options[index].value;
+		   if (value=="select_crontab"){
+			   addTaskrequired = ['name','task',"crontab"]; /* 必填项列表 */
+			   document.getElementById("div_interval").style.display="none";
+			   document.getElementById("div_crontab").style.display="";
 		   }
+		   else if (value=="select_nterval"){
+			   addTaskrequired = ['name','task',"interval"]; /* 必填项列表 */
+			   document.getElementById("div_interval").style.display="";
+			   document.getElementById("div_crontab").style.display="none";
+		   }
+		}
+
+		oBtTaskTypeSelect();
 	
-				function addCrontab(obj,op) {	
-					var btnObj = $(obj);
-					btnObj.attr('disabled',true);
-						var server_data = {};
-						var required = ['minute','hour',"day_of_week","day_of_month","month_of_year"]; /* 必填项列表 */
-						var form = document.getElementById('addCrontab');
-						for (var i = 0; i < form.length; ++i) {
-							var name = form[i].name;
-							var value = form[i].value;	
-							idx = $.inArray(name, required);						
-							if (idx >= 0 && value.length == 0){
-								window.wxc.xcConfirm("请注意必填项不能为空~", window.wxc.xcConfirm.typeEnum.error);
-								btnObj.removeAttr('disabled');
-								return false;
-							};	
-							if (  value.length != 0 && name.length != 0 ){
-								server_data[name] = value;
-							};					
-						};				
-						server_data['op'] = op
-						$.ajax({
-							dataType: "JSON",
-							url:'/configTask/', //请求地址
-							type:"POST",  //提交类似
-							data:server_data,  //提交参数
-							success:function(response){
-								btnObj.removeAttr('disabled');
-								if (response["code"] == 200){
+		function addCrontab(obj,op) {
+			var btnObj = $(obj);
+			btnObj.attr('disabled',true);
+			var server_data = {};
+			var required = ['minute','hour',"day_of_week","day_of_month","month_of_year"]; /* 必填项列表 */
+			var form = document.getElementById('addCrontab');
+			for (var i = 0; i < form.length; ++i) {
+				var name = form[i].name;
+				var value = form[i].value;
+				idx = $.inArray(name, required);
+				if (idx >= 0 && value.length == 0){
+					window.wxc.xcConfirm("请注意必填项不能为空~", window.wxc.xcConfirm.typeEnum.error);
+					btnObj.removeAttr('disabled');
+					return false;
+				};
+				if (  value.length != 0 && name.length != 0 ){
+					server_data[name] = value;
+				};
+			};
+			server_data['op'] = op
+			$.ajax({
+				dataType: "JSON",
+				url:'/configTask/', //请求地址
+				type:"POST",  //提交类似
+				data:server_data,  //提交参数
+				success:function(response){
+					btnObj.removeAttr('disabled');
+					if (response["code"] == 200){
+						window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
+					}
+					else {
+						window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+					}
+
+				},
+				error:function(response){
+					btnObj.removeAttr('disabled');
+					window.wxc.xcConfirm(response["data"], window.wxc.xcConfirm.typeEnum.error);
+				}
+			});
+		}
+				
+		function addInterval(obj,op) {
+			var btnObj = $(obj);
+			btnObj.attr('disabled',true);
+			var server_data = {};
+			var required = ['every']; /* 必填项列表 */
+			var form = document.getElementById('addInterval');
+			for (var i = 0; i < form.length; ++i) {
+				var name = form[i].name;
+				var value = form[i].value;
+				idx = $.inArray(name, required);
+				if (idx >= 0 && value.length == 0){
+					window.wxc.xcConfirm("请注意必填项不能为空~", window.wxc.xcConfirm.typeEnum.error);
+					btnObj.removeAttr('disabled');
+					return false;
+				};
+				if (  value.length != 0 && name.length != 0 ){
+					server_data[name] = value;
+				};
+			};
+			server_data['op'] = op
+			$.ajax({
+				dataType: "JSON",
+				url:'/configTask/', //请求地址
+				type:"POST",  //提交类似
+				data:server_data,  //提交参数
+				success:function(response){
+					btnObj.removeAttr('disabled');
+					if (response["code"] == 200){
+						window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
+					}
+					else {
+						window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+					}
+
+				},
+				error:function(response){
+					btnObj.removeAttr('disabled');
+					window.wxc.xcConfirm(response["data"], window.wxc.xcConfirm.typeEnum.error);
+				}
+			});
+		}
+				
+		function onBtnHandleCrontab(obj,id,op){
+			var btnObj = $(obj);
+			var txt=  "是否确认删除？";
+			var option = {
+				title: "删除("+id+")",
+				btn: parseInt("0011",2),
+				onOk: function(){
+					$.ajax({
+						  type: 'POST',
+						  url: '/configTask/',
+						  data:{
+								"id":id,
+								"op":op,
+							},
+						  success:function(response){
+								if (response["code"]=="200"){
 									window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
+
 								}
-								else {
+								else{
 									window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
 								}
-								
-							},
-					    	error:function(response){
-					    		btnObj.removeAttr('disabled');
-					    		window.wxc.xcConfirm(response["data"], window.wxc.xcConfirm.typeEnum.error);
-					    	}
-						});	
-					}
+						},
+						error:function(response){
+							window.wxc.xcConfirm("操作失败", window.wxc.xcConfirm.typeEnum.error);
+						},
+					});
+				},
+				onCancel:function(){
+				},
+				onClose:function(){
+				}
+			}
+			window.wxc.xcConfirm(txt, "custom", option);
+		}
 				
-				function addInterval(obj,op) {	
-					var btnObj = $(obj);
-					btnObj.attr('disabled',true);
-						var server_data = {};
-						var required = ['every']; /* 必填项列表 */
-						var form = document.getElementById('addInterval');
-						for (var i = 0; i < form.length; ++i) {
-							var name = form[i].name;
-							var value = form[i].value;	
-							idx = $.inArray(name, required);						
-							if (idx >= 0 && value.length == 0){
-								window.wxc.xcConfirm("请注意必填项不能为空~", window.wxc.xcConfirm.typeEnum.error);
-								btnObj.removeAttr('disabled');
-								return false;
-							};	
-							if (  value.length != 0 && name.length != 0 ){
-								server_data[name] = value;
-							};					
-						};				
-						server_data['op'] = op
-						$.ajax({
-							dataType: "JSON",
-							url:'/configTask/', //请求地址
-							type:"POST",  //提交类似
-							data:server_data,  //提交参数
-							success:function(response){
-								btnObj.removeAttr('disabled');
-								if (response["code"] == 200){
+				
+		function addTask(obj,op) {
+			var btnObj = $(obj);
+			btnObj.attr('disabled',true);
+			var server_data = {};
+			var form = document.getElementById('addTask');
+			for (var i = 0; i < form.length; ++i) {
+				var name = form[i].name;
+				var value = form[i].value;
+				idx = $.inArray(name, addTaskrequired);
+				if (idx >= 0 && value.length == 0){
+					window.wxc.xcConfirm("请注意必填项不能为空~", window.wxc.xcConfirm.typeEnum.error);
+					btnObj.removeAttr('disabled');
+					return false;
+				};
+				if (  value.length != 0 && name.length != 0 ){
+					server_data[name] = value;
+				};
+			};
+			server_data['op'] = op
+			$.ajax({
+				dataType: "JSON",
+				url:'/configTask/', //请求地址
+				type:"POST",  //提交类似
+				data:server_data,  //提交参数
+				success:function(response){
+					btnObj.removeAttr('disabled');
+					if (response["code"] == 200){
+						window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
+					}
+					else {
+						window.wxc.xcConfirm(response["data"], window.wxc.xcConfirm.typeEnum.error);
+					}
+				},
+				error:function(response){
+					btnObj.removeAttr('disabled');
+					window.wxc.xcConfirm(response["data"], window.wxc.xcConfirm.typeEnum.error);
+				}
+			});
+		}
+				
+		function editTask(obj,id,op) {
+			var btnObj = $(obj);
+			btnObj.attr('disabled',true);
+			var server_data = {};
+			var required = ['name','task'];
+			var form = document.getElementById('editTask-'+id);
+			for (var i = 0; i < form.length; ++i) {
+				var name = form[i].name;
+				var value = form[i].value;
+				idx = $.inArray(name,required);
+				if (idx >= 0 && value.length == 0){
+					window.wxc.xcConfirm("请注意必填项不能为空~", window.wxc.xcConfirm.typeEnum.error);
+					btnObj.removeAttr('disabled');
+					return false;
+				};
+				if (  value.length != 0 && name.length != 0 ){
+					server_data[name] = value;
+				};
+			};
+			server_data['op'] = op;
+			server_data['id'] = id;
+			if (server_data.hasOwnProperty('crontab') && server_data.hasOwnProperty('interval')){
+				window.wxc.xcConfirm("间隔调度与计划调度不能同时作用于Task", window.wxc.xcConfirm.typeEnum.error);
+				btnObj.removeAttr('disabled');
+				return false;
+			}
+			$.ajax({
+				dataType: "JSON",
+				url:'/configTask/', //请求地址
+				type:"POST",  //提交类似
+				data:server_data,  //提交参数
+				success:function(response){
+					btnObj.removeAttr('disabled');
+					if (response["code"] == 200){
+						window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
+					}
+					else {
+						window.wxc.xcConfirm(response["data"], window.wxc.xcConfirm.typeEnum.error);
+					}
+				},
+				error:function(response){
+					btnObj.removeAttr('disabled');
+					window.wxc.xcConfirm(response["data"], window.wxc.xcConfirm.typeEnum.error);
+				}
+			});
+		}
+				
+				
+		function delTask(obj,id,name,op){
+			var btnObj = $(obj);
+			if ( op == 'delTask'){
+				var txt=  "是否确认删除？"
+			}
+			else if ( op == 'shutdown'){
+				var txt=  "是否确认关闭？"
+			};
+			var option = {
+				title: "删除("+name+")",
+				btn: parseInt("0011",2),
+				onOk: function(){
+					$.ajax({
+						  type: 'POST',
+						  url: '/configTask/',
+						  data:{
+								"id":id,
+								"op":op,
+							},
+						  success:function(response){
+								if (response["code"]=="200"){
 									window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
+
 								}
-								else {
+								else{
 									window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
 								}
-								
-							},
-					    	error:function(response){
-					    		btnObj.removeAttr('disabled');
-					    		window.wxc.xcConfirm(response["data"], window.wxc.xcConfirm.typeEnum.error);
-					    	}
-						});	
-					}
-				
-				function onBtnHandleCrontab(obj,id,op){
-					var btnObj = $(obj);
-					var txt=  "是否确认删除？";		
-					var option = {
-							title: "删除("+id+")",
-							btn: parseInt("0011",2),
-							onOk: function(){
-								$.ajax({
-									  type: 'POST',
-									  url: '/configTask/',
-									  data:{
-											"id":id,
-											"op":op,
-										},
-								      success:function(response){			            
-							                if (response["code"]=="200"){ 
-							                	window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
-		
-							                }
-								        	else{
-								        		window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
-								        	}						                
-									},
-						            error:function(response){
-						            	window.wxc.xcConfirm("操作失败", window.wxc.xcConfirm.typeEnum.error);
-						            },		
-									});
-							},
-							onCancel:function(){	
-							},
-							onClose:function(){
-							}
-						}			
-					window.wxc.xcConfirm(txt, "custom", option);
+						},
+						error:function(response){
+							window.wxc.xcConfirm("操作失败", window.wxc.xcConfirm.typeEnum.error);
+						},
+					});
+				},
+				onCancel:function(){
+				},
+				onClose:function(){
+				}
 			}
+			window.wxc.xcConfirm(txt, "custom", option);
+		}
 				
-				
-				function addTask(obj,op) {	
-					var btnObj = $(obj);
-					btnObj.attr('disabled',true);
-						var server_data = {};
-						var form = document.getElementById('addTask');
-						for (var i = 0; i < form.length; ++i) {
-							var name = form[i].name;
-							var value = form[i].value;	
-							idx = $.inArray(name, addTaskrequired);						
-							if (idx >= 0 && value.length == 0){
-								window.wxc.xcConfirm("请注意必填项不能为空~", window.wxc.xcConfirm.typeEnum.error);
-								btnObj.removeAttr('disabled');
-								return false;
-							};	
-							if (  value.length != 0 && name.length != 0 ){
-								server_data[name] = value;
-							};					
-						};				
-						server_data['op'] = op
-						$.ajax({
-							dataType: "JSON",
-							url:'/configTask/', //请求地址
-							type:"POST",  //提交类似
-							data:server_data,  //提交参数
-							success:function(response){
-								btnObj.removeAttr('disabled');
-								if (response["code"] == 200){
-									window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
-								}
-								else {
-									window.wxc.xcConfirm(response["data"], window.wxc.xcConfirm.typeEnum.error);
-								}
-								
-							},
-					    	error:function(response){
-					    		btnObj.removeAttr('disabled');
-					    		window.wxc.xcConfirm(response["data"], window.wxc.xcConfirm.typeEnum.error);
-					    	}
-						});	
-					}
-				
-				function editTask(obj,id,op) {	
-					var btnObj = $(obj);
-					btnObj.attr('disabled',true);
-						var server_data = {};
-						var required = ['name','task'];
-						var form = document.getElementById('editTask-'+id);
-						for (var i = 0; i < form.length; ++i) {
-							var name = form[i].name;
-							var value = form[i].value;	
-							idx = $.inArray(name,required);						
-							if (idx >= 0 && value.length == 0){
-								window.wxc.xcConfirm("请注意必填项不能为空~", window.wxc.xcConfirm.typeEnum.error);
-								btnObj.removeAttr('disabled');
-								return false;
-							};	
-							if (  value.length != 0 && name.length != 0 ){
-								server_data[name] = value;
-							};					
-						};				
-						server_data['op'] = op;
-						server_data['id'] = id;
-						if (server_data.hasOwnProperty('crontab') && server_data.hasOwnProperty('interval')){
-							window.wxc.xcConfirm("间隔类型与计划类型不能同时作用于Task", window.wxc.xcConfirm.typeEnum.error);
-							btnObj.removeAttr('disabled');
-							return false;
-						}
-						$.ajax({
-							dataType: "JSON",
-							url:'/configTask/', //请求地址
-							type:"POST",  //提交类似
-							data:server_data,  //提交参数
-							success:function(response){
-								btnObj.removeAttr('disabled');
-								if (response["code"] == 200){
-									window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
-								}
-								else {
-									window.wxc.xcConfirm(response["data"], window.wxc.xcConfirm.typeEnum.error);
-								}
-								
-							},
-					    	error:function(response){
-					    		btnObj.removeAttr('disabled');
-					    		window.wxc.xcConfirm(response["data"], window.wxc.xcConfirm.typeEnum.error);
-					    	}
-						});	
-					}
-				
-				
-				function delTask(obj,id,name,op){
-					var btnObj = $(obj);
-					if ( op == 'delTask'){
-						var txt=  "是否确认删除？"
-					}
-					else if ( op == 'shutdown'){
-						var txt=  "是否确认关闭？"
-					};				
-					var option = {
-							title: "删除("+name+")",
-							btn: parseInt("0011",2),
-							onOk: function(){
-								$.ajax({
-									  type: 'POST',
-									  url: '/configTask/',
-									  data:{
-											"id":id,
-											"op":op,
-										},
-								      success:function(response){			            
-							                if (response["code"]=="200"){ 
-							                	window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
-		
-							                }
-								        	else{
-								        		window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
-								        	}						                
-									},
-						            error:function(response){
-						            	window.wxc.xcConfirm("操作失败", window.wxc.xcConfirm.typeEnum.error);
-						            },		
-									});
-							},
-							onCancel:function(){	
-							},
-							onClose:function(){
-							}
-						}			
-					window.wxc.xcConfirm(txt, "custom", option);
-			}
-				
-		</script>
+	</script>
 
 {% endblock %}

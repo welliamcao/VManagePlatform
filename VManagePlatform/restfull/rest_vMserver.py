@@ -56,4 +56,43 @@ def vmServer_detail(request, id,format=None):
         if not request.user.has_perm('vmanageplatform.delete_vmserver'):
             return Response(status=status.HTTP_403_FORBIDDEN)
         snippet.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT) 
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+@api_view(['GET', 'PUT' ])
+def vmServer_hostname(request, id):
+    try:
+        vmServer = VmServer.objects.get(id=id)
+    except VmServer.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'GET':
+        serializer = VmServerSerializer(vmServer)
+        return Response(serializer.data)
+    elif request.method == 'PUT':
+        data = request.body
+        vmServer.hostname = data
+        vmServer.save()
+        serializer = VmServerSerializer(vmServer)
+        # return JsonResponse({"code":500,"msg":"卷不存在。","data":None})
+        return Response(status=status.HTTP_200_OK)
+
+
+
+@api_view(['GET', 'PUT' ])
+def vmServer_desc(request, id):
+    try:
+        vmServer = VmServer.objects.get(id=id)
+    except VmServer.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'GET':
+        serializer = VmServerSerializer(vmServer)
+        return Response(serializer.data)
+    elif request.method == 'PUT':
+        data = request.body
+        vmServer.description = data
+        vmServer.save()
+        serializer = VmServerSerializer(vmServer)
+        return Response(status=status.HTTP_200_OK, data={'msg':'修改成功'})
+

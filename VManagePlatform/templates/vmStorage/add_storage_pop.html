@@ -1,0 +1,226 @@
+
+	<div class="modal fade" id="addPoolModal" tabindex="-1" role="dialog" aria-labelledby="addPoolModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+						&times;
+					</button>
+					<h4 class="modal-title" id="addPoolModalLabel">
+						{{ vmServer.hostname }}添加存储池
+					</h4>
+				</div>
+
+				<div class="modal-body">
+					<form class="form-horizontal" role="form" id="addStroage">
+						<div class="form-group">
+							<label class="col-sm-3 control-label no-padding-right" for="form-field-1">
+								 <strong>
+									虚拟管理器
+								 </strong>
+							</label>
+
+							<div class="col-sm-9">
+								<input class="input-sm" type="text"   value="{{ vmServer.server_ip }}" disabled/>
+							</div>
+							<div class="col-sm-9" style="display: none;">
+								<input class="input-sm" type="text" name="pool_server"   value="{{ vmServer.id }}"/>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label class="col-sm-3 control-label no-padding-right" for="form-input-readonly"><strong> 类型</strong> </label>
+
+							<div class="col-sm-9">
+								<select id="pool_type" name="pool_type" onchange="javascript:oBtStorageTypeSelect();">
+									<option value="dir">DIR</option>
+									<option value="disk">DISK</option>
+									<option value="logical">LOGICAL</option>
+									<option value="nfs">NFS</option>
+									<option value="iscsi">iSCSI</option>
+									<option value="zfs">ZFS</option>
+									<option value="gluster">GLUSTER</option>
+								</select>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label class="col-sm-3 control-label no-padding-right" for="form-field-3"><strong>名称</strong></label>
+
+							<div class="col-sm-9">
+								<input class="input-sm" type="text" name="pool_name" placeholder="Name" value=""/>
+								<div class="space-2"></div>
+							</div>
+						</div>
+						<div class="form-group" style="display: none;" id="div_pool_host">
+							<label class="col-sm-3 control-label no-padding-right" for="form-field-3"><strong>主机地址</strong></label>
+							<div class="col-sm-9">
+								<input class="input-sm" type="text" name="pool_host" placeholder="host address" value="" />
+								<div class="space-2"></div>
+							</div>
+						</div>
+						<div class="form-group" style="display: none;" id="div_pool_logical">
+							<label class="col-sm-3 control-label no-padding-right" for="form-field-3"><strong>设备地址</strong></label>
+							<div class="col-sm-9">
+								<input class="input-sm" type="text" name="pool_spath" placeholder="/dev/sdb1" value="" />
+								<div class="space-2"></div>
+							</div>
+						</div>
+						<div class="form-group" style="display: none;" id="div_pool_disk">
+							<label class="col-sm-3 control-label no-padding-right" for="form-field-3"><strong>磁盘路径</strong></label>
+							<div class="col-sm-9">
+								<input class="input-sm" type="text" name="pool_spath" placeholder="/dev/sdb" value="" />
+								<div class="space-2"></div>
+							</div>
+						</div>
+						<div class="form-group" style="display: none;" id="div_pool_iscsi">
+							<label class="col-sm-3 control-label no-padding-right" for="form-field-3"><strong>ISCSI路径</strong></label>
+							<div class="col-sm-9">
+								<input class="input-sm" type="text" name="pool_spath" placeholder="iqn.2013-06.com.example:iscsi-pool" value="" />
+								<div class="space-2"></div>
+							</div>
+						</div>
+						<div class="form-group" style="display:none;" id="div_pool_uri">
+							<label class="col-sm-3 control-label no-padding-right" for="form-field-3"><strong>URI</strong></label>
+							<div class="col-sm-9">
+								<input class="input-sm" type="text" name="pool_spath" placeholder="/uri_path/" value="" />
+								<div class="space-2"></div>
+							</div>
+						</div>
+						<div class="form-group" style="display:none;" id="div_pool_spath">
+							<label class="col-sm-3 control-label no-padding-right" for="form-field-3"><strong>原路径</strong></label>
+							<div class="col-sm-9">
+								<input class="input-sm" type="text" name="pool_spath" placeholder="/path/" value="" />
+								<div class="space-2"></div>
+							</div>
+						</div>
+						<div class="form-group" id="div_pool_tpath">
+							<label class="col-sm-3 control-label no-padding-right" for="form-field-3"><strong>存储路径</strong></label>
+							<div class="col-sm-9">
+								<input class="input-sm" type="text" name="pool_tpath" placeholder="/path/" value="" />
+								<div class="space-2"></div>
+							</div>
+						</div>
+						<div class="space-4"></div>
+					</form>
+				</div>
+
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">关闭
+					</button>
+					<button type="button" class="btn btn-primary" onclick="addVmStorage(this)">
+						添加
+					</button>
+				</div>
+			</div><!-- /.modal-content -->
+		</div><!-- /.modal -->
+	</div>
+
+
+    <script type="text/javascript">
+       	function oBtStorageTypeSelect() {
+           var obj = document.getElementById("pool_type");
+           var index = obj.selectedIndex;
+           var value = obj.options[index].value;
+           if (value=="dir"){
+               document.getElementById("div_pool_host").style.display="none";
+               document.getElementById("div_pool_uri").style.display="none";
+               document.getElementById("div_pool_spath").style.display="none";
+               document.getElementById("div_pool_disk").style.display="none";
+               document.getElementById("div_pool_logical").style.display="none";
+               document.getElementById("div_pool_iscsi").style.display="none";
+               document.getElementById("div_pool_tpath").style.display="";
+           }
+           else if (value=="nfs"){
+               document.getElementById("div_pool_host").style.display="";
+               document.getElementById("div_pool_uri").style.display="";
+               document.getElementById("div_pool_spath").style.display="none";
+               document.getElementById("div_pool_disk").style.display="none";
+               document.getElementById("div_pool_logical").style.display="none";
+               document.getElementById("div_pool_iscsi").style.display="none";
+               document.getElementById("div_pool_tpath").style.display="";
+           }
+           else if (value=="logical"){
+               document.getElementById("div_pool_host").style.display="none";
+               document.getElementById("div_pool_uri").style.display="none";
+               document.getElementById("div_pool_spath").style.display="none";
+               document.getElementById("div_pool_disk").style.display="none";
+               document.getElementById("div_pool_logical").style.display="";
+               document.getElementById("div_pool_iscsi").style.display="none";
+               document.getElementById("div_pool_tpath").style.display="";
+           }
+           else if (value=="disk"){
+               document.getElementById("div_pool_host").style.display="none";
+               document.getElementById("div_pool_uri").style.display="none";
+               document.getElementById("div_pool_spath").style.display="none";
+               document.getElementById("div_pool_disk").style.display="";
+               document.getElementById("div_pool_logical").style.display="none";
+               document.getElementById("div_pool_iscsi").style.display="none";
+               document.getElementById("div_pool_tpath").style.display="";
+           }
+           else if (value=="iscsi"){
+               document.getElementById("div_pool_host").style.display="";
+               document.getElementById("div_pool_uri").style.display="none";
+               document.getElementById("div_pool_spath").style.display="none";
+               document.getElementById("div_pool_disk").style.display="none";
+               document.getElementById("div_pool_logical").style.display="none";
+               document.getElementById("div_pool_iscsi").style.display="";
+           }
+           else if (value=="zfs"){
+               document.getElementById("div_pool_host").style.display="none";
+               document.getElementById("div_pool_uri").style.display="";
+               document.getElementById("div_pool_disk").style.display="none";
+               document.getElementById("div_pool_logical").style.display="";
+               document.getElementById("div_pool_iscsi").style.display="none";
+               document.getElementById("div_pool_spath").style.display="none";
+               document.getElementById("div_pool_tpath").style.display="none";
+           }
+           else if (value=="gluster"){
+               document.getElementById("div_pool_host").style.display="";
+               document.getElementById("div_pool_uri").style.display="";
+               document.getElementById("div_pool_disk").style.display="none";
+               document.getElementById("div_pool_logical").style.display="none";
+               document.getElementById("div_pool_iscsi").style.display="none";
+               document.getElementById("div_pool_spath").style.display="none";
+               document.getElementById("div_pool_tpath").style.display="none";
+           }
+       	}
+
+        function addVmStorage(obj) {
+            var server_data = {};
+            var form = document.getElementById('addStroage');
+            for (var i = 1; i < form.length; ++i) {
+                var name = form[i].name;
+                var value = form[i].value;
+                if ( value.length != 0){
+                    server_data[name] = value;
+                }
+            };
+            $.ajax({
+                dataType: "JSON",
+                url:'/addStorage/{{vmServer.id}}/', //请求地址
+                type:"POST",  //提交类似
+                data:server_data,  //提交参数
+                success:function(response){
+                    if (response["code"] == 200){
+                        //window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
+                        layer.alert(response["msg"], function() {
+							layer.closeAll();
+							$("#addPoolModal").modal("hide");
+							window.location.reload();
+							layer.load(1);
+                        });
+                    }
+                    else {
+                        //window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+						layer.alert(response["msg"], {icon: 2});
+                    }
+
+                },
+                error:function(response){
+                    window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+                }
+            })
+        }
+
+    </script>

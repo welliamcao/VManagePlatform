@@ -26,7 +26,7 @@ from VManagePlatform.views import vDhcps
 from VManagePlatform.views import vUser
 from VManagePlatform.views import vTasks
 from rest_framework.urlpatterns import format_suffix_patterns
-from VManagePlatform.restfull import rest_vMserver,rest_vmlog
+from VManagePlatform.restfull import rest_vMserver,rest_vStorage,rest_vmlog
 
 
 urlpatterns = [
@@ -51,14 +51,16 @@ urlpatterns = [
     url(r'^status/cpu/(?P<id>[0-9]+)/(?P<vm>\w.+)/$',vInstance.instanceCpuStatus),
     url(r'^status/net/(?P<id>[0-9]+)/(?P<vm>\w.+)/$',vInstance.instanceNetStatus),
     url(r'^status/disk/(?P<id>[0-9]+)/(?P<vm>\w.+)/$',vInstance.instanceDiskStatus),
+    url(r'^status/all/(?P<id>[0-9]+)/(?P<vm>\w.+)/$',vInstance.instanceAllStatus),
     url(r'^tempInstance/$',vInstance.tempInstance),
     url(r'^addStorage/(?P<id>[0-9]+)/$',vStorage.addStorage),
     url(r'^handleStorage/(?P<id>[0-9]+)/$',vStorage.handleStorage),
     url(r'^listStorage/(?P<id>[0-9]+)/$',vStorage.listStorage),
     url(r'^viewStorage/(?P<id>[0-9]+)/(?P<name>\w.+)/$',vStorage.viewStorage),  
     url(r'^handleVolume/$',vVolume.handleVolume),
-    url(r'^api/vmserver/$', rest_vMserver.vmServer_list), 
-    url(r'^api/vmserver/(?P<id>[0-9]+)/$', rest_vMserver.vmServer_detail), 
+    url(r'^api/vmserver/$', rest_vMserver.vmServer_list),
+    url(r'^api/vmserver/(?P<id>[0-9]+)/$', rest_vMserver.vmServer_detail),
+    url(r'^api/vmstorage/(?P<serverId>[0-9]+)/(?P<poolName>\w.+)/$', rest_vStorage.vmStorage_detail),
     url(r'^handleSnapshot/(?P<id>[0-9]+)/$',vSnapshot.handleSnapshot),
     url(r'^configNetwork/(?P<id>[0-9]+)/$',vNetwork.configNetwork),
     url(r'^handleNetwork/(?P<id>[0-9]+)/$',vNetwork.handleNetwork),
@@ -67,9 +69,11 @@ urlpatterns = [
     url(r'^profile/',vProfile.profile),
     url(r'^vnc/(?P<id>[0-9]+)/(?P<vnc>\d+)/(?P<uuid>.*)/',vComs.run_vnc),
     url(r'^api/vmserver/(?P<id>[0-9]+)/$', rest_vMserver.vmServer_detail),
+    url(r'^api/vmserver/hostname/(?P<id>[0-9]+)/$', rest_vMserver.vmServer_hostname),
+    url(r'^api/vmserver/desc/(?P<id>[0-9]+)/$', rest_vMserver.vmServer_desc),
     url(r'^api/logs/$', rest_vmlog.vmlog_list),
     url(r'^api/logs/(?P<id>[0-9]+)/$', rest_vmlog.vmlog_detail),
-    url('^api/log/(?P<username>.+)/$', rest_vmlog.LogsList.as_view()),
+    url(r'^api/log/(?P<username>.+)/$', rest_vmlog.LogsList.as_view()),
     url(r'^logout',vComs.logout),
 ]
 urlpatterns = format_suffix_patterns(urlpatterns)

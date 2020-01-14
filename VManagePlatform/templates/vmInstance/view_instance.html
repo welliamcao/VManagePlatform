@@ -1,13 +1,10 @@
 {% extends "vmServer/index_server.html" %}
 
 {% block content %}
-
-
 		<div class="row">
 		
 			<div class="col-xs-12">
-				
-			
+
 				<div class="col-sm-4">
 					<h3 class="header smaller lighter blue">
 					<i class="icon-spinner icon-spin orange bigger-125"></i>
@@ -69,7 +66,7 @@
 							<div class="profile-info-name"> 硬盘{{ forloop.counter }}(GB) </div>
 
 							<div class="profile-info-value">
-								<span class="editable" id="age">{{ ds.disk_size }}</span>
+								<span class="editable" id="age">{{ ds.disk_size }}GB({{ ds.disk_path }})</span>
 							</div>
 						</div>	
 						{% endfor %}	
@@ -193,7 +190,6 @@
 								<div id="home4" class="tab-pane">
 										<div class="hr hr32 hr-dotted"></div>
 										<div class="widget-toolbox padding-8 clearfix">
-					
 												<button class="btn btn-xs btn-success pull-left"  data-toggle="modal" data-target="#snapModal">
 													<i class="icon-arrow-right icon-plus"></i>
 													<span class="bigger-110">添加快照</span>
@@ -275,9 +271,7 @@
 										关闭/开启/暂停/恢复虚拟机
 										</li>													
 									</ul>
-									
-									
-									
+
 									<div class="btn-group btn-group-sm  pull-right">
 										{% if inStance.status == 1 %}
 											<button type="button" class="btn btn-success" onclick="onBtnHandleIns(this,{{ vmServer.id }},'{{ inStance.name }}','start')" disabled="disabled">
@@ -362,7 +356,7 @@
 														</div>
 														
 														<div class="form-group">
-															<label class="col-sm-3 control-label no-padding-right" for="form-field-2"> <strong>设备类型</strong></label>
+															<label class="col-sm-3 control-label no-padding-right" for="device-select"> <strong>设备类型</strong></label>
 					
 															<div class="col-sm-9">
 																<select id="device-select" name="device" onchange="javascript:oBtDeviceTypeSelect();">
@@ -373,8 +367,6 @@
 																</select>											
 															</div>
 														</div>
-																												
-
 					
 														<div class="space-4"></div>
 														
@@ -397,20 +389,22 @@
 																<div class="help-block" id="input-size-slider-4"></div>										
 															</div>
 														</div>
-					
+
+												<!--
 														<div class="form-group" style="display:none;" id="add-div_storage">
-															<label class="col-sm-3 control-label no-padding-right" for="form-field-2"> <strong>存储池</strong></label>
-					
+															<label class="col-sm-3 control-label no-padding-right" for="vStorage-select"> <strong>存储池</strong></label>
+
 															<div class="col-sm-9">
 																<select id="vStorage-select" name="storage">
 																	<option value="">选择存储池</option>
 																	{% for ds in vStorage %}
 																		<option value="{{ds.pool_name}}">{{ds.pool_name}}</option>
 																	{% endfor %}
-																
-																</select>											
+
+																</select>
 															</div>
-														</div>					
+														</div>
+														-->
 <!-- 														<div class="form-group" style="display: none;" id="div_disk">																												 -->
 <!-- 															<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>硬盘</strong></label> -->
 					
@@ -451,11 +445,10 @@
 																	<i class="icon-ok bigger-110"></i>
 																	确认
 																</button>
-					
-																&nbsp; &nbsp; &nbsp;
+
 																<button class="btn" type="reset">
 																	<i class="icon-undo bigger-110"></i>
-																	撤销
+																	取消
 																</button>
 															</div>
 														</div>						
@@ -476,7 +469,6 @@
 			
 												<div class="form-group">
 													<label class="col-sm-3 control-label no-padding-right" for="form-field-3"><strong>名称</strong></label>
-			
 													<div class="col-sm-9">
 														<input class="input-sm" type="text" name="vm_name" placeholder="虚拟机名称" value="{{ inStance.name }}" disabled/>											
 														<div class="space-2"></div>									
@@ -484,7 +476,7 @@
 												</div>
 												
 												<div class="form-group">
-													<label class="col-sm-3 control-label no-padding-right" for="form-field-2"> <strong>设备类型</strong></label>
+													<label class="col-sm-3 control-label no-padding-right" for="add-device-select"> <strong>设备类型</strong></label>
 													<div class="col-sm-9">
 														<select id="add-device-select" name="device" onchange="javascript:oBtAddDeviceTypeSelect();">	
 															<option value="">选择设备类型</option>		
@@ -493,11 +485,13 @@
 															<option value="cdrom">光驱</option>
 														</select>											
 													</div>
-												</div>			
-												<div class="form-group" style="display:none;" id="add-div_disk">								
-													<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>存储池</strong></label>
+												</div>
+
+												<div id="div-add-disk">
+												<div class="form-group" style="" id="add-div_disk">
+													<label class="col-sm-3 control-label no-padding-right" for="pool-select"><strong>存储池</strong></label>
 													<div class="col-sm-9">																				
-													<select id="disk-select" name="pool_name" onchange="javascript:oBtAddDeviceTypeSelect();">
+													<select id="pool-select" name="pool_name" onchange="javascript:oBtAddDeviceTypeSelect();">
 														<option value="">选择存储池</option>
 														{% for vd in poolInfo %}
 															<option value="{{ vd.pool_name }}">{{ vd.pool_name }}</option>	
@@ -505,20 +499,32 @@
 													</select>											
 													</div>	
 												</div>
-														
-												<div class="form-group" style="display:none;" id="add-vol_drive">
-													<label class="control-label col-xs-12 col-sm-3 no-padding-right" for="email"><strong>卷类型:</strong></label>
-						
-													<div class="col-xs-12 col-sm-9">
-														<div class="clearfix">
-															<select id="vNetwork-select" name="vol_drive">
-																<option value="">选择卷类型</option>
-																<option value="qcow2">qcow2</option>	
-																<option value="raw">raw</option>																		
-															</select>
-														</div>
-													</div>																							
-												</div>																										
+
+												<div class="form-group" id="add-vol_choosetype">
+													<label class="col-sm-3 control-label no-padding-right" for="storage-install-type">
+														<strong>磁盘选择</strong>
+													</label>
+													<div class="col-sm-9">
+														<select id="storage-install-type" name="choosetype">
+															<option value="new">创建新的磁盘</option>
+															<option value="existing">使用现有磁盘</option>
+														</select>
+													</div>
+												</div>
+
+												<div class="form-group" id="add-vol_select">
+													<label class="col-sm-3 control-label no-padding-right" for="disk-image-select">
+														<strong>磁盘镜像文件</strong>
+													</label>
+													<div class="col-sm-9">
+														<select id="disk-image-select" name="vol">
+															<option value="">选择磁盘镜像</option>
+															{% for ds in diskImages %}
+																<option value="{{ds.vol_path}}">{{ds.vol_name}}</option>
+															{% endfor %}
+														</select>
+													</div>
+												</div>
 						
 												<div class="form-group" style="display:none;" id="add-vol_name">
 													<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>卷名称:</strong></label>
@@ -534,7 +540,22 @@
 													<div class="col-sm-9">
 														<input class="input-sm" type="text" id="form-field-6" placeholder="20" name="vol_size" />																																					
 													</div>
-												</div>		
+												</div>
+
+												<div class="form-group" style="" id="add-vol_drive">
+													<label class="control-label col-xs-12 col-sm-3 no-padding-right" for="vNetwork-select"><strong>卷类型:</strong></label>
+
+													<div class="col-xs-12 col-sm-9">
+														<div class="clearfix">
+															<select id="vNetwork-select" name="vol_drive">
+																<option value="">选择卷类型</option>
+																<option value="qcow2">qcow2</option>
+																<option value="raw">raw</option>
+															</select>
+														</div>
+													</div>
+												</div>
+												</div>
 																				
 												<div class="form-group" style="display:none;" id="add-div_netk">								
 													<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>网络</strong></label>
@@ -571,7 +592,7 @@
 														&nbsp; &nbsp; &nbsp;
 														<button class="btn" type="reset">
 															<i class="icon-undo bigger-110"></i>
-															撤销
+															取消
 														</button>
 													</div>
 												</div>						
@@ -654,11 +675,9 @@
 															<i class="icon-ok bigger-110"></i>
 															确认
 														</button>
-			
-														&nbsp; &nbsp; &nbsp;
 														<button class="btn" type="reset">
 															<i class="icon-undo bigger-110"></i>
-															撤销
+															取消
 														</button>
 													</div>
 												</div>						
@@ -750,11 +769,9 @@
 													<i class="icon-ok bigger-110"></i>
 													提交
 												</button>
-	
-												&nbsp; &nbsp; &nbsp;
 												<button class="btn" type="reset">
 													<i class="icon-undo bigger-110"></i>
-													撤销
+													取消
 												</button>
 											</div>
 										</div>																														
@@ -803,12 +820,11 @@
 												&nbsp; &nbsp; &nbsp;
 												<button class="btn" type="reset">
 													<i class="icon-undo bigger-110"></i>
-													撤销
+													取消
 												</button>
 											</div>
 										</div>																														
-									</form>	
-									
+									</form>
 																									
 								</div>
 								
@@ -832,12 +848,9 @@
 										</pre>
 										
 										<div class="btn-group btn-group-sm  pull-right">
-																								
-												
-												<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#viewXMLModal">
-													<i class="icon-wrench"></i>编辑
-												</button>
-																	
+											<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#viewXMLModal">
+												<i class="icon-wrench"></i>编辑
+											</button>
 										</div>									
 									<br>	
 									<br>															
@@ -1073,6 +1086,7 @@
 		    var points = chart.series[0].points;
 		    chart.tooltip.refresh(points[points.length -1]);
 		}
+
 		$('#cpu-usage').highcharts({
 		    chart: {
 		        type: 'areaspline',
@@ -1086,14 +1100,13 @@
 		                setInterval(function () {
 		        	        $.ajax({  
 		        	            url : '/status/cpu/{{vmServer.id}}/{{inStance.name}}/',  
-		        	            type : 'post', 
+		        	            type : 'get',
 		        	            success : function(result){
 				                    var x = (new Date()).getTime(), // current time
 			                        	y = result['data']['per'];
 			                    	series.addPoint([x, y], true, true);
 			                    	activeLastPointToolip(chart)
-		        	        }});	
-
+		        	        }});
 		                }, 5000);
 		            }
 		        }
@@ -1148,6 +1161,7 @@
 		}, function(c) {
 		    activeLastPointToolip(c)
 		});
+
  		/* 网络流量图 */
 		$(function () {
 		    $(document).ready(function() {
@@ -1165,14 +1179,13 @@
 		                marginRight: 10,
 		                events: {
 		                    load: function() {
-		    
 		                        // set up the updating of the chart each second
 		                        var series = this.series[0];
 		                        var series1 = this.series[1];
 		                        setInterval(function() {
 	    		        	        $.ajax({  
 	    		        	            url : '/status/net/{{vmServer.id}}/{{inStance.name}}/',  
-	    		        	            type : 'post', 
+	    		        	            type : 'get',
 	    		        	            success : function(result){
 	    				                    var x = (new Date()).getTime(), // current time
 	    			                        	net_in = result['data']['net']['in'];
@@ -1269,8 +1282,8 @@
 		            }]
 		        });
 		    });
-		    
-		});	
+		});
+
  		/* 磁盘I/O */
  		$(function () {
 		    $(document).ready(function() {
@@ -1288,14 +1301,13 @@
 		                marginRight: 10,
 		                events: {
 		                    load: function() {
-		    
 		                        // set up the updating of the chart each second
 		                        var series = this.series[0];
 		                        var series1 = this.series[1];
 		                        setInterval(function() {
 	    		        	        $.ajax({  
 	    		        	            url : '/status/disk/{{vmServer.id}}/{{inStance.name}}/',  
-	    		        	            type : 'post', 
+	    		        	            type : 'get',
 	    		        	            success : function(result){
 	    				                    var x = (new Date()).getTime(), // current time
 	    			                        	disk_rd = result['data']['disk']['rd'];
@@ -1393,13 +1405,11 @@
 		        });
 		    });
 		    
-		});	
- 		
-		</script>  
+		});
+		</script>
 		{% endif %}
+
 		<script type="text/javascript">
-	
-		
 		function snapshotInstance(obj,serverId,vmName,op){
 		 	var required = ['snap_name']
 			var server_data = {};
@@ -1439,7 +1449,7 @@
 		    		window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
 		    	}
 			})
-	   }
+	   	}
 		
 		function viewSnapshot(obj, server_id,vm_name,snap,op){
 				$.ajax({
@@ -1550,38 +1560,31 @@
 		}
 		
 		function oBtAddDeviceTypeSelect() {
-			   var obj = document.getElementById("add-device-select"); 
-			   var index = obj.selectedIndex;
-			   var value = obj.options[index].value; 
-			   if (value=="disk"){
-				   required = ['device','disk','vol_name','vol_drive','vol_size'];
-				   document.getElementById("add-div_disk").style.display="";
-				   document.getElementById("add-vol_name").style.display="";
-				   document.getElementById("add-vol_drive").style.display="";
-				   document.getElementById("add-vol_size").style.display="";
-				   document.getElementById("add-div_netk").style.display="none";
-				   document.getElementById("add-div_cdrom").style.display="none";
+			var obj = document.getElementById("add-device-select");
+			var index = obj.selectedIndex;
+			var value = obj.options[index].value;
+			if (value=="disk"){
+				required = ['device', 'pool_name', 'disk','vol_name','vol_drive','vol_size'];
+				$("#div-add-disk").show();
+			} else {
+				$("#div-add-disk").hide();
+			}
 
-			   }			   
-			   else if (value=="netk"){
-				   required = ['netk']
-				   document.getElementById("add-div_disk").style.display="none";
-				   document.getElementById("add-div_netk").style.display="";
-				   document.getElementById("add-vol_name").style.display="none";
-				   document.getElementById("add-vol_drive").style.display="none";
-				   document.getElementById("add-vol_size").style.display="none";
-				   document.getElementById("add-div_cdrom").style.display="none";
-			   }
-			   else if (value=="cdrom"){
-				   required = ['iso_path']
-				   document.getElementById("add-div_disk").style.display="none";
-				   document.getElementById("add-div_netk").style.display="none";
-				   document.getElementById("add-vol_name").style.display="none";
-				   document.getElementById("add-vol_drive").style.display="none";
-				   document.getElementById("add-vol_size").style.display="none";
-				   document.getElementById("add-div_cdrom").style.display="";
-			   }			   
-		   }
+			if (value=="netk"){
+		   		required = ['netk']
+		   		document.getElementById("add-div_netk").style.display="";
+			} else {
+				document.getElementById("add-div_netk").style.display="none";
+			}
+
+			if (value=="cdrom"){
+				required = ['iso_path']
+				document.getElementById("add-div_cdrom").style.display="";
+			} else {
+		   		document.getElementById("add-div_cdrom").style.display="none";
+			}
+		}
+		oBtAddDeviceTypeSelect();
 		   
 		
 		function xmlInstance(obj,server_id,vm_name,op){
@@ -1594,7 +1597,7 @@
 				var value = form[i].value;	
 				idx = $.inArray(name, required);						
 				if (idx >= 0 && value.length == 0){
-					window.wxc.xcConfirm("请注意必填项不能为空~", window.wxc.xcConfirm.typeEnum.error);
+					window.wxc.xcConfirm("请注意必填项不能为空~"+name, window.wxc.xcConfirm.typeEnum.error);
 					return false;
 				};	
 				if ( value.length != 0 && name.length != 0 ){						
@@ -1622,7 +1625,7 @@
 		    		window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
 		    	}
 			})
-	   }
+	   	}
 		
 		function cloneInstance(obj,vm_sname,op){
 		 	var required = ['vm_cname','vol_name']
@@ -1661,223 +1664,249 @@
 		    		window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
 		    	}
 			})
-	   }		
+	   	}
 		
-		 function mountVmInstanceImg(obj,op){
-			 	var btnObj = $(obj);
-				btnObj.attr('disabled',true);
-			 	var required = ['iso','dev']
-				var server_data = {};
-				var form = document.getElementById('mountInstanceImg');
-				for (var i = 0; i < form.length; ++i) {
-					var name = form[i].name;
-					var id = form[i].id;
-					var value = form[i].value;	
-					idx = $.inArray(name, required);						
-					if (idx >= 0 && value.length == 0){
-						window.wxc.xcConfirm("请注意必填项不能为空~", window.wxc.xcConfirm.typeEnum.error);
-						return false;
-					};	
-					if ( value.length != 0 && name.length != 0 ){						
-						server_data[name] = value;
-					};					
+		function mountVmInstanceImg(obj,op){
+			var btnObj = $(obj);
+			btnObj.attr('disabled',true);
+			var required = ['iso','dev']
+			var server_data = {};
+			var form = document.getElementById('mountInstanceImg');
+			for (var i = 0; i < form.length; ++i) {
+				var name = form[i].name;
+				var id = form[i].id;
+				var value = form[i].value;
+				idx = $.inArray(name, required);
+				if (idx >= 0 && value.length == 0){
+					window.wxc.xcConfirm("请注意必填项不能为空~", window.wxc.xcConfirm.typeEnum.error);
+					return false;
 				};
-				server_data['op'] = op
-				$.ajax({
-					dataType: "JSON",
-					url:'/handleInstance/{{vmServer.id}}/', //请求地址
-					type:"POST",  //提交类似
-					data:server_data,  //提交参数
-					success:function(response){
-						btnObj.removeAttr('disabled');
-						if (response["code"] == 200){
-							window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
-						}
-						else {
-							window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
-						}
-						
-					},
-			    	error:function(response){
-			    		btnObj.removeAttr('disabled');
-			    		window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
-			    	}
-				})
-		   }
-		
-		   function umountVmInstanceImg(obj,op){
-			   	var btnObj = $(obj);
-				btnObj.attr('disabled',true);
-				var server_data = {};
-				var form = document.getElementById('umountInstanceImg');
-				for (var i = 0; i < form.length; ++i) {
-					var name = form[i].name;
-					var id = form[i].id;
-					var value = form[i].value;	
-					idx = $.inArray(name, required);						
-					if (idx >= 0 && value.length == 0){
-						window.wxc.xcConfirm("请注意必填项不能为空~", window.wxc.xcConfirm.typeEnum.error);
-						return false;
-					};	
-					if ( value.length != 0 && name.length != 0 ){
-						if (name == 'iso'){
-							server_data['dev'] = value.split("|")[1];
-						};
-						server_data[name] = value.split("|")[0];
-						
-					};					
+				if ( value.length != 0 && name.length != 0 ){
+					server_data[name] = value;
 				};
-				server_data['op'] = op
-				$.ajax({
-					dataType: "JSON",
-					url:'/handleInstance/{{vmServer.id}}/', //请求地址
-					type:"POST",  //提交类似
-					data:server_data,  //提交参数
-					success:function(response){
-						btnObj.removeAttr('disabled');
-						if (response["code"] == 200){
-							window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
-						}
-						else {
-							window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
-						}
-						
-					},
-			    	error:function(response){
-			    		btnObj.removeAttr('disabled');
-			    		window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
-			    	}
-				})
-		   }
-		
-		
-		   function addVmInstance(obj) {
-				var server_data = {};
-				server_data['op'] = "attach";
-				var form = document.getElementById('addInstance');
-				for (var i = 0; i < form.length; ++i) {
-					var name = form[i].name;
-					var value = form[i].value;	
-					idx = $.inArray(name, required);						
-					if (idx >= 0 && value.length == 0){
-						window.wxc.xcConfirm("请注意必填项不能为空~", window.wxc.xcConfirm.typeEnum.error);
-						return false;
-					};	
-					if ( value.length != 0 && name.length != 0 ){
-						server_data[name] = value;
-					};					
+			};
+			server_data['op'] = op
+			$.ajax({
+				dataType: "JSON",
+				url:'/handleInstance/{{vmServer.id}}/', //请求地址
+				type:"POST",  //提交类似
+				data:server_data,  //提交参数
+				success:function(response){
+					btnObj.removeAttr('disabled');
+					if (response["code"] == 200){
+						window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
+					}
+					else {
+						window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+					}
+
+				},
+				error:function(response){
+					btnObj.removeAttr('disabled');
+					window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+				}
+			})
+		}
+
+		function umountVmInstanceImg(obj,op){
+			var btnObj = $(obj);
+			btnObj.attr('disabled',true);
+			var server_data = {};
+			var form = document.getElementById('umountInstanceImg');
+			for (var i = 0; i < form.length; ++i) {
+				var name = form[i].name;
+				var id = form[i].id;
+				var value = form[i].value;
+				idx = $.inArray(name, required);
+				if (idx >= 0 && value.length == 0){
+					window.wxc.xcConfirm("请注意必填项不能为空~", window.wxc.xcConfirm.typeEnum.error);
+					return false;
 				};
-				
-				$.ajax({
-					dataType: "JSON",
-					url:'/modfInstance/{{vmServer.id}}/', //请求地址
-					type:"POST",  //提交类似
-					data:server_data,  //提交参数
-					success:function(response){
-						if (response["code"] == 200){
-							window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
-						}
-						else {
-							window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
-						}
-						
-					},
-			    	error:function(response){
-			    		window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
-			    	}
-				})	
+				if ( value.length != 0 && name.length != 0 ){
+					if (name == 'iso'){
+						server_data['dev'] = value.split("|")[1];
+					};
+					server_data[name] = value.split("|")[0];
+
+				};
+			};
+			server_data['op'] = op
+			$.ajax({
+				dataType: "JSON",
+				url:'/handleInstance/{{vmServer.id}}/', //请求地址
+				type:"POST",  //提交类似
+				data:server_data,  //提交参数
+				success:function(response){
+					btnObj.removeAttr('disabled');
+					if (response["code"] == 200){
+						window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
+					}
+					else {
+						window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+					}
+
+				},
+				error:function(response){
+					btnObj.removeAttr('disabled');
+					window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+				}
+			})
+		}
+
+
+		//添加设备
+		function addVmInstance(obj) {
+			var server_data = {};
+			server_data['op'] = "attach";
+			var form = document.getElementById('addInstance');
+			var required = ['device'];
+			if(form.device.value == 'disk') {
+				required = required.concat(['pool_name','vol_drive']);
+				if(form.choosetype.value == 'new') {
+					required = required.concat(['vol_name','vol_size']);
+				} else {
+					required = required.concat(['vol']);
+				}
 			}
-		
+
+			for (var i = 0; i < form.length; ++i) {
+				var name = form[i].name;
+				var value = form[i].value;
+				idx = $.inArray(name, required);
+				if (idx >= 0 && value.length == 0){
+					window.wxc.xcConfirm("请注意必填项不能为空~", window.wxc.xcConfirm.typeEnum.error);
+					return false;
+				};
+				if ( value.length != 0 && name.length != 0 ){
+					server_data[name] = value;
+				};
+			};
+
+			$.ajax({
+				dataType: "JSON",
+				url:'/modfInstance/{{vmServer.id}}/', //请求地址
+				type:"POST",  //提交类似
+				data:server_data,  //提交参数
+				success:function(response){
+					if (response["code"] == 200){
+						//window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
+						layer.alert(response["msg"], function() {
+							layer.closeAll();
+							layer.load(3);
+							window.location.reload();
+						});
+					}
+					else {
+						//window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+                        layer.alert(response["msg"], {icon: 2});
+					}
+
+				},
+				error:function(response){
+					//window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+                    layer.alert("系统异常", {icon: 2});
+				}
+			})
+		}
+
 		function oBtDelDeviceTypeSelect() {
-			   var obj = document.getElementById("del-device-select"); 
-			   var index = obj.selectedIndex;
-			   var value = obj.options[index].value; 
-			   if (value=="disk"){
-				   required = ['device','disk'];
-				   document.getElementById("del-div_disk").style.display="";
-				   document.getElementById("del-div_netk").style.display="none";
-				   document.getElementById("del-div_cdrom").style.display="none";
+		   var obj = document.getElementById("del-device-select");
+		   var index = obj.selectedIndex;
+		   var value = obj.options[index].value;
+		   if (value=="disk"){
+			   required = ['device','disk'];
+			   document.getElementById("del-div_disk").style.display="";
+			   document.getElementById("del-div_netk").style.display="none";
+			   document.getElementById("del-div_cdrom").style.display="none";
 
-			   }			   
-			   else if (value=="netk"){
-				   required = ['netk']
-				   document.getElementById("del-div_disk").style.display="none";
-				   document.getElementById("del-div_netk").style.display="";
-				   document.getElementById("del-div_cdrom").style.display="none";
-
-			   }	
-			   else if (value=="cdrom"){
-				   required = ['cdrom']
-				   document.getElementById("del-div_disk").style.display="none";
-				   document.getElementById("del-div_netk").style.display="none";
-				   document.getElementById("del-div_cdrom").style.display="";
-
-			   }			   
 		   }
-		   
-		   function delVmInstance(obj) {
-				var server_data = {};
-				server_data['op'] = "detach";
-				var form = document.getElementById('delInstance');
-				for (var i = 0; i < form.length; ++i) {
-					var name = form[i].name;
-					var value = form[i].value;	
-					idx = $.inArray(name, required);						
-					if (idx >= 0 && value.length == 0){
-						window.wxc.xcConfirm("请注意必填项不能为空~", window.wxc.xcConfirm.typeEnum.error);
-						return false;
-					};	
-					if ( value.length != 0 && name.length != 0 ){
-						server_data[name] = value;
-					};					
+		   else if (value=="netk"){
+			   required = ['netk']
+			   document.getElementById("del-div_disk").style.display="none";
+			   document.getElementById("del-div_netk").style.display="";
+			   document.getElementById("del-div_cdrom").style.display="none";
+
+		   }
+		   else if (value=="cdrom"){
+			   required = ['cdrom']
+			   document.getElementById("del-div_disk").style.display="none";
+			   document.getElementById("del-div_netk").style.display="none";
+			   document.getElementById("del-div_cdrom").style.display="";
+
+		   }
+		}
+		oBtDelDeviceTypeSelect();
+
+		function delVmInstance(obj) {
+			var server_data = {};
+			server_data['op'] = "detach";
+			var form = document.getElementById('delInstance');
+			for (var i = 0; i < form.length; ++i) {
+				var name = form[i].name;
+				var value = form[i].value;
+				idx = $.inArray(name, required);
+				if (idx >= 0 && value.length == 0){
+					window.wxc.xcConfirm("请注意必填项不能为空~", window.wxc.xcConfirm.typeEnum.error);
+					return false;
 				};
-				
-				$.ajax({
-					dataType: "JSON",
-					url:'/modfInstance/{{vmServer.id}}/', //请求地址
-					type:"POST",  //提交类似
-					data:server_data,  //提交参数
-					success:function(response){
-						if (response["code"] == 200){
-							window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
-						}
-						else {
-							window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
-						}
-						
-					},
-			    	error:function(response){
-			    		window.wxc.xcConfirm("操作失败，请先启动虚拟机.", window.wxc.xcConfirm.typeEnum.error);
-			    	}
-				})	
-			}
+				if ( value.length != 0 && name.length != 0 ){
+					server_data[name] = value;
+				};
+			};
+
+			$.ajax({
+				dataType: "JSON",
+				url:'/modfInstance/{{vmServer.id}}/', //请求地址
+				type:"POST",  //提交类似
+				data:server_data,  //提交参数
+				success:function(response){
+					if (response["code"] == 200){
+						//window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
+						layer.alert(response["msg"], function() {
+							layer.closeAll();
+							layer.load(3);
+							window.location.reload();
+						});
+					}
+					else {
+						//window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+                        layer.alert(response["msg"], {icon: 2});
+					}
+
+				},
+				error:function(response){
+					//window.wxc.xcConfirm("操作失败，请先启动虚拟机.", window.wxc.xcConfirm.typeEnum.error);
+                    layer.alert(response["msg"], {icon: 2});
+				}
+			})
+		}
 
 		var required = ['cpu']; /* 必填项列表 */
-		
-		   function oBtDeviceTypeSelect() {
-			   var obj = document.getElementById("device-select"); 
-			   var index = obj.selectedIndex;
-			   var value = obj.options[index].value; 
-			   if (value=="cpu"){
-				   required = ['cpu','device']
-				   document.getElementById("div_cpu").style.display="";   
-				   document.getElementById("div_mem").style.display="none";
+
+		function oBtDeviceTypeSelect() {
+		   var obj = document.getElementById("device-select");
+		   var index = obj.selectedIndex;
+		   var value = obj.options[index].value;
+		   if (value=="cpu"){
+			   required = ['cpu','device']
+			   document.getElementById("div_cpu").style.display="";
+			   document.getElementById("div_mem").style.display="none";
 // 				   document.getElementById("div_disk").style.display="none";
-				   document.getElementById("div_bandwidth").style.display="none";
-				   document.getElementById("div_bandwidth_port").style.display="none";
-				   document.getElementById("div_netk").style.display="none";
-				   document.getElementById("div_storage").style.display="none";
-			   }
-			   else if (value=="mem"){
-				   required = ['mem','device']
-				   document.getElementById("div_cpu").style.display="none";   
-				   document.getElementById("div_mem").style.display="";
+			   document.getElementById("div_bandwidth").style.display="none";
+			   document.getElementById("div_bandwidth_port").style.display="none";
+//			   document.getElementById("div_netk").style.display="none";
+//			   document.getElementById("div_storage").style.display="none";
+		   }
+		   else if (value=="mem"){
+			   required = ['mem','device']
+			   document.getElementById("div_cpu").style.display="none";
+			   document.getElementById("div_mem").style.display="";
 // 				   document.getElementById("div_disk").style.display="none";
-				   document.getElementById("div_bandwidth").style.display="none";
-				   document.getElementById("div_bandwidth_port").style.display="none";
-				   document.getElementById("div_netk").style.display="none";
-				   document.getElementById("div_storage").style.display="none";
-			   }
+			   document.getElementById("div_bandwidth").style.display="none";
+			   document.getElementById("div_bandwidth_port").style.display="none";
+//			   document.getElementById("div_netk").style.display="none";
+//			   document.getElementById("div_storage").style.display="none";
+		   }
 // 			   else if (value=="disk"){
 // 				   required = ['disk','storage','device']
 // 				   document.getElementById("div_cpu").style.display="none";   
@@ -1888,193 +1917,225 @@
 // 				   document.getElementById("div_netk").style.display="none";
 // 				   document.getElementById("div_storage").style.display="";
 // 			   }	
-			   else if (value=="bandwidth"){
-				   required = ['bandwidth','netk_name','device']
-				   document.getElementById("div_cpu").style.display="none";   
-				   document.getElementById("div_mem").style.display="none";
+		   else if (value=="bandwidth"){
+			   required = ['bandwidth','netk_name','device']
+			   document.getElementById("div_cpu").style.display="none";
+			   document.getElementById("div_mem").style.display="none";
 // 				   document.getElementById("div_disk").style.display="none";
-				   document.getElementById("div_bandwidth").style.display="";
-				   document.getElementById("div_bandwidth_port").style.display="";
-				   document.getElementById("div_netk").style.display="none";
-			   }			   
+			   document.getElementById("div_bandwidth").style.display="";
+			   document.getElementById("div_bandwidth_port").style.display="";
+//			   document.getElementById("div_netk").style.display="none";
 		   }
+		}
+		oBtDeviceTypeSelect();
 
-			jQuery(function($) {
-					var oldie = /msie\s*(8|7|6)/.test(navigator.userAgent.toLowerCase());
-					$('.easy-pie-chart.percentage').each(function(){
-						$(this).easyPieChart({
-							barColor: $(this).data('color'),
-							trackColor: '#EEEEEE',
-							scaleColor: false,
-							lineCap: 'butt',
-							lineWidth: 8,
-							animate: oldie ? false : 1000,
-							size:75
-						}).css('color', $(this).data('color'));
-					});
-					
-					$( "#input-size-slider-3" ).css('width','200px').slider({
-						value:1,
-						range: "min",
-						min: 1,
-						max: 8,
-						step: 1,
-						slide: function( event, ui ) {
-							var sizing = ['1', '2', '4', '6', '8', '12', '16', '24', '32'];
-							var val = parseInt(ui.value);
-							$('#form-field-3').attr('class', sizing[val]).val(sizing[val]);
-						}
-					});
-				
-
-				
-				
-				
-					$( "#input-size-slider-4" ).css('width','200px').slider({
-						value:1,
-						range: "min",
-						min: 1,
-						max: 8,
-						step: 1,
-						slide: function( event, ui ) {
-							var sizing = ['128', '512', '1024', '2048', '2048', '4096', '8192', '16384', '32768'];
-							var val = parseInt(ui.value);
-							$('#form-field-4').attr('class', sizing[val]).val(sizing[val]);
-						}
-					});
-				
-					$( "#input-size-slider-5" ).css('width','200px').slider({
-						value:1,
-						range: "min",
-						min: 1,
-						max: 8,
-						step: 1,
-						slide: function( event, ui ) {
-							var sizing = ['10', '20', '30', '40', '50', '60', '80', '100', '120'];
-							var val = parseInt(ui.value);
-							$('#form-field-5').attr('class', sizing[val]).val(sizing[val]);
-						}
-					});
-					
-					
-					$( "#input-size-slider-6" ).css('width','200px').slider({
-						value:1,
-						range: "min",
-						min: 1,
-						max: 8,
-						step: 1,
-						slide: function( event, ui ) {
-							var sizing = ['1','2', '5', '10', '20', '30', '50', '100', '100'];
-							var val = parseInt(ui.value);
-							$('#form-field-6').attr('class', sizing[val]).val(sizing[val]);
-						}
-					});	
-					
+		jQuery(function($) {
+				var oldie = /msie\s*(8|7|6)/.test(navigator.userAgent.toLowerCase());
+				$('.easy-pie-chart.percentage').each(function(){
+					$(this).easyPieChart({
+						barColor: $(this).data('color'),
+						trackColor: '#EEEEEE',
+						scaleColor: false,
+						lineCap: 'butt',
+						lineWidth: 8,
+						animate: oldie ? false : 1000,
+						size:75
+					}).css('color', $(this).data('color'));
 				});
-			
-			   function onBtnHandleIns(obj, server_id,vm_name,op){
-					var btnObj = $(obj);
-					if ( op == 'start'){
-						var txt=  "是否确认启动？"
-					}
-					else if ( op == 'shutdown'){
-						var txt=  "是否确认关闭？"
-					}
-					else if( op == 'resume' ){
-						var txt=  "是否确认恢复？"
-					}
-					else if( op == 'suspend' ){
-						var txt=  "是否确认暂停？"
-					}			
-					else if( op == 'halt' ){
-						var txt=  "是否确认强制关闭？"
-					}	
-					else if( op == 'reboot' ){
-						var txt=  "是否确认重启？"
-					}
-					else if( op == 'delete' ){
-						var txt=  "是否确认删除？"
-					};				
-					var option = {
-							title: "操作主机("+vm_name+")",
-							btn: parseInt("0011",2),
-							onOk: function(){
-								$.ajax({
-									  type: 'POST',
-									  url: '/handleInstance/{{vmServer.id}}/',
-									  data:{
-											"server_id":server_id,
-											"op":op,
-											"vm_name":vm_name
-										},
-								      success:function(response){			            
-							                if (response["code"]=="200"){ 
-							                	window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
-							                	location.reload();
-							                }
-								        	else{
-								        		window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
-								        	}						                
-									},
-						            error:function(response){
-						            	window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
-						            },		
-									});
-							},
-							onCancel:function(){	
-							},
-							onClose:function(){
-							}
-						}			
-					window.wxc.xcConfirm(txt, "custom", option);
-				}
-			
-			   
-			
-			   function addVmInstanceDevice(obj) {
-					var server_data = {}
-					server_data['op'] = "attach";
-					server_data['server_id'] = {{ vmServer.id }};
-					server_data['vm_name']="{{ inStance.name }}" ;
-					var form = document.getElementById('modfInstance');
-					for (var i = 0; i < form.length; ++i) {
-						var name = form[i].name;
-						var value = form[i].value;	
-						idx = $.inArray(name, required);						
-						if (idx >= 0 && value.length == 0){
-							window.wxc.xcConfirm("请注意必填项不能为空~", window.wxc.xcConfirm.typeEnum.error);
-							return false;
-						};	
-						if ( idx >= 0 && value.length != 0 && name.length != 0 ){
-							server_data[name] = value;
-						};					
-					};		
 
-					$.ajax({
-						dataType: "JSON",
-						url:'/modfInstance/{{vmServer.id}}/', //请求地址
-						type:"POST",  //提交类似
-						data:server_data,  //提交参数
-						success:function(response){
-							if (response["code"] == 200){
-								window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
-							}
-							else {
+				$( "#input-size-slider-3" ).css('width','200px').slider({
+					value:1,
+					range: "min",
+					min: 1,
+					max: 8,
+					step: 1,
+					slide: function( event, ui ) {
+						var sizing = ['1', '2', '4', '6', '8', '12', '16', '24', '32'];
+						var val = parseInt(ui.value);
+						$('#form-field-3').attr('class', sizing[val]).val(sizing[val]);
+					}
+				});
+
+
+				$( "#input-size-slider-4" ).css('width','200px').slider({
+					value:1,
+					range: "min",
+					min: 1,
+					max: 8,
+					step: 1,
+					slide: function( event, ui ) {
+						var sizing = ['128', '512', '1024', '2048', '2048', '4096', '8192', '16384', '32768'];
+						var val = parseInt(ui.value);
+						$('#form-field-4').attr('class', sizing[val]).val(sizing[val]);
+					}
+				});
+
+				$( "#input-size-slider-5" ).css('width','200px').slider({
+					value:1,
+					range: "min",
+					min: 1,
+					max: 8,
+					step: 1,
+					slide: function( event, ui ) {
+						var sizing = ['10', '20', '30', '40', '50', '60', '80', '100', '120'];
+						var val = parseInt(ui.value);
+						$('#form-field-5').attr('class', sizing[val]).val(sizing[val]);
+					}
+				});
+
+
+				$( "#input-size-slider-6" ).css('width','200px').slider({
+					value:1,
+					range: "min",
+					min: 1,
+					max: 8,
+					step: 1,
+					slide: function( event, ui ) {
+						var sizing = ['1','2', '5', '10', '20', '30', '50', '100', '100'];
+						var val = parseInt(ui.value);
+						$('#form-field-6').attr('class', sizing[val]).val(sizing[val]);
+					}
+				});
+
+		});
+
+		function onBtnHandleIns(obj, server_id,vm_name,op){
+			var btnObj = $(obj);
+			if ( op == 'start'){
+				var txt=  "是否确认启动？"
+			}
+			else if ( op == 'shutdown'){
+				var txt=  "是否确认关闭？"
+			}
+			else if( op == 'resume' ){
+				var txt=  "是否确认恢复？"
+			}
+			else if( op == 'suspend' ){
+				var txt=  "是否确认暂停？"
+			}
+			else if( op == 'halt' ){
+				var txt=  "是否确认强制关闭？"
+			}
+			else if( op == 'reboot' ){
+				var txt=  "是否确认重启？"
+			}
+			else if( op == 'delete' ){
+				var txt=  "是否确认删除？"
+			};
+			var option = {
+					title: "操作主机("+vm_name+")",
+					btn: parseInt("0011",2),
+					onOk: function(){
+						$.ajax({
+							  type: 'POST',
+							  url: '/handleInstance/{{vmServer.id}}/',
+							  data:{
+									"server_id":server_id,
+									"op":op,
+									"vm_name":vm_name
+								},
+							  success:function(response){
+									if (response["code"]=="200"){
+										window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
+										location.reload();
+									}
+									else{
+										window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+									}
+							},
+							error:function(response){
 								window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
-							}
-							
-						},
-				    	error:function(response){
-				    		window.wxc.xcConfirm("操作失败，请先启动虚拟机.", window.wxc.xcConfirm.typeEnum.error);
-				    	}
-					})	
-				}	   
-			   
-			   
-			   
-			   
-		</script>										
+							},
+							});
+					},
+					onCancel:function(){
+					},
+					onClose:function(){
+					}
+				}
+			window.wxc.xcConfirm(txt, "custom", option);
+		}
 
+		//调整配置
+		function addVmInstanceDevice(obj) {
+			var server_data = {}
+			server_data['op'] = "attach";
+			server_data['server_id'] = {{ vmServer.id }};
+			server_data['vm_name']="{{ inStance.name }}" ;
+			var form = document.getElementById('modfInstance');
+			for (var i = 0; i < form.length; ++i) {
+				var name = form[i].name;
+				var value = form[i].value;
+				idx = $.inArray(name, required);
+				if (idx >= 0 && value.length == 0){
+					window.wxc.xcConfirm("请注意必填项不能为空~", window.wxc.xcConfirm.typeEnum.error);
+					return false;
+				};
+				if ( idx >= 0 && value.length != 0 && name.length != 0 ){
+					server_data[name] = value;
+				};
+			};
 
+			$.ajax({
+				dataType: "JSON",
+				url:'/modfInstance/{{vmServer.id}}/', //请求地址
+				type:"POST",  //提交类似
+				data:server_data,  //提交参数
+				success:function(response){
+					if (response["code"] == 200){
+						//window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
+						layer.alert(response["msg"], function() {
+							layer.closeAll();
+							layer.load(3);
+							window.location.reload();
+						});
+					}
+					else {
+						//window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+                    	layer.alert(response["msg"], {icon: 2});
+					}
+
+				},
+				error:function(response){
+					//window.wxc.xcConfirm("操作失败，请先启动虚拟机.", window.wxc.xcConfirm.typeEnum.error);
+                    layer.alert("操作失败", {icon: 2});
+				}
+			})
+		}
+
+		$('#storage-install-type').on('change', function(){
+			var installType = $(this).val();
+			if(installType == "new") {
+				$("#add-vol_name").show();
+				$("#add-vol_size").show();
+				$("#add-vol_select").hide();
+			} else if(installType == "existing") {
+				$("#add-vol_name").hide();
+				$("#add-vol_size").hide();
+				$("#add-vol_select").show();
+			}
+		});
+		$('#storage-install-type').trigger('change');
+
+		$('#pool-select').on('change', function(){
+			var poolName = $('#pool-select').val();
+			$.ajax({
+				dataType: "JSON",
+				url:'/api/vmstorage/{{ vmServer.id }}/' + poolName,
+				type:"GET",
+				success:function(response){
+					var poolVols = response.pool_vols;
+					$('#disk-image-select option[value!=""]').remove();
+					poolVols.forEach(function(poolVol) {
+						if(poolVol.vol_type == 'qcow2' || poolVol.vol_type == 'raw') {
+							$('#disk-image-select').append("<option value='" + poolVol.vol_name + "'>" + poolVol.vol_name + "</option>")
+						}
+					});
+				}
+			})
+		});
+		$('#pool-select').trigger('change');
+
+		</script>
 
 {% endblock %}

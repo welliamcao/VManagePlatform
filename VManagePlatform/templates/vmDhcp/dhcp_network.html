@@ -243,9 +243,9 @@
 																		{% endif %}																	
 																	</td>	
 																	<td class="center">
-																		{% if ds.status == 1 %}
+																		{% if ds.status == 0 %}
 																		<span class="label label-danger arrowed">Off</span>															
-																		{% elif ds.status == 0 %}
+																		{% elif ds.status == 1 %}
 																		<span class="label label-success arrowed-in">On</span>																				
 																		{% endif %}	
 																	</td>														
@@ -268,7 +268,7 @@
 																				<li>
 																					<a href="javascript:" onclick="onBtnHandleGlobalNetwork(this,{{ ds.id }},'{{ds.mode}}','stop')">
 																					
-																					关闭
+																					停止
 																					</a>
 																				</li>											
 																				<li class="divider"></li>

@@ -12,7 +12,7 @@ from django.contrib.auth.decorators import permission_required
 def listVmServer(request):
     hostList = VmServer.objects.all().order_by("-id")
     return render_to_response('vmServer/list_server.html',
-                                  {"user":request.user,"localtion":[{"name":"首页","url":'/'},{"name":"虚拟机管理器","url":'#'},{"name":"主机列表","url":"/listServer"}],
+                                  {"user":request.user,"localtion":[{"name":"首页","url":'/'},{"name":"虚拟机管理器","url":'#'},{"name":"宿主机列表","url":"/listServer"}],
                                    "dataList":hostList,"model":"server"},
                                   context_instance=RequestContext(request))  
     
@@ -24,16 +24,21 @@ def viewVmServer(request,id):
         vServer = VmServer.objects.get(id=id)
     except:
         return render_to_response('404.html',context_instance=RequestContext(request))
+
     VMS = LibvirtManage(vServer.server_ip,vServer.username, vServer.passwd, vServer.vm_type)
     SERVER = VMS.genre(model='server') 
-    if SERVER:vmServer =  SERVER.getVmServerInfo()
-    else:return render_to_response('404.html',context_instance=RequestContext(request))
+    if SERVER:
+        vmServer =  SERVER.getVmServerInfo()
+    else:
+        return render_to_response('404.html',context_instance=RequestContext(request))
+
     if vmServer:
         vmServer['id'] = vServer.id      
         vmServer['server_ip'] = vServer.server_ip
         vmServer['name'] = vServer.hostname
     vmStorage = SERVER.getVmStorageInfo()
     vmInstance = SERVER.getVmInstanceInfo(server_ip=vServer.server_ip)
+
     vmIns = vmInstance.get('active').get('number') + vmInstance.get('inactice').get('number')
     vmInsList = []
     for vm in vmIns:
@@ -41,9 +46,10 @@ def viewVmServer(request,id):
         vm['disk'] = vm.get('disks')
         vm.pop('disks')
         vmInsList.append(vm)
+
     VMS.close()
     return render_to_response('vmServer/index_server.html',
-                                  {"user":request.user,"localtion":[{"name":"首页","url":'/'},{"name":"虚拟机管理器","url":'#'},{"name":"主机列表","url":"/listServer"},
+                                  {"user":request.user,"localtion":[{"name":"首页","url":'/'},{"name":"虚拟机管理器","url":'#'},{"name":"宿主机列表","url":"/listServer"},
                                                                     {"name":vmServer.get('name'),"url":"/viewServer/%d/" % vServer.id}],
                                    "vmServer":vmServer,"model":"instance","vmStorage":vmStorage,"vmInstance":vmInsList},
                                   context_instance=RequestContext(request))             
@@ -53,7 +59,7 @@ def viewVmServer(request,id):
 def addVmServer(request):
     if request.method == "GET":
         return render_to_response('vmServer/add_server.html',
-                                  {"user":request.user,"localtion":[{"name":"首页","url":'/'},{"name":"虚拟机管理器","url":'#'},{"name":"添加主机","url":"/addServer"}]},
+                                  {"user":request.user,"localtion":[{"name":"首页","url":'/'},{"name":"虚拟机管理器","url":'#'},{"name":"宿主机列表","url":'/listServer'},{"name":"添加主机","url":"/addServer"}]},
                                   context_instance=RequestContext(request))
     
     elif  request.method == "POST":
@@ -65,11 +71,11 @@ def addVmServer(request):
                                     passwd=request.POST.get('passwd',None),
                                     status=0,)
             return render_to_response('vmServer/add_server.html',
-                                  {"user":request.user,"localtion":[{"name":"首页","url":'/'},{"name":"虚拟机管理器","url":'#'},{"name":"添加主机","url":"/addServer"}]},
+                                  {"user":request.user,"localtion":[{"name":"首页","url":'/'},{"name":"虚拟机管理器","url":'#'},{"name":"宿主机列表","url":'/listServer'},{"name":"添加主机","url":"/addServer"}]},
                                   context_instance=RequestContext(request))
         except Exception,e:
             return render_to_response('vmServer/add_server.html',
-                                  {"user":request.user,"localtion":[{"name":"首页","url":'/'},{"name":"虚拟机管理器","url":'#'},{"name":"添加主机","url":"/addServer"}],
+                                  {"user":request.user,"localtion":[{"name":"首页","url":'/'},{"name":"虚拟机管理器","url":'#'},{"name":"宿主机列表","url":'/listServer'},{"name":"添加主机","url":"/addServer"}],
                                    "errorInfo":e},
                                   context_instance=RequestContext(request))
             

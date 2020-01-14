@@ -144,8 +144,8 @@ def CreateNetcard(nkt_br,ntk_name,data,nkt_vlan=0):
                 <model type='virtio'/>
               </interface>
             '''      
-        ntk_xml = ntk_xml.format(nkt_br=nkt_br,nkt_vlan=nkt_vlan,ntk_name=ntk_name)          
-    elif data.get('mode') == 'brctl' and data.get('type') == 'nat':
+        ntk_xml = ntk_xml.format(nkt_br=nkt_br,nkt_vlan=nkt_vlan,ntk_name=ntk_name)
+    elif data.get('mode') == 'brctl' and (data.get('type') == 'nat' or data.get('type') == 'route'):
         ntk_xml = '''
             <interface type='network'>
                <source network='{nkt_br}'/>
@@ -192,6 +192,9 @@ def CreateIntanceConfig(dom_name,maxMem,mem,cpu,disk,iso_path,network):
     if isinstance(mem, int) and isinstance(maxMem, int):
         mem = mem*1024  
         maxMem = maxMem*1024
+    if iso_path == None:
+        iso_path = ""
+
     dom_xml = '''
         <domain type='kvm'>  
                 <name>{dom_name}</name>

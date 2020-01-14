@@ -437,8 +437,8 @@ class VMServer(VMBase):
     def createInstance(self,dom_xml):
         '''创建虚拟机'''
         try:
-            dom = self.conn.defineXML(dom_xml)
-            return dom.create()
+            dom = self.conn.defineXML(dom_xml)  #创建虚拟机
+            return dom.create()    #启动虚拟机
         except libvirt.libvirtError,e:
             return '实例创建失败，失败原因：{result}'.format(result=e.get_error_message())  
      
@@ -474,6 +474,7 @@ class VMServer(VMBase):
             return storage
         
     def getVmIsoList(self):
+        '''列举出ISO文件'''
         isoList = []
         try:               
             vMdisk = self.conn.listStoragePools()
@@ -494,11 +495,12 @@ class VMServer(VMBase):
                     volData['vol_size'] = info[1] / 1024/ 1024/ 1024
                     volData['vol_available'] = info[2] / 1024/ 1024/ 1024
                     volData['vol_path'] = stgvol.path()
-                    if volData['vol_type'].endswith('.iso') or volData['vol_path'].endswith('.iso'):isoList.append(volData)
+
+                    if volData['vol_type'].endswith('.iso') or volData['vol_path'].endswith('.iso'):
+                        isoList.append(volData)
             return isoList
         except libvirt.libvirtError:                    
             return isoList
-        
 
     def getVmServerInfo(self):  
         '''获取主机信息'''
@@ -916,7 +918,7 @@ class VMStorage(VMBase):
         vol_xml = self.getStorageVolumeXMLDesc(name)
         return vMUtil.get_xml_path(vol_xml, "/volume/target/format/@type")
     
-    def clone(self, pool,pool_name,name, clone, format=None):
+    def clone(self, pool, pool_name, name, clone, format=None):
         '''克隆卷'''
         storage_type = self.getStorageMode(pool_name)
         if storage_type == 'dir':
@@ -975,11 +977,12 @@ class VMInstance(VMBase):
         except libvirt.libvirtError,e:
             return '失败原因：{result}'.format(result=e.get_error_message())             
             
-    def getInsXMLDesc(self,instance,flag):
+    def getInsXMLDesc(self, instance, flag):
         try:
             return instance.XMLDesc(flag)
-        except libvirt.libvirtError,e:
-            return '失败原因：{result}'.format(result=e.get_error_message())          
+        except libvirt.libvirtError, e:
+            return False
+            # return '失败原因：{result}'.format(result=e.get_error_message())
     
     def managedSave(self, instance):
         try:
@@ -1101,12 +1104,14 @@ class VMInstance(VMBase):
                     vmPoolList.append(data)                 
             except libvirt.libvirtError:
                 pass
+
         if instance:
             domData = {}
             status = instance.state()
             domData['status'] = status[0]   
             raw_xml = instance.XMLDesc(0)
             xml = minidom.parseString(raw_xml)
+
             diskList = []
             #获取实例的磁盘信息
             for disk in xml.getElementsByTagName('disk'):
@@ -1133,12 +1138,14 @@ class VMInstance(VMBase):
                             data['disk_capacity'] = 0  
                             data['disk_per'] = 0                   
                         diskList.append(data)
+
             #获取虚拟机实例的网卡名称
             nkList = []
             for nk in xml.getElementsByTagName('interface'):
                 if nk.getElementsByTagName('target'):
                     nk_name = nk.getElementsByTagName('target')[0].getAttribute("dev")                           
-                    nkList.append(nk_name)      
+                    nkList.append(nk_name)
+
             #获取网卡ip地址
             ipaddress = []
             if nkList:
@@ -1151,33 +1158,36 @@ class VMInstance(VMBase):
                                 ips[k] = v.get('addrs')[0] 
                                 ipaddress.append(ips) 
                             except Exception ,ex:
-                                pass 
+                                pass
+
             #获取虚拟机实例内存的容量信息
             try:
                 mem = instance.info()[2] / 1024
             except:
                 mem = 0   
-            #mem利用率与ip地址
+            #mem利用率
             try:
                 if status[0] == 5:domData['mem_per'] = 0
                 else:
                     mem_per =  round(float(instance.memoryStats().get('rss')) / instance.memoryStats().get('actual')*100,2)
                     if mem_per > 100:domData['mem_per'] = 100
                     else:domData['mem_per'] = mem_per
-                    
             except Exception,e:     
                 domData['mem_per'] = 0
+
             #获取虚拟机实例CPU信息
             try:
                 cpu = xml.getElementsByTagName('vcpu')[0].getAttribute('current') 
                 if len(cpu) == 0: cpu = xml.getElementsByTagName('vcpu')[0].childNodes[0].data   
             except:
-                cpu = 0    
+                cpu = 0
+
             #获取vnc端口信息
             try:
                 vnc_port = xml.getElementsByTagName('graphics')[0].getAttribute("port") 
             except:
-                vnc_port = 0                                                   
+                vnc_port = 0
+
             domData['disks'] = diskList
             domData['netk'] = nkList
             domData['mem'] = mem 
@@ -1187,6 +1197,7 @@ class VMInstance(VMBase):
             #生成noVNC需要的token
             domData['token'] = TokenUntils.makeToken(str=server_ip+vMname)
             domData['ip'] = ipaddress
+
             return domData
 
     def getMediaDevice(self,instance):
@@ -1259,24 +1270,32 @@ class VMInstance(VMBase):
         return vMUtil.get_xml_path(self.getInsXMLDesc(instance,0), func=disks)
     
     
-    def clone(self, instance,clone_data):
+    def clone(self, instance, clone_data):
         '''克隆实例'''
         clone_dev_path = []
+
         xml = self.getInsXMLDesc(instance, flag=1)
+        if not xml:
+            return False
         tree = ElementTree.fromstring(xml)
+
         name = tree.find('name')
         name.text = clone_data['name']
+
         uuid = tree.find('uuid')
         tree.remove(uuid)
+
         for num, net in enumerate(tree.findall('devices/interface')):
             elm = net.find('mac')
             inter = net.find('target')
             brName = net.find('source').get('bridge')
-            inter.set('dev',brName + '-' + CommTools.radString(4))
-            elm.set('address', vMUtil.randomMAC())
+            if not brName:
+                continue;
+            inter.set('dev',brName + '-' + CommTools.radString(4))    #随机生成接口名
+            elm.set('address', vMUtil.randomMAC())    #随机生成MAC地址
         
         for disk in tree.findall('devices/disk'):
-            if disk.get('device') == 'disk':
+            if disk.get('device') == 'disk':   #cdrom时跳过
                 elm = disk.find('target')
                 device_name = elm.get('dev')
                 if device_name:
@@ -1286,17 +1305,20 @@ class VMInstance(VMBase):
                     except:
                         meta_prealloc = False
                     elm.set('dev', device_name)
+
                 elm = disk.find('source')
                 source_file = elm.get('file')
                 if source_file:
                     clone_dev_path.append(source_file)
-                    clone_path = os.path.join(os.path.dirname(source_file),
-                                              target_file)
+
+                    clone_path = os.path.join(os.path.dirname(source_file), target_file)
                     elm.set('file', clone_path)
+
                     vol = self.getVolumeByPath(source_file)
-                    vol_format = vMUtil.get_xml_path(vol.XMLDesc(0),"/volume/target/format/@type")
+                    vol_format = vMUtil.get_xml_path(vol.XMLDesc(0), "/volume/target/format/@type") #卷格式
                     if vol_format == 'qcow2' and meta_prealloc:
                         meta_prealloc = True
+
                     vol_clone_xml = """
                                     <volume>
                                         <name>%s</name>
@@ -1306,9 +1328,12 @@ class VMInstance(VMBase):
                                             <format type='%s'/>
                                         </target>
                                     </volume>""" % (target_file, vol_format)
-                    stg = vol.storagePoolLookupByVolume()
-                    stg.createXMLFrom(vol_clone_xml, vol, meta_prealloc)
-        if self.defineXML(ElementTree.tostring(tree)):return 0
+                    stg = vol.storagePoolLookupByVolume()    #virStoragePool
+                    stg.createXMLFrom(vol_clone_xml, vol, meta_prealloc)   #从vol卷复制卷，阻塞
+
+        # 创建VM
+        domain = self.defineXML(ElementTree.tostring(tree))
+        return domain
     
     def getCpuUsage(self,instance):       
         if instance.state()[0] == 1:
@@ -1395,7 +1420,7 @@ class VMInstance(VMBase):
             if device == 'disk' and vdisk in diskList:diskSn = diskList[diskList.index(vdisk) + 1]
         diskXml = Const.CreateDisk(volume_path=volPath, diskSn=diskSn)
         try:
-            return instance.attachDeviceFlags(diskXml,3)#如果是关闭状态则标记flags为3，保证添加的硬盘重启不会丢失 
+            return instance.attachDeviceFlags(diskXml,3)    #如果是关闭状态则标记flags为3，保证添加的硬盘重启不会丢失
         except libvirt.libvirtError,e:
             return '实例添加硬盘失败，失败原因：{result}'.format(result=e.get_error_message()) 
 
@@ -1771,7 +1796,10 @@ class VMNetwork(VMBase):
                 mode = tree.find('virtualport').get('type') 
             except:
                 mode = 'brctl'
-            model = tree.find('forward').get('mode')
+            try:
+                model = tree.find('forward').get('mode')
+            except:
+                model = 'isolated'
             return {'mode':mode,'type': model}
         else:return False
         
@@ -1862,7 +1890,7 @@ class VMNetwork(VMBase):
             return netk.undefine()
         except libvirt.libvirtError:
             return False  
-        
+
         
     def listNetwork(self):
         '''列出所有网络'''

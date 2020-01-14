@@ -37,6 +37,12 @@ def addStorage(request,id):
                 return JsonResponse({"code":500,"msg":"找到主机资源","data":e})
         else:
             return JsonResponse({"code":500,"msg":"不支持的存储类型或者您没有权限操作此项","data":None})
+    if request.method == "GET":
+        return render_to_response('vmStorage/add_storage.html',
+                                  {"user":request.user,"localtion":[{"name":"首页","url":'/'},{"name":"虚拟机实例","url":'#'},
+                                                                    {"name":"存储池管理","url":"/listStorage/%d/" % vServer.id},
+                                                                    ],
+                                    "vmServer":vServer}, context_instance=RequestContext(request))
         
 @login_required
 def listStorage(request,id):        
@@ -102,6 +108,6 @@ def handleStorage(request,id):
                 VMS.close()
                 if isinstance(result,int):return  JsonResponse({"code":200,"msg":"操作成功。","data":None})
                 else:return  JsonResponse({"code":500,"msg":result})                    
-            else:return JsonResponse({"code":500,"msg":"存储池不存在。","data":e}) 
+            else:return JsonResponse({"code":500,"msg":"存储池不存在。","data":None})
         else:return  JsonResponse({"code":500,"data":None,"msg":"不支持操作或者您没有权限操作此项"})                        
-    else:return  JsonResponse({"code":500,"data":None,"msg":"不支持的HTTP操作"})                
+    else:return  JsonResponse({"code":500,"data":None,"msg":"不支持的HTTP操作"})

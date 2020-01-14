@@ -28,6 +28,7 @@ if django.VERSION >= (1, 7):#自动判断版本
                     
 @task()
 def updateVMserver():
+    '''刷新宿主机信息和状态'''
     serverList = VmServer.objects.all()   
     for server in  serverList: 
         VMS = LibvirtManage(server.server_ip,server.username, server.passwd, server.vm_type,pool=False)
@@ -36,23 +37,25 @@ def updateVMserver():
             if server.status == 0:
                 data = SERVER.getVmServerInfo()
                 try:
+                    #更新实例数，内存，CPU数
                     VmServer.objects.filter(id=server.id).update(instance=data.get('ins'),mem=data.get('mem'),
                                                           cpu_total=data.get('cpu_total'))
-                    VMS.close()
                 except Exception,e:
                     return e
             elif server.status == 1:
                 try:
+                    #更新实例状态
                     VmServer.objects.filter(id=server.id).update(status=0)
                 except Exception,e:
-                    return e                     
-            
- 
+                    return e
+        VMS.close()
 
 
 @task
 def updateVMinstance(host=None):
+    '''刷新虚拟机信息和状态'''
     if host is None:
+        #所有虚拟机
         serverList = VmServer.objects.all()    
         for server in  serverList:
             if server.status == 0: 
@@ -67,16 +70,19 @@ def updateVMinstance(host=None):
                                 ips = k + ':' + v.get('addr') + '/' + str(v.get('prefix')) 
                                 ipaddress = ips + '\n' + ipaddress  
                         result = VmServerInstance.objects.filter(server=server,name=ds.get('name'))
-                        if result:VmServerInstance.objects.filter(server=server,name=ds.get('name')).update(server=server,cpu=ds.get('cpu'),
+                        if result:
+                            #更新记录
+                            VmServerInstance.objects.filter(server=server,name=ds.get('name')).update(server=server,cpu=ds.get('cpu'),
                                                                                                             mem=ds.get('mem'),status=ds.get('status'),
                                                                                                             name=ds.get('name'),token=ds.get('token'),
                                                                                                             vnc=ds.get('vnc'),ips=ipaddress)
-                                                                                                            
-                        else:VmServerInstance.objects.create(server=server,cpu=ds.get('cpu'),
+                        else:
+                            #创建记录
+                            VmServerInstance.objects.create(server=server,cpu=ds.get('cpu'),
                                                              mem=ds.get('mem'),vnc=ds.get('vnc'),
                                                              status=ds.get('status'),name=ds.get('name'),
                                                              token=ds.get('token'),ips=ipaddress)
-                    VMS.close()
+                VMS.close()
                     
     else:
         server =  VmServer.objects.get(server_ip=host)
@@ -92,15 +98,19 @@ def updateVMinstance(host=None):
                             ips = k + ':' + v.get('addr') + '/' + str(v.get('prefix')) 
                             ipaddress = ips + '\n' + ipaddress                           
                     result = VmServerInstance.objects.filter(server=server,name=ds.get('name'))
-                    if result:VmServerInstance.objects.filter(server=server,name=ds.get('name')).update(server=server,cpu=ds.get('cpu'),
+                    if result:
+                        #更新记录
+                        VmServerInstance.objects.filter(server=server,name=ds.get('name')).update(server=server,cpu=ds.get('cpu'),
                                                                                                         mem=ds.get('mem'),vnc=ds.get('vnc'),
                                                                                                         status=ds.get('status'),name=ds.get('name'),
                                                                                                         token=ds.get('token'),ips=ipaddress)
-                    else:VmServerInstance.objects.create(server=server,cpu=ds.get('cpu'),
+                    else:
+                        #创建记录
+                        VmServerInstance.objects.create(server=server,cpu=ds.get('cpu'),
                                                          mem=ds.get('mem'),status=ds.get('status'),
                                                          name=ds.get('name'),token=ds.get('token'),
                                                          vnc=ds.get('vnc'),ips=ipaddress)
-                VMS.close()   
+            VMS.close()
 
 
 @task()
@@ -204,27 +214,62 @@ def migrateInstace(data,user=None):
 def cloneInstace(data,user=None):
     server_id = data.get('server_id')
     insName = data.get('vm_name')
+
     try:
         vMserver =  VmServer.objects.get(id=server_id)
+        vmServerInstance = VmServerInstance.objects.filter(server=server_id, name=insName)
+
+        if vmServerInstance:
+            vmServerInstance = vmServerInstance[0]
+        else:
+            vmServerInstance = None
     except:
-        return False 
+        return False
+
     try:
         VMS = LibvirtManage(vMserver.server_ip,vMserver.username, vMserver.passwd, vMserver.vm_type,pool=False)
     except Exception,e:
         return  False
+
     try:
         INSTANCE = VMS.genre(model='instance')
         instance = INSTANCE.queryInstance(name=str(insName))
     except Exception,e:
-        return False   
+        return False
+
+    if not instance:
+        return False
+
     clone_data = {}
     clone_data['name'] = data.get('vm_cname')
     clone_data['disk'] = data.get('vol_name')
-    result = INSTANCE.clone(instance, clone_data=clone_data)
-    if result == 0:result = 0
-    else:result = 1
+    domain = INSTANCE.clone(instance, clone_data=clone_data)
+    if domain:
+        domain.create()    #启动虚拟机
+        state, maxmem, curmem, cpus, cput = domain.info()
+        # print('The state is ' + str(state))
+        # print('The max memory is ' + str(maxmem))
+        # print('The memory is ' + str(curmem))
+        # print('The number of cpus is ' + str(cpus))
+        # print('The cpu time is ' + str(cput))
+        mem = curmem / 1024
+        cpu = cpus
+        token=domain.UUIDString()
+
+        result = 0
+    else:
+        result = 1
     VMS.close()
+
     try:
+        VmServerInstance.objects.create(server=vMserver, name=data.get('vm_cname'),
+                                        mem=mem, status=state,
+                                        cpu=cpu, token=token)
+    except Exception, e:
+        return False
+
+    try:
+        #记录日志
         result = VmLogs.objects.create(server_id=data.get('server_id'),vm_name=insName,
                                        content="克隆虚拟机：{name}".format(name=insName),
                                        user=user,status=result,isRead=0) 
