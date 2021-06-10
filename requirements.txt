@@ -1,4 +1,4 @@
-django==1.8.17
+django==2.2.24
 celery==3.1.23
 django-celery==3.1.17
 redis==2.10.6
